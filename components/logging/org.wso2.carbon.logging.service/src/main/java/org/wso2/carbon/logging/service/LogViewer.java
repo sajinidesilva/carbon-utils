@@ -15,33 +15,28 @@
  */
 package org.wso2.carbon.logging.service;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-
-import javax.activation.DataHandler;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Appender;
 import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.Logger;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.logging.appender.CarbonMemoryAppender;
 import org.wso2.carbon.logging.appender.LogEventAppender;
+import org.wso2.carbon.logging.config.LoggingConfigManager;
 import org.wso2.carbon.logging.config.ServiceConfigManager;
 import org.wso2.carbon.logging.service.data.LogEvent;
 import org.wso2.carbon.logging.service.data.LogInfo;
+import org.wso2.carbon.logging.service.data.LoggingConfig;
 import org.wso2.carbon.logging.service.data.PaginatedLogEvent;
 import org.wso2.carbon.logging.service.data.PaginatedLogInfo;
-import org.wso2.carbon.logging.util.LoggingConstants;
+import org.wso2.carbon.logging.util.ILogProvider;
 import org.wso2.carbon.logging.util.LoggingUtil;
 import org.wso2.carbon.utils.DataPaginator;
+
+import javax.activation.DataHandler;
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This is the Log Viewer service used for obtaining Log messages from locally
@@ -50,10 +45,25 @@ import org.wso2.carbon.utils.DataPaginator;
 public class LogViewer {
 
 	private static final Log log = LogFactory.getLog(LogViewer.class);
+    private static LoggingConfig loggingConfig = LoggingConfigManager.loadLoggingConfiguration();
+    private static ILogProvider logProvider;
+
+    static {
+        String implClassName = loggingConfig.getImplClassName();
+        try {
+            Class implClass = Class.forName(implClassName);
+            Constructor constructor = implClass.getConstructor();
+            logProvider = (ILogProvider)constructor.newInstance();
+            logProvider.initLogProvider(loggingConfig);
+        } catch (Exception e) {
+            log.error("Error while loading log provider implementation class");
+        }
+
+    }
 
 	public PaginatedLogInfo getPaginatedLogInfo(int pageNumber, String tenantDomain,
 			String serviceName) throws Exception {
-		LogInfo[] logs = LoggingUtil.getLogsIndex(tenantDomain, serviceName);
+		LogInfo[] logs = logProvider.getLogInfo(tenantDomain, serviceName);
 		if (logs != null) {
 			List<LogInfo> logInfoList = Arrays.asList(logs);
 			// Pagination
@@ -65,32 +75,27 @@ public class LogViewer {
 		}
 	}
 
+    // TODO - remove this method ?
 	public PaginatedLogInfo getLocalLogFiles(int pageNumber, String domain, String serverKey) throws LogViewerException {
-		LogInfo[] logs = null;
-		if (LoggingUtil.isLogEventAppenderConfigured()) {
-			logs = LoggingUtil.getRemoteLogFiles(domain, serverKey);
-		} else if (isFileAppenderConfiguredForST()) {
-			logs = null;
-
-		}
-		if (logs != null) {
-			List<LogInfo> logInfoList = Arrays.asList(logs);
-			PaginatedLogInfo paginatedLogInfo = new PaginatedLogInfo();
-			DataPaginator.doPaging(pageNumber, logInfoList, paginatedLogInfo);
-			return paginatedLogInfo;
-		} else {
-			return null;
-		}
-	}
+        LogInfo[] logs = logProvider.getLogInfo(domain, serverKey);
+        if (logs != null) {
+            List<LogInfo> logInfoList = Arrays.asList(logs);
+            PaginatedLogInfo paginatedLogInfo = new PaginatedLogInfo();
+            DataPaginator.doPaging(pageNumber, logInfoList, paginatedLogInfo);
+            return paginatedLogInfo;
+        } else {
+            return null;
+        }
+    }
 
 	public DataHandler downloadArchivedLogFiles(String logFile, String domain, String serverKey) throws Exception {
-		return LoggingUtil.downloadArchivedLogFiles(logFile, domain, serverKey);
+		return logProvider.downloadLogFile(logFile, domain, serverKey);
 	}
 
 	 public boolean isValidTenantDomain(String tenantDomain) {
 	 return LoggingUtil.isValidTenantDomain(tenantDomain);
 	 }
-	
+
 	public String[] getServiceNames() throws LogViewerException {
 		return ServiceConfigManager.getServiceNames();
 	}
@@ -99,24 +104,9 @@ public class LogViewer {
 	 public boolean isManager() {
 	    return LoggingUtil.isManager();
 	 }
-    
+
     public boolean isValidTenant(String domain) {
-        int tenantId;
-        if (domain == null || domain.equals("")) {
-            tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        } else {
-            try {
-                tenantId = LoggingUtil.getTenantIdForDomain(domain);
-            } catch (LogViewerException e) {
-                log.error("error while getting tennat id from tenant domain", e);
-                return false;
-            }
-        }
-        
-        if(tenantId == MultitenantConstants.INVALID_TENANT_ID) {
-            return false;
-        }
-        return true;
+        return LoggingUtil.isValidTenant(domain);
     }
 
 	public int getLineNumbers(String logFile) throws Exception {
@@ -129,12 +119,8 @@ public class LogViewer {
 	}
 
 	public String[] getApplicationNames(String domain, String serverKey) throws LogViewerException {
-		if (LoggingUtil.isLogEventAppenderConfigured()) {
-			return LoggingUtil.getApplicationNamesFromCassandra(domain, serverKey);
-		} else {
-			return LoggingUtil.getApplicationNames(domain, serverKey);
-		}
-	}
+        return logProvider.getApplicationNames(domain, serverKey);
+    }
 
 	public boolean isLogEventReciverConfigured() {
 		Logger rootLogger = Logger.getRootLogger();
@@ -151,26 +137,21 @@ public class LogViewer {
 		DailyRollingFileAppender logger = (DailyRollingFileAppender) rootLogger
 				.getAppender("CARBON_LOGFILE");
 		if (logger != null
-				&& CarbonContext.getThreadLocalCarbonContext().getTenantId() == MultitenantConstants.SUPER_TENANT_ID) {
+				&& CarbonContext.getCurrentContext().getTenantId() == MultitenantConstants.SUPER_TENANT_ID) {
 			return true;
 		} else {
 			return false;
 		}
 	}
-	
-	public LogEvent[] getAllSystemLogs() {
-		return LoggingUtil.getAllSystemLogs();
+
+	public LogEvent[] getAllSystemLogs() throws LogViewerException {
+        return logProvider.getSystemLogs();
 	}
 
     public PaginatedLogEvent getPaginatedLogEvents(int pageNumber, String type, String keyword, String domain, String serverKey)
             throws LogViewerException {
 
-        LogEvent list[];
-        if (!LoggingUtil.isLogEventAppenderConfigured()) {
-            list = getLogs(type, keyword, domain, serverKey);
-        } else {
-            list = LoggingUtil.getSortedLogsFromCassandra(type, keyword, domain, serverKey);
-        }
+        LogEvent[] list = logProvider.searchLogEvents(type, keyword, null, domain, serverKey);
         if (list != null) {
             List<LogEvent> logMsgList = Arrays.asList(list);
             PaginatedLogEvent paginatedLogEvent = new PaginatedLogEvent();
@@ -183,80 +164,33 @@ public class LogViewer {
     }
 
 	public int getNoOfLogEvents(String domain, String serverKey) throws LogViewerException {
-		if (LoggingUtil.isLogEventAppenderConfigured()) {
-			return LoggingUtil.getNoOfRows(domain, serverKey);
-		} else {
-			return -1;
-		}
-	}
+        return logProvider.logsCount(domain, serverKey);
+    }
 
 	public PaginatedLogEvent getPaginatedApplicationLogEvents(int pageNumber, String type,
 			String keyword, String applicationName, String domain, String serverKey) throws Exception {
-		LogEvent list[];
-		if (LoggingUtil.isLogEventAppenderConfigured()) {
-			list = LoggingUtil.getSortedAppLogsFromCassandra(type, keyword, applicationName, domain, serverKey);
-		} else {
-			list = getApplicationLogs(type, keyword, applicationName, domain, serverKey);
-		}
-		if (list != null) {
-			List<LogEvent> logMsgList = Arrays.asList(list);
-			PaginatedLogEvent paginatedLogEvent = new PaginatedLogEvent();
-			DataPaginator.doPaging(pageNumber, logMsgList, paginatedLogEvent);
-			return paginatedLogEvent;
-		} else {
-			return null;
-		}
-	}
+        LogEvent[] list = logProvider.getApplicationLogs(type, keyword, applicationName, domain, serverKey);
+        if (list != null) {
+            List<LogEvent> logMsgList = Arrays.asList(list);
+            PaginatedLogEvent paginatedLogEvent = new PaginatedLogEvent();
+            DataPaginator.doPaging(pageNumber, logMsgList, paginatedLogEvent);
+            return paginatedLogEvent;
+        } else {
+            return null;
+        }
+    }
 
-	public LogEvent[] getLogs(String type, String keyword, String domain, String serverKey) {
+    public LogEvent[] getLogs(String type, String keyword, String domain, String serverKey) throws LogViewerException {
+        return logProvider.searchLogEvents(type, keyword, null, domain, serverKey);
+    }
 
-		if (keyword == null || keyword.equals("")) {
-			// keyword is null
-			if (type == null || type.equals("") || type.equalsIgnoreCase("ALL")) {
-				return LoggingUtil.getLogs("", domain, serverKey);
-			} else {
-				// type is NOT null and NOT equal to ALL Application Name is not
-				// needed
-				return LoggingUtil.getLogsForType(type, "", domain, serverKey);
-			}
-		} else {
-			// keyword is NOT null
-			if (type == null || type.equals("")) {
-				// type is null
-				return LoggingUtil.getLogsForKey(keyword, "", domain, serverKey);
-			} else {
-				// type is NOT null and keyword is NOT null, but type can be
-				// equal to ALL
-				return LoggingUtil.searchLog(type, keyword, "", domain, serverKey);
-			}
-		}
-	}
+    public LogEvent[] getApplicationLogs(String type, String keyword, String appName, String domain, String serverKey) throws LogViewerException {
+        return logProvider.searchLogEvents(type, keyword, appName, domain, serverKey);
+    }
 
-    
-	public LogEvent[] getApplicationLogs(String type, String keyword, String appName, String domain, String serverKey) {
-		if (keyword == null || keyword.equals("")) {
-			// keyword is null
-			if (type == null || type.equals("") || type.equalsIgnoreCase("ALL")) {
-				return LoggingUtil.getLogs(appName, domain, serverKey);
-			} else {
-				// type is NOT null and NOT equal to ALL
-				return LoggingUtil.getLogsForType(type, appName, domain, serverKey);
-			}
-		} else {
-			// keyword is NOT null
-			if (type == null || type.equals("")) {
-				// type is null
-				return LoggingUtil.getLogsForKey(keyword, appName, domain, serverKey);
-			} else {
-				// type is NOT null and keyword is NOT null, but type can be
-				// equal to ALL
-				return LoggingUtil.searchLog(type, keyword, appName, domain, serverKey);
-			}
-		}
-	}
-    
 	public boolean clearLogs() {
-		Appender appender = Logger.getRootLogger().getAppender(
+        return logProvider.clearLogs();
+        /*Appender appender = Logger.getRootLogger().getAppender(
 				LoggingConstants.WSO2CARBON_MEMORY_APPENDER);
 		if (appender instanceof CarbonMemoryAppender) {
 			try {
@@ -270,6 +204,6 @@ public class LogViewer {
 			}
 		} else {
 			return false;
-		}
-	}
+		}*/
+    }
 }

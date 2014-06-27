@@ -16,20 +16,11 @@
 
 package org.wso2.carbon.logging.util;
 
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.activation.DataHandler;
-
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -37,9 +28,11 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.net.SyslogAppender;
 import org.springframework.util.Log4jConfigurer;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.util.SystemFilter;
 import org.wso2.carbon.logging.appender.CarbonMemoryAppender;
 import org.wso2.carbon.utils.logging.CircularBuffer;
+import org.wso2.carbon.logging.appender.LogEventAppender;
 import org.wso2.carbon.logging.internal.DataHolder;
 import org.wso2.carbon.logging.internal.LoggingServiceComponent;
 import org.wso2.carbon.logging.registry.RegistryManager;
@@ -56,6 +49,15 @@ import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.Pageable;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import javax.activation.DataHandler;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class LoggingUtil {
 
@@ -140,7 +142,48 @@ public class LoggingUtil {
         return tenantId;
     }
 
-	public static boolean isAdmingService (String serviceName) {
+    public static boolean isValidTenant(String domain) {
+        int tenantId;
+        if (domain == null || domain.equals("")) {
+            tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        } else {
+            try {
+                tenantId = LoggingUtil.getTenantIdForDomain(domain);
+            } catch (LogViewerException e) {
+                return false;
+            }
+        }
+
+        if(tenantId == org.wso2.carbon.base.MultitenantConstants.INVALID_TENANT_ID) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isLogEventReciverConfigured() {
+        Logger rootLogger = Logger.getRootLogger();
+        LogEventAppender logger = (LogEventAppender) rootLogger.getAppender("LOGEVENT");
+        if (logger != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean isFileAppenderConfiguredForST() {
+        Logger rootLogger = Logger.getRootLogger();
+        DailyRollingFileAppender logger = (DailyRollingFileAppender) rootLogger
+                .getAppender("CARBON_LOGFILE");
+        if (logger != null
+                && CarbonContext.getThreadLocalCarbonContext().getTenantId() == org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    public static boolean isAdmingService (String serviceName) {
 		String [] adminServices = getAdminServiceNames();
 		for (String adminService : adminServices) {
 			if (adminService.equals(serviceName)) {

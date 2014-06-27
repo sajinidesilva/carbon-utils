@@ -101,17 +101,17 @@ public class FileHandler {
 		LoggingConfig config = LoggingConfigManager.loadLoggingConfiguration();
 		String url = "";
 		// TODO this will change depending on the hive impl
-		String hostUrl = config.getArchivedHost();
+		String hostUrl = config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HOST);
 		url = getFileLocation(hostUrl, fileName, domain, serverKey);
-		String password = config.getArchivedUser();
-		String userName = config.getArchivedPassword();
-		int port = Integer.parseInt(config.getArchivedPort());
-		String realm = config.getArchivedRealm();
+		String userName = config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_PASSWORD);
+		String password = config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_USER);
+		int port = Integer.parseInt(config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_PORT));
+		String realm = config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_REALM);
 		URI uri = new URI(url);
 		String host = uri.getHost();
 		HttpClient client = new HttpClient();
 		client.getState().setCredentials(new AuthScope(host, port, realm),
-				new UsernamePasswordCredentials(userName, password));
+				new UsernamePasswordCredentials(password, userName));
 		GetMethod get = new GetMethod(url);
 		get.setDoAuthentication(true);
 		client.executeMethod(get);
@@ -133,11 +133,11 @@ public class FileHandler {
         	LoggingConfig config = LoggingConfigManager.loadLoggingConfiguration();
         	String url = "";
     		// TODO this will change depending on the hive impl
-    		String hostUrl = config.getArchivedHost();
+    		String hostUrl = config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HOST);
     	    conf.set("fs.default.name", hostUrl);
     	    conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
     		//creating the file path.
-    		url = getFileLocation(config.getArchivedHDFSPath(), fileName, domain, serverKey);
+    		url = getFileLocation(config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HDFS_PATH), fileName, domain, serverKey);
 			if (log.isDebugEnabled()) {
 				log.debug("Connecting to hdfs file "+url);
 			}
@@ -165,10 +165,10 @@ public class FileHandler {
 		try {
 			LoggingConfig config = LoggingConfigManager
 					.loadLoggingConfiguration();
-			url = getFileLocation(config.getArchivedHDFSPath(), "", domain,
+			url = getFileLocation(config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HDFS_PATH), "", domain,
 					serverKey);
 			Configuration conf = new Configuration(false);
-			conf.set("fs.default.name", config.getArchivedHost());
+			conf.set("fs.default.name", config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HOST));
 			conf.set("fs.hdfs.impl",
 					"org.apache.hadoop.hdfs.DistributedFileSystem");
 			FileSystem fs = FileSystem.get(conf);

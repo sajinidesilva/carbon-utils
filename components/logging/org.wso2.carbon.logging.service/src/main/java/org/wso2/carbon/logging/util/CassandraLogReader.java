@@ -15,6 +15,35 @@
  */
 package org.wso2.carbon.logging.util;
 
+import me.prettyprint.cassandra.model.ConfigurableConsistencyLevel;
+import me.prettyprint.cassandra.serializers.BytesArraySerializer;
+import me.prettyprint.cassandra.serializers.StringSerializer;
+import me.prettyprint.cassandra.service.CassandraHostConfigurator;
+import me.prettyprint.hector.api.Cluster;
+import me.prettyprint.hector.api.HConsistencyLevel;
+import me.prettyprint.hector.api.Keyspace;
+import me.prettyprint.hector.api.beans.HColumn;
+import me.prettyprint.hector.api.beans.OrderedRows;
+import me.prettyprint.hector.api.beans.Row;
+import me.prettyprint.hector.api.ddl.ColumnFamilyDefinition;
+import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
+import me.prettyprint.hector.api.factory.HFactory;
+import me.prettyprint.hector.api.query.QueryResult;
+import me.prettyprint.hector.api.query.RangeSlicesQuery;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.logging.config.LoggingConfigManager;
+import org.wso2.carbon.logging.internal.LoggingServiceComponent;
+import org.wso2.carbon.logging.service.LogViewerException;
+import org.wso2.carbon.logging.service.data.LogEvent;
+import org.wso2.carbon.logging.service.data.LoggingConfig;
+import org.wso2.carbon.logging.sort.LogEventSorter;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.tenant.TenantManager;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,36 +60,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import me.prettyprint.cassandra.model.ConfigurableConsistencyLevel;
-import me.prettyprint.cassandra.serializers.BytesArraySerializer;
-import me.prettyprint.cassandra.serializers.StringSerializer;
-import me.prettyprint.cassandra.service.CassandraHostConfigurator;
-import me.prettyprint.hector.api.Cluster;
-import me.prettyprint.hector.api.HConsistencyLevel;
-import me.prettyprint.hector.api.Keyspace;
-import me.prettyprint.hector.api.beans.HColumn;
-import me.prettyprint.hector.api.beans.OrderedRows;
-import me.prettyprint.hector.api.beans.Row;
-import me.prettyprint.hector.api.ddl.ColumnFamilyDefinition;
-import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
-import me.prettyprint.hector.api.factory.HFactory;
-import me.prettyprint.hector.api.query.QueryResult;
-import me.prettyprint.hector.api.query.RangeSlicesQuery;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.logging.config.LoggingConfigManager;
-import org.wso2.carbon.logging.internal.LoggingServiceComponent;
-import org.wso2.carbon.logging.service.LogViewerException;
-import org.wso2.carbon.logging.service.data.LogEvent;
-import org.wso2.carbon.logging.service.data.LoggingConfig;
-import org.wso2.carbon.logging.sort.LogEventSorter;
-import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.core.tenant.TenantManager;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-
 public class CassandraLogReader {
 
 	private static Log log = LogFactory.getLog(CassandraLogReader.class);
@@ -70,8 +69,12 @@ public class CassandraLogReader {
 
 	public boolean isLogEventAppenderConfigured() {
 		LoggingConfig config = LoggingConfigManager.loadLoggingConfiguration();
-		return config.isCassandraServerAvailable();
-	}
+        String isCasAvailable = config.getProperty(CassandraConfigProperties.IS_CASSANDRA_AVAILABLE);
+        if (isCasAvailable == null || isCasAvailable.equals("")) {
+            return false;
+        }
+        return Boolean.valueOf(isCasAvailable);
+    }
 
 	private Cluster retrieveCassandraCluster(String clusterName, String connectionUrl,
 			Map<String, String> credentials) throws LogViewerException {
@@ -82,10 +85,14 @@ public class CassandraLogReader {
             throw new LogViewerException("Cannot read the log config file", e);
         }
 		CassandraHostConfigurator hostConfigurator = new CassandraHostConfigurator(connectionUrl);
-		hostConfigurator.setRetryDownedHosts(config.isRetryDownedHostsEnable());
-		hostConfigurator.setRetryDownedHostsQueueSize(config.getRetryDownedHostsQueueSize());
-		hostConfigurator.setAutoDiscoverHosts(config.isAutoDiscoveryEnable());
-		hostConfigurator.setAutoDiscoveryDelayInSeconds(config.getAutoDiscoveryDelay());
+        String prop = config.getProperty(CassandraConfigProperties.RETRY_DOWNED_HOSTS_ENABLE);
+        hostConfigurator.setRetryDownedHosts((prop == null || prop.equals("")) ? false : Boolean.valueOf(prop));
+        prop = config.getProperty(CassandraConfigProperties.RETRY_DOWNED_HOSTS_QUEUE);
+        hostConfigurator.setRetryDownedHostsQueueSize((prop == null || prop.equals("")) ? -1 : Integer.valueOf(prop));
+        prop = config.getProperty(CassandraConfigProperties.AUTO_DISCOVERY_DELAY);
+        hostConfigurator.setAutoDiscoverHosts((prop == null || prop.equals("")) ? false : Boolean.valueOf(prop));
+        prop = config.getProperty(CassandraConfigProperties.AUTO_DISCOVERY_DELAY);
+        hostConfigurator.setAutoDiscoveryDelayInSeconds((prop == null || prop.equals("")) ? -1 : Integer.valueOf(prop));
 		Cluster cluster = HFactory.createCluster(clusterName, hostConfigurator, credentials);
 		return cluster;
 	}
@@ -103,8 +110,8 @@ public class CassandraLogReader {
 		} catch (Exception e) {
 			throw new LogViewerException("Cannot read the log config file", e);
 		}
-        String keySpaceName = config.getKeyspace();
-        String consistencyLevel = config.getConsistencyLevel();
+        String keySpaceName = config.getProperty(CassandraConfigProperties.KEYSPACE);
+        String consistencyLevel = config.getProperty(CassandraConfigProperties.CONSISTENCY_LEVEL);
         Cluster cluster;
         cluster = getCurrentCassandraCluster();
         // Create a customized Consistency Level
@@ -120,11 +127,11 @@ public class CassandraLogReader {
 		} catch (Exception e) {
 			throw new LogViewerException("Cannot read the log config file", e);
 		}
-		String connectionUrl = config.getUrl();
-		String userName = config.getUser();
-		String password = config.getPassword();
-		String clusterName = config.getCluster();
-		Map<String, String> credentials = new HashMap<String, String>();
+		String connectionUrl = config.getProperty(CassandraConfigProperties.URL);
+		String userName = config.getProperty(CassandraConfigProperties.USER_NAME);
+		String password = config.getProperty(CassandraConfigProperties.PASSWORD);
+        String clusterName = config.getProperty(CassandraConfigProperties.CLUSTER);
+        Map<String, String> credentials = new HashMap<String, String>();
 		credentials.put(LoggingConstants.USERNAME_KEY, userName);
 		credentials.put(LoggingConstants.PASSWORD_KEY, password);
 		return getCluster(clusterName, connectionUrl, credentials);
@@ -253,7 +260,7 @@ public class CassandraLogReader {
             serverName = serverKey;
         }
         String currDateStr = getCurrentDate();
-        String colFamily = config.getColFamily() + "_" + currTenantId + "_" + serverName + "_"
+        String colFamily = config.getProperty(CassandraConfigProperties.COLUMN_FAMILY) + "_" + currTenantId + "_" + serverName + "_"
                 + currDateStr;
         return colFamily;
     }
@@ -476,10 +483,10 @@ public class CassandraLogReader {
 			throw new LogViewerException("Cannot load cassandra configuration", e);
 		}
 		String colFamily = getCFName(config, domain, serverKey);
-		if (!isCFExsist(config.getKeyspace(), colFamily)) {
-			return new LogEvent[0];
-		}
-		RangeSlicesQuery<String, String, byte[]> rangeSlicesQuery = HFactory
+        if (!isCFExsist(config.getProperty(CassandraConfigProperties.KEYSPACE), colFamily)) {
+            return new LogEvent[0];
+        }
+        RangeSlicesQuery<String, String, byte[]> rangeSlicesQuery = HFactory
 				.createRangeSlicesQuery(currKeyspace, stringSerializer, stringSerializer,
 						BytesArraySerializer.get());
 		rangeSlicesQuery.setColumnFamily(colFamily);
@@ -588,5 +595,35 @@ public class CassandraLogReader {
 		}
 		return tenantId;
 	}
+
+    public static final class CassandraConfigProperties {
+        public static final String URL = "url";
+        public static final String USER_NAME ="userName";
+        public static final String PASSWORD ="password";
+        public static final String PUBLISHER_URL = "publisherURL";
+        public static final String PUBLISHER_USER = "publisherUser";
+        public static final String PUBLISHER_PASSWORD = "publisherPassword";
+        public static final String ARCHIVED_HOST = "archivedHost";
+        public static final String ARCHIVED_USER = "archivedUser";
+        public static final String ARCHIVED_PASSWORD = "archivedPassword";
+        public static final String ARCHIVED_PORT = "archivedPort";
+        public static final String ARCHIVED_REALM = "archivedRealm";
+        public static final String ARCHIVED_HDFS_PATH = "archivedHDFSPath";
+        public static final String HIVE_QUERY = "hiveQuery";
+
+        public static final String KEYSPACE = "keyspace";
+        public static final String COLUMN_FAMILY ="columnFamily";
+        public static final String IS_CASSANDRA_AVAILABLE ="isDataFromCassandra";
+        public static final String CLUSTER ="cluster";
+        public static final String CONSISTENCY_LEVEL = "cassandraConsistencyLevel";
+        public static final String AUTO_DISCOVERY_ENABLE = "enable";
+        public static final String AUTO_DISCOVERY_DELAY = "delay";
+        public static final String RETRY_DOWNED_HOSTS = "retryDownedHosts";
+        public static final String RETRY_DOWNED_HOSTS_ENABLE = "enable";
+        public static final String RETRY_DOWNED_HOSTS_QUEUE = "queueSize";
+        public static final String AUTO_DISCOVERY = "cassandraAutoDiscovery";
+
+    }
+
 }
 

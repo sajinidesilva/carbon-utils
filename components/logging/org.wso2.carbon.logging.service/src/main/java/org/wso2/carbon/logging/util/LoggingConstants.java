@@ -105,31 +105,13 @@ public final class LoggingConstants {
 		public static final String LOG_PATTERN = "logPattern";
 		public static final String IS_SYSLOG_ON ="isSyslogOn";
     }
-    public static final class CassandraConfigProperties {
-    	public static final String URL = "cassandraHost";
-    	public static final String KEYSPACE = "keyspace";
-    	public static final String COLUMN_FAMILY ="columnFamily";
-    	public static final String USER_NAME ="userName";
-    	public static final String PASSWORD ="password";
-    	public static final String IS_CASSANDRA_AVAILABLE ="isDataFromCassandra";
-    	public static final String PUBLISHER_URL = "publisherURL";
-    	public static final String PUBLISHER_USER = "publisherUser";
-    	public static final String CLUSTER ="cluster";
-    	public static final String PUBLISHER_PASSWORD = "publisherPassword";
-    	public static final String ARCHIVED_HOST = "archivedHost";
-        public static final String CONSISTENCY_LEVEL = "cassandraConsistencyLevel";
-        public static final String AUTO_DISCOVERY_ENABLE = "enable";
-        public static final String AUTO_DISCOVERY_DELAY = "delay";
-        public static final String RETRY_DOWNED_HOSTS = "retryDownedHosts";
-        public static final String RETRY_DOWNED_HOSTS_ENABLE = "enable";
-        public static final String RETRY_DOWNED_HOSTS_QUEUE = "queueSize";
-        public static final String AUTO_DISCOVERY = "cassandraAutoDiscovery";
-        public static final String ARCHIVED_USER = "archivedUser";
-    	public static final String ARCHIVED_PASSWORD = "archivedPassword";
-    	public static final String ARCHIVED_PORT = "archivedPort";
-    	public static final String ARCHIVED_REALM = "archivedRealm";
-    	public static final String ARCHIVED_HDFS_PATH = "archivedHDFSPath";
-    	public static final String HIVE_QUERY = "hiveQuery";
+
+    public static final class LogProviderProperties{
+        public static final String PROPERTIES = "properties";
+        public static final String PROPERTY = "property";
+        public static final String PROPERTY_NAME = "name";
+        public static final String PROPERTY_VALUE = "value";
+
     }
     public static final class AppenderProperties {
         public static final String NAME = "name";
