@@ -34,7 +34,6 @@
         <module>components/tryit</module>
         <module>components/wsdl2form</module>
         <module>components/logging</module>
-        <module>components/remote-tasks</module>
         <module>components/userstore-config</module>
         <module>components/user-manager</module>
         <module>components/remote-usermgt</module>
@@ -49,7 +48,6 @@
         <module>features/hostobjects</module>
         <module>features/logging-mgt</module>
         <module>features/ntask</module>
-        <module>features/remote-tasks</module>
         <module>features/reporting</module>
         <module>features/transaction-manager</module>
         <module>features/tryit</module>
@@ -426,21 +424,6 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.authenticator.proxy</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.remote-tasks.core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.remote-tasks.common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.remote-tasks.ui</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -1325,18 +1308,6 @@
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.um.ws.service</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.remote-tasks.server.feature</artifactId>
-                <version>${project.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.remote-tasks.ui.feature</artifactId>
-                <version>${project.version}</version>
-                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
