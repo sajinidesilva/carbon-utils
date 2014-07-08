@@ -312,6 +312,10 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
                     serverName = patternLayout.format(event);
                     continue;
                 }
+                if (currEle.equals("%H")) {
+                    ip = patternLayout.format(event);
+                    continue;
+                }
                 if (currEle.equals("%A")) {
                     appName = patternLayout.format(event);
                     if (appName == null || appName.equals("")) {
