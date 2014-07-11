@@ -48,6 +48,7 @@
 							org.wso2.carbon.logging.service.*,
 							org.wso2.carbon.logging.config.*,
 							org.wso2.carbon.logging.appender.*,
+							org.wso2.carbon.logging.provider.*,
 							org.wso2.carbon.logging.session.*,
 							org.wso2.carbon.logging.sort.*,
 							org.wso2.carbon.logging.util
@@ -58,6 +59,7 @@
 							!org.wso2.carbon.logging.service.*,
 							!org.wso2.carbon.logging.config.*,
 							!org.wso2.carbon.logging.appender.*,
+							!org.wso2.carbon.logging.provider.*,
 							!org.wso2.carbon.logging.session.*,
 							!org.wso2.carbon.logging.sort.*,
 							!org.wso2.carbon.logging.util,
