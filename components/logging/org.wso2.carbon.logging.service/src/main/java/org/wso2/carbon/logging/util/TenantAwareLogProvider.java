@@ -36,9 +36,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Created by shameera on 6/26/14.
- */
 public class TenantAwareLogProvider implements ILogProvider {
     /**
      * Initialize the log provider by reading the property comes with logging configuration file

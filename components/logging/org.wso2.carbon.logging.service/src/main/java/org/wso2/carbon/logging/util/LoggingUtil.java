@@ -18,6 +18,8 @@ package org.wso2.carbon.logging.util;
 
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.DailyRollingFileAppender;
@@ -28,16 +30,20 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.net.SyslogAppender;
 import org.springframework.util.Log4jConfigurer;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.util.SystemFilter;
 import org.wso2.carbon.logging.appender.CarbonMemoryAppender;
 import org.wso2.carbon.utils.logging.CircularBuffer;
 import org.wso2.carbon.logging.appender.LogEventAppender;
+import org.wso2.carbon.utils.logging.CircularBuffer;
+import org.wso2.carbon.logging.config.ServiceConfigManager;
+import org.wso2.carbon.logging.config.SyslogConfigManager;
+import org.wso2.carbon.logging.config.SyslogConfiguration;
 import org.wso2.carbon.logging.internal.DataHolder;
 import org.wso2.carbon.logging.internal.LoggingServiceComponent;
 import org.wso2.carbon.logging.registry.RegistryManager;
 import org.wso2.carbon.logging.service.LogViewerException;
-import org.wso2.carbon.logging.service.data.LogInfo;
 import org.wso2.carbon.logging.service.data.SyslogData;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.RegistryConstants;
@@ -49,7 +55,13 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.Pageable;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -60,14 +72,15 @@ import java.util.Set;
 public class LoggingUtil {
 
 	private static RegistryManager registryManager = new RegistryManager();
-	private static LoggingReader loggingReader = new LoggingReader();
-	private static FileHandler fileReader = new FileHandler();
 
 	public static final String SYSTEM_LOG_PATTERN = "[%d] %5p - %x %m {%c}%n";
 	private static final int MAX_LOG_MESSAGES = 200;
 
+    private static final Log log = LogFactory.getLog(LoggingUtil.class);
+
 	public static boolean isStratosService() throws Exception {
-		return loggingReader.isStratosService();
+        String serviceName = ServerConfiguration.getInstance().getFirstProperty("ServerKey");
+        return ServiceConfigManager.isStratosService(serviceName);
 	}
 
 	public static void setSystemLoggingParameters(String logLevel, String logPattern)
@@ -164,18 +177,6 @@ public class LoggingUtil {
 		return false;
 	}
 
-	public static LogInfo[] getLogsIndex(String tenantDomain, String serviceName) throws Exception {
-		return loggingReader.getLogsIndex(tenantDomain, serviceName);
-	}
-
-	public static LogInfo[] getLocalLogInfo(String domain, String serverKey) {
-		return loggingReader.getLocalLogInfo(domain, serverKey);
-	}
-
-	public static LogInfo[] getRemoteLogFiles(String domain, String serverKey) throws LogViewerException {
-		return fileReader.getRemoteLogFiles(domain,serverKey);
-	}
-
 	public static String getSystemLogLevel() throws Exception {
 		String systemLogLevel = registryManager
 				.getConfigurationProperty(LoggingConstants.SYSTEM_LOG_LEVEL);
@@ -195,7 +196,12 @@ public class LoggingUtil {
 	}
 
 	public static boolean isValidTenantDomain(String tenantDomain) {
-		return loggingReader.isValidTenantDomain(tenantDomain);
+        try {
+            getTenantIdForDomain(tenantDomain);
+            return true;
+        } catch (LogViewerException e) {
+            return false;
+        }
 	}
 
 	public static void restoreDefaults() throws Exception {
@@ -215,7 +221,12 @@ public class LoggingUtil {
 	}
 
 	public static boolean isManager() {
-		return loggingReader.isManager();
+        if (LoggingConstants.WSO2_STRATOS_MANAGER.equalsIgnoreCase(ServerConfiguration.getInstance()
+                .getFirstProperty("ServerKey"))) {
+            return true;
+        } else {
+            return false;
+        }
 	}
 
 	public static void loadCustomConfiguration() throws Exception {
@@ -361,8 +372,8 @@ public class LoggingUtil {
 	}
 
 	public static boolean isSysLogAppender(String tenantDomain) throws Exception {
-		int tenantId = loggingReader.getTenantIdForDomain(tenantDomain);
-		return loggingReader.isSysLogAppender(tenantId);
+        SyslogConfiguration syslogConfig = SyslogConfigManager.loadSyslogConfiguration();
+        return syslogConfig.isSyslogOn();
 	}
 
 	public static boolean isSyslogConfigured() throws Exception {
@@ -374,13 +385,77 @@ public class LoggingUtil {
 	}
 
 	public static int getLineNumbers(String logFile) throws Exception {
-		return fileReader.getLineNumbers(logFile);
+        InputStream logStream;
+
+        try {
+            logStream = getLocalInputStream(logFile);
+        } catch (IOException e) {
+            throw new LogViewerException("Cannot find the specified file location to the log file",
+                    e);
+        } catch (Exception e) {
+            throw new LogViewerException("Cannot find the specified file location to the log file",
+                    e);
+        }
+        try {
+            byte[] c = new byte[1024];
+            int count = 0;
+            int readChars = 0;
+            while ((readChars = logStream.read(c)) != -1) {
+                for (int i = 0; i < readChars; ++i) {
+                    if (c[i] == '\n') {
+                        ++count;
+                    }
+                }
+            }
+            return count;
+        } catch (IOException e) {
+            throw new LogViewerException("Cannot read file size from the " + logFile, e);
+        } finally {
+            try {
+                logStream.close();
+            } catch (IOException e) {
+                throw new LogViewerException("Cannot close the input stream " + logFile, e);
+            }
+        }
 	}
 
 	public static String[] getLogLinesFromFile(String logFile, int maxLogs, int start, int end)
 			throws LogViewerException {
-		return fileReader.getLogLinesFromFile(logFile, maxLogs, start, end);
+        ArrayList<String> logsList = new ArrayList<String>();
+        InputStream logStream;
+        if (end > maxLogs) {
+            end = maxLogs;
+        }
+        try {
+            logStream = getLocalInputStream(logFile);
+        } catch (Exception e) {
+            throw new LogViewerException("Cannot find the specified file location to the log file",
+                    e);
+        }
+        BufferedReader dataInput = new BufferedReader(new InputStreamReader(logStream));
+        int index = 1;
+        String line;
+        try {
+            while ((line = dataInput.readLine()) != null) {
+                if (index <= end && index > start) {
+                    logsList.add(line);
+                }
+                index++;
+            }
+            dataInput.close();
+        } catch (IOException e) {
+            log.error("Cannot read the log file", e);
+            throw new LogViewerException("Cannot read the log file", e);
+        }
+        return logsList.toArray(new String[logsList.size()]);
 	}
+
+    private static InputStream getLocalInputStream(String logFile) throws FileNotFoundException {
+        String fileName = CarbonUtils.getCarbonLogsPath() + LoggingConstants.URL_SEPARATOR
+                + logFile;
+        InputStream is = new BufferedInputStream(new FileInputStream(fileName));
+        return is;
+    }
 
 	/**
 	 * This method stream log messages and retrieve 100 log messages per page
