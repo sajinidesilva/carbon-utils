@@ -37,7 +37,6 @@ import org.wso2.carbon.logging.internal.DataHolder;
 import org.wso2.carbon.logging.internal.LoggingServiceComponent;
 import org.wso2.carbon.logging.registry.RegistryManager;
 import org.wso2.carbon.logging.service.LogViewerException;
-import org.wso2.carbon.logging.service.data.LogEvent;
 import org.wso2.carbon.logging.service.data.LogInfo;
 import org.wso2.carbon.logging.service.data.SyslogData;
 import org.wso2.carbon.registry.core.Collection;
@@ -50,7 +49,6 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.Pageable;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.activation.DataHandler;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -64,39 +62,12 @@ public class LoggingUtil {
 	private static RegistryManager registryManager = new RegistryManager();
 	private static LoggingReader loggingReader = new LoggingReader();
 	private static FileHandler fileReader = new FileHandler();
-	private static TenantAwareLogReader tenantAwareLogReader = new TenantAwareLogReader();
-	private static CassandraLogReader cassandraLogReader = new CassandraLogReader();
 
 	public static final String SYSTEM_LOG_PATTERN = "[%d] %5p - %x %m {%c}%n";
 	private static final int MAX_LOG_MESSAGES = 200;
 
-	public static LogEvent[] getLogs(String appName, String domain, String serviceKey) {
-		return tenantAwareLogReader.getLogs(appName, domain, serviceKey);
-	}
-
-	public static LogEvent[] searchLog(String type, String keyword, String appName, String domain, String serviceKey) {
-		return tenantAwareLogReader.searchLog(type, keyword, appName, domain, serviceKey);
-
-	}
-
-	public static LogEvent[] getLogsForKey(String keyword, String appName, String domain, String serviceKey) {
-		return tenantAwareLogReader.getLogsForKey(keyword, appName, domain, serviceKey);
-	}
-
-	public static LogEvent[] getLogsForType(String type, String appName, String domain, String serviceKey) {
-		return tenantAwareLogReader.getLogsForType(type, appName, domain, serviceKey);
-	}
-
 	public static boolean isStratosService() throws Exception {
 		return loggingReader.isStratosService();
-	}
-
-	public static String[] getApplicationNames(String domain, String serviceKey) {
-		return tenantAwareLogReader.getApplicationNames(domain, serviceKey);
-	}
-
-	public static String[] getApplicationNamesFromCassandra(String domain, String serverKey) throws LogViewerException {
-		return cassandraLogReader.getApplicationNamesFromCassandra(domain, serverKey);
 	}
 
 	public static void setSystemLoggingParameters(String logLevel, String logPattern)
@@ -192,27 +163,6 @@ public class LoggingUtil {
 		}
 		return false;
 	}
-	public static boolean isLogEventAppenderConfigured() {
-		return cassandraLogReader.isLogEventAppenderConfigured();
-	}
-
-	public static LogEvent[] getSortedLogsFromCassandra(String priority, String keyword, String domain, String serverKey)
-			throws LogViewerException {
-		return cassandraLogReader.getLogs(priority, keyword, domain, serverKey);
-	}
-
-	public static LogEvent[] getSortedAppLogsFromCassandra(String priority, String keyword,
-			String appName, String domain, String serverKey) throws LogViewerException {
-		return cassandraLogReader.getApplicationLogs(priority, keyword, appName, domain, serverKey);
-	}
-
-	public static LogEvent[] getAllSystemLogs() {
-		return tenantAwareLogReader.getAllSystemLogs();
-	}
-
-	public static int getNoOfRows(String domain, String serverKey) throws LogViewerException {
-		return cassandraLogReader.getNoOfRows(domain, serverKey);
-	}
 
 	public static LogInfo[] getLogsIndex(String tenantDomain, String serviceName) throws Exception {
 		return loggingReader.getLogsIndex(tenantDomain, serviceName);
@@ -262,10 +212,6 @@ public class LoggingUtil {
 					+ " log4j.properties file not found in the classpath";
 			throw new Exception(msg, e);
 		}
-	}
-
-	public static DataHandler downloadArchivedLogFiles(String logFile, String domain, String serverKey) throws LogViewerException {
-		return fileReader.downloadArchivedLogFiles(logFile, domain, serverKey);
 	}
 
 	public static boolean isManager() {
