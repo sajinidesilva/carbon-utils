@@ -43,19 +43,17 @@
 						<Bundle-Name>${project.artifactId}</Bundle-Name>
 						<Private-Package>org.wso2.carbon.logging.internal</Private-Package>
 						<Export-Package>
-							org.wso2.carbon.logging.registry,
-							org.wso2.carbon.logging.api.*,
-							org.wso2.carbon.logging.service.*,
-							org.wso2.carbon.logging.config.*,
-							org.wso2.carbon.logging.appender.*,
-							org.wso2.carbon.logging.provider.*,
-							org.wso2.carbon.logging.session.*,
-							org.wso2.carbon.logging.sort.*,
-							org.wso2.carbon.logging.util
+                            org.wso2.carbon.logging.registry,
+                            org.wso2.carbon.logging.service.*,
+                            org.wso2.carbon.logging.config.*,
+                            org.wso2.carbon.logging.appender.*,
+                            org.wso2.carbon.logging.provider.*,
+                            org.wso2.carbon.logging.session.*,
+                            org.wso2.carbon.logging.sort.*,
+                            org.wso2.carbon.logging.util
                         </Export-Package>
 						<Import-Package>
 							!org.wso2.carbon.logging.registry,
-							!org.wso2.carbon.logging.api.*,
 							!org.wso2.carbon.logging.service.*,
 							!org.wso2.carbon.logging.config.*,
 							!org.wso2.carbon.logging.appender.*,

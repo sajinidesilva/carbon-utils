@@ -21,7 +21,7 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.logging.api.ILogProvider;
+import org.wso2.carbon.logging.provider.api.ILogProvider;
 import org.wso2.carbon.logging.appender.CarbonMemoryAppender;
 import org.wso2.carbon.logging.service.LogViewerException;
 import org.wso2.carbon.logging.service.data.LogEvent;

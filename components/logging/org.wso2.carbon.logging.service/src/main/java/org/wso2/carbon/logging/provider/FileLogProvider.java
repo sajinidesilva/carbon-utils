@@ -27,7 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.logging.api.ILogFileProvider;
+import org.wso2.carbon.logging.provider.api.ILogFileProvider;
 import org.wso2.carbon.logging.config.ServiceConfigManager;
 import org.wso2.carbon.logging.config.SyslogConfigManager;
 import org.wso2.carbon.logging.config.SyslogConfiguration;

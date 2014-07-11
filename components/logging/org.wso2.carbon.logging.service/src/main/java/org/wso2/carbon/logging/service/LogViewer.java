@@ -29,8 +29,8 @@ import org.wso2.carbon.logging.service.data.LogInfo;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
 import org.wso2.carbon.logging.service.data.PaginatedLogEvent;
 import org.wso2.carbon.logging.service.data.PaginatedLogInfo;
-import org.wso2.carbon.logging.api.ILogFileProvider;
-import org.wso2.carbon.logging.api.ILogProvider;
+import org.wso2.carbon.logging.provider.api.ILogFileProvider;
+import org.wso2.carbon.logging.provider.api.ILogProvider;
 import org.wso2.carbon.logging.util.LoggingUtil;
 import org.wso2.carbon.utils.DataPaginator;
 

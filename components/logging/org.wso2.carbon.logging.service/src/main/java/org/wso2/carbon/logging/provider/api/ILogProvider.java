@@ -1,4 +1,4 @@
-package org.wso2.carbon.logging.api;
+package org.wso2.carbon.logging.provider.api;
 
 import org.wso2.carbon.logging.service.LogViewerException;
 import org.wso2.carbon.logging.service.data.LogEvent;
