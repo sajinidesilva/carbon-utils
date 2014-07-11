@@ -29,7 +29,8 @@ import org.wso2.carbon.logging.service.data.LogInfo;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
 import org.wso2.carbon.logging.service.data.PaginatedLogEvent;
 import org.wso2.carbon.logging.service.data.PaginatedLogInfo;
-import org.wso2.carbon.logging.util.ILogProvider;
+import org.wso2.carbon.logging.api.ILogFileProvider;
+import org.wso2.carbon.logging.api.ILogProvider;
 import org.wso2.carbon.logging.util.LoggingUtil;
 import org.wso2.carbon.utils.DataPaginator;
 
@@ -46,24 +47,45 @@ public class LogViewer {
 
 	private static final Log log = LogFactory.getLog(LogViewer.class);
     private static LoggingConfig loggingConfig = LoggingConfigManager.loadLoggingConfiguration();
+    private static ILogFileProvider logFileProvider;
     private static ILogProvider logProvider;
 
     static {
-        String implClassName = loggingConfig.getImplClassName();
+        // initiate Log provider instance
+        String lpClass = loggingConfig.getLogProviderImplClassName();
         try {
-            Class implClass = Class.forName(implClassName);
-            Constructor constructor = implClass.getConstructor();
-            logProvider = (ILogProvider)constructor.newInstance();
-            logProvider.initLogProvider(loggingConfig);
+            if (lpClass != null && !lpClass.equals("")) {
+                Class logProviderClass = Class.forName(lpClass);
+                Constructor constructor = logProviderClass.getConstructor();
+                logProvider = (ILogProvider) constructor.newInstance();
+                logProvider.init(loggingConfig);
+            } else {
+                log.error("Log provider is not defined in logging configuration file");
+            }
         } catch (Exception e) {
             log.error("Error while loading log provider implementation class");
+        }
+
+        // initiate log file provider instance
+        String lfpClass = loggingConfig.getLogFileProviderImplClassName();
+        try {
+            if (lfpClass != null && ! lfpClass.equals("")) {
+                Class logFileProviderClass = Class.forName(lfpClass);
+                Constructor constructor = logFileProviderClass.getConstructor();
+                logFileProvider = (ILogFileProvider) constructor.newInstance();
+                logFileProvider.init(loggingConfig);
+            } else {
+                log.error("Log file provider is not defined in logging configuration file");
+            }
+        } catch (Exception e) {
+            log.error("Error while loading log file provider implementation class");
         }
 
     }
 
 	public PaginatedLogInfo getPaginatedLogInfo(int pageNumber, String tenantDomain,
-			String serviceName) throws Exception {
-		LogInfo[] logs = logProvider.getLogInfo(tenantDomain, serviceName);
+			String serviceName) throws LogViewerException {
+		LogInfo[] logs = logFileProvider.getLogInfo(tenantDomain, serviceName);
 		if (logs != null) {
 			List<LogInfo> logInfoList = Arrays.asList(logs);
 			// Pagination
@@ -75,9 +97,8 @@ public class LogViewer {
 		}
 	}
 
-    // TODO - remove this method ?
 	public PaginatedLogInfo getLocalLogFiles(int pageNumber, String domain, String serverKey) throws LogViewerException {
-        LogInfo[] logs = logProvider.getLogInfo(domain, serverKey);
+        LogInfo[] logs = logFileProvider.getLogInfo(domain, serverKey);
         if (logs != null) {
             List<LogInfo> logInfoList = Arrays.asList(logs);
             PaginatedLogInfo paginatedLogInfo = new PaginatedLogInfo();
@@ -89,7 +110,7 @@ public class LogViewer {
     }
 
 	public DataHandler downloadArchivedLogFiles(String logFile, String domain, String serverKey) throws Exception {
-		return logProvider.downloadLogFile(logFile, domain, serverKey);
+		return logFileProvider.downloadLogFile(logFile, domain, serverKey);
 	}
 
 	 public boolean isValidTenantDomain(String tenantDomain) {
@@ -151,7 +172,7 @@ public class LogViewer {
     public PaginatedLogEvent getPaginatedLogEvents(int pageNumber, String type, String keyword, String domain, String serverKey)
             throws LogViewerException {
 
-        LogEvent[] list = logProvider.searchLogEvents(type, keyword, null, domain, serverKey);
+        LogEvent[] list = logProvider.getLogs(type, keyword, null, domain, serverKey);
         if (list != null) {
             List<LogEvent> logMsgList = Arrays.asList(list);
             PaginatedLogEvent paginatedLogEvent = new PaginatedLogEvent();
@@ -169,7 +190,7 @@ public class LogViewer {
 
 	public PaginatedLogEvent getPaginatedApplicationLogEvents(int pageNumber, String type,
 			String keyword, String applicationName, String domain, String serverKey) throws Exception {
-        LogEvent[] list = logProvider.getApplicationLogs(type, keyword, applicationName, domain, serverKey);
+        LogEvent[] list = logProvider.getLogs(type, keyword, applicationName, domain, serverKey);
         if (list != null) {
             List<LogEvent> logMsgList = Arrays.asList(list);
             PaginatedLogEvent paginatedLogEvent = new PaginatedLogEvent();
@@ -181,11 +202,11 @@ public class LogViewer {
     }
 
     public LogEvent[] getLogs(String type, String keyword, String domain, String serverKey) throws LogViewerException {
-        return logProvider.searchLogEvents(type, keyword, null, domain, serverKey);
+        return logProvider.getLogs(type, keyword, null, domain, serverKey);
     }
 
     public LogEvent[] getApplicationLogs(String type, String keyword, String appName, String domain, String serverKey) throws LogViewerException {
-        return logProvider.searchLogEvents(type, keyword, appName, domain, serverKey);
+        return logProvider.getLogs(type, keyword, appName, domain, serverKey);
     }
 
 	public boolean clearLogs() {

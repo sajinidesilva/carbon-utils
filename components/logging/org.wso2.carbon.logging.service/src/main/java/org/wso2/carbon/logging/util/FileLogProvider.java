@@ -27,11 +27,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.logging.api.ILogFileProvider;
 import org.wso2.carbon.logging.config.ServiceConfigManager;
 import org.wso2.carbon.logging.config.SyslogConfigManager;
 import org.wso2.carbon.logging.config.SyslogConfiguration;
 import org.wso2.carbon.logging.service.LogViewerException;
-import org.wso2.carbon.logging.service.data.LogEvent;
 import org.wso2.carbon.logging.service.data.LogInfo;
 import org.wso2.carbon.logging.service.data.LogMessage;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
@@ -59,10 +59,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by shameera on 6/26/14.
- */
-public class FileLogProvider implements ILogProvider {
+
+public class FileLogProvider implements ILogFileProvider {
 
 
     private static Log log = LogFactory.getLog(FileLogProvider.class);
@@ -79,38 +77,8 @@ public class FileLogProvider implements ILogProvider {
      * @param loggingConfig
      */
     @Override
-    public void initLogProvider(LoggingConfig loggingConfig) {
+    public void init(LoggingConfig loggingConfig) {
 
-    }
-
-    @Override
-    public String[] getApplicationNames(String domain, String serverKey) throws LogViewerException {
-        return new String[0];
-    }
-
-    @Override
-    public LogEvent[] getApplicationLogs(String type, String keyword, String appName, String domain, String serverKey) throws LogViewerException {
-        return new LogEvent[0];
-    }
-
-    @Override
-    public LogEvent[] getSystemLogs() throws LogViewerException {
-        return new LogEvent[0];
-    }
-
-    @Override
-    public LogEvent[] getLogEvents(String domain, String serverKey) throws LogViewerException {
-        return new LogEvent[0];
-    }
-
-    @Override
-    public LogEvent[] getLogEvents(String appName, String domain, String serverKey) throws LogViewerException {
-        return new LogEvent[0];
-    }
-
-    @Override
-    public LogEvent[] searchLogEvents(String type, String keyword, String appName, String domain, String serverKey) throws LogViewerException {
-        return new LogEvent[0];
     }
 
     @Override
@@ -150,17 +118,7 @@ public class FileLogProvider implements ILogProvider {
 
     }
 
-    @Override
-    public int logsCount(String domain, String serverKey) throws LogViewerException {
-        return 0;
-    }
 
-    @Override
-    public boolean clearLogs() {
-        return false;
-    }
-
-    @Override
     public LogInfo[] getLogsIndex(String tenantDomain, String serviceName) throws Exception {
         return new LogInfo[0];
     }

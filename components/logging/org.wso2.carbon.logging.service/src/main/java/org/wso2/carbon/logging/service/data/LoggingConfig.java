@@ -20,26 +20,49 @@ import java.util.Map;
 
 public class LoggingConfig {
 
-    private String implClassName;
+    private String logProviderImplClassName;
+    private String logFileProviderImplClassName;
 
-    private Map<String, String> propertyMap = new HashMap<String, String>();
+    private Map<String, String> logProviderPropMap = new HashMap<String, String>();
+    private Map<String, String> logFileProviderPropMap = new HashMap<String, String>();
 
-    public LoggingConfig(String implClassName) {
-        if (implClassName == null | implClassName.equals("")) {
+    public LoggingConfig() {
+    }
+
+
+    public void setLogProviderProperty(String key, String value) {
+        this.logProviderPropMap.put(key, value);
+    }
+    public void setLogFileProviderProperty(String key, String value) {
+        this.logFileProviderPropMap.put(key, value);
+    }
+
+    public String getLogProviderProperty(String key) {
+        return this.logProviderPropMap.get(key);
+    }
+    public String getLogFileProviderProperty(String key) {
+        return this.logProviderPropMap.get(key);
+    }
+
+    public String getLogProviderImplClassName() {
+        return logProviderImplClassName;
+    }
+
+    public void setLogProviderImplClassName(String logProviderImplClassName) {
+        if (logProviderImplClassName == null | logProviderImplClassName.equals("")) {
             throw new IllegalArgumentException("LogProvider implementation class name should not be null or empty");
         }
-        this.implClassName = implClassName;
+        this.logProviderImplClassName = logProviderImplClassName;
     }
 
-    public String getImplClassName() {
-        return implClassName;
+    public String getLogFileProviderImplClassName() {
+        return logFileProviderImplClassName;
     }
 
-    public void setProperty(String key, String value) {
-        this.propertyMap.put(key, value);
-    }
-
-    public String getProperty(String key) {
-        return this.propertyMap.get(key);
+    public void setLogFileProviderImplClassName(String logFileProviderImplClassName) {
+        if (logFileProviderImplClassName == null | logFileProviderImplClassName.equals("")) {
+            throw new IllegalArgumentException("LogProvider implementation class name should not be null or empty");
+        }
+        this.logFileProviderImplClassName = logFileProviderImplClassName;
     }
 }

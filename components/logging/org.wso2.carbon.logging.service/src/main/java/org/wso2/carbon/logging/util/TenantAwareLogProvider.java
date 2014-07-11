@@ -21,15 +21,14 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.logging.api.ILogProvider;
 import org.wso2.carbon.logging.appender.CarbonMemoryAppender;
 import org.wso2.carbon.logging.service.LogViewerException;
 import org.wso2.carbon.logging.service.data.LogEvent;
-import org.wso2.carbon.logging.service.data.LogInfo;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
 import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
 import org.wso2.carbon.utils.logging.TenantAwarePatternLayout;
 
-import javax.activation.DataHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,14 +47,14 @@ public class TenantAwareLogProvider implements ILogProvider {
      * @param loggingConfig
      */
     @Override
-    public void initLogProvider(LoggingConfig loggingConfig) {
-
+    public void init(LoggingConfig loggingConfig) {
+       // nothing to do
     }
 
     @Override
     public String[] getApplicationNames(String domain, String serverKey) throws LogViewerException {
         List<String> appList = new ArrayList<String>();
-        LogEvent allLogs[] = getLogEvents("", domain, serverKey);
+        LogEvent allLogs[] = getLogsByAppName("", domain, serverKey);
         for (LogEvent event : allLogs) {
             if (event.getAppName() != null && !event.getAppName().equals("")
                     && !event.getAppName().equals("NA")
@@ -68,10 +67,6 @@ public class TenantAwareLogProvider implements ILogProvider {
         return getSortedApplicationNames(appList);
     }
 
-    @Override
-    public LogEvent[] getApplicationLogs(String type, String keyword, String appName, String domain, String serverKey) throws LogViewerException {
-        return searchLogEvents(type, keyword, appName, domain, serverKey);
-    }
 
     @Override
     public LogEvent[] getSystemLogs() throws LogViewerException {
@@ -118,12 +113,12 @@ public class TenantAwareLogProvider implements ILogProvider {
     }
 
     @Override
-    public LogEvent[] getLogEvents(String domain, String serverKey) throws LogViewerException {
+    public LogEvent[] getAllLogs(String domain, String serverKey) throws LogViewerException {
         return new LogEvent[0];
     }
 
     @Override
-    public LogEvent[] getLogEvents(String appName, String domain, String serverKey) throws LogViewerException {
+    public LogEvent[] getLogsByAppName(String appName, String domain, String serverKey) throws LogViewerException {
         int DEFAULT_NO_OF_LOGS = 100;
         int definedamount;
         Appender appender = Logger.getRootLogger().getAppender(
@@ -178,7 +173,7 @@ public class TenantAwareLogProvider implements ILogProvider {
     }
 
     @Override
-    public LogEvent[] searchLogEvents(String type, String keyword,String appName, String domain, String serverKey) throws LogViewerException {
+    public LogEvent[] getLogs(String type, String keyword,String appName, String domain, String serverKey) throws LogViewerException {
         if (keyword == null || keyword.equals("")) {
             // keyword is null
             if (type == null || type.equals("") || type.equalsIgnoreCase("ALL")) {
@@ -226,8 +221,6 @@ public class TenantAwareLogProvider implements ILogProvider {
 
 
     }
-
-
 
     private LogEvent[] getLogs(String appName, String domain, String serverKey) {
         int DEFAULT_NO_OF_LOGS = 100;
@@ -284,11 +277,6 @@ public class TenantAwareLogProvider implements ILogProvider {
     }
 
     @Override
-    public LogInfo[] getLogInfo(String tenantDomain, String serviceName) throws LogViewerException {
-        return null;
-    }
-
-    @Override
     public int logsCount(String domain, String serverKey) throws LogViewerException {
         return 0;
     }
@@ -296,16 +284,6 @@ public class TenantAwareLogProvider implements ILogProvider {
     @Override
     public boolean clearLogs() {
         return false;
-    }
-
-    @Override
-    public LogInfo[] getLogsIndex(String tenantDomain, String serviceName) throws Exception {
-        return null;
-    }
-
-    @Override
-    public DataHandler downloadLogFile(String logFile, String tenantDomain, String serviceName) throws LogViewerException {
-        return null;
     }
 
     private boolean isCurrentTenantId(String tenantId, String domain) {

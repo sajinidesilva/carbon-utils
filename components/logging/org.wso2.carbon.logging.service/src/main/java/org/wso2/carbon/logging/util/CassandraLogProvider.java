@@ -36,15 +36,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.logging.api.ILogProvider;
 import org.wso2.carbon.logging.config.LoggingConfigManager;
 import org.wso2.carbon.logging.service.LogViewerException;
 import org.wso2.carbon.logging.service.data.LogEvent;
-import org.wso2.carbon.logging.service.data.LogInfo;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
 import org.wso2.carbon.logging.sort.LogEventSorter;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.activation.DataHandler;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -76,7 +75,7 @@ public class CassandraLogProvider implements ILogProvider {
      * @param loggingConfig
      */
     @Override
-    public void initLogProvider(LoggingConfig loggingConfig) {
+    public void init(LoggingConfig loggingConfig) {
 
     }
 
@@ -85,7 +84,7 @@ public class CassandraLogProvider implements ILogProvider {
         List<String> appList = new ArrayList<String>();
         LogEvent allLogs[];
         try {
-            allLogs = getLogEvents(domain, serverKey);
+            allLogs = getAllLogs(domain, serverKey);
         } catch (LogViewerException e) {
             log.error("Error retrieving application logs", e);
             throw new LogViewerException("Error retrieving application logs", e);
@@ -100,8 +99,7 @@ public class CassandraLogProvider implements ILogProvider {
         return getSortedApplicationNames(appList);
     }
 
-    @Override
-    public LogEvent[] getApplicationLogs(String type, String keyword, String appName, String domain, String serverKey) throws LogViewerException {
+/*    public LogEvent[] getApplicationLogs(String type, String keyword, String appName, String domain, String serverKey) throws LogViewerException {
         LogEvent[] events = getSortedLogsFromCassandra(appName, domain, serverKey);
         if (keyword == null || keyword.equals("")) {
             // keyword is null
@@ -123,7 +121,7 @@ public class CassandraLogProvider implements ILogProvider {
                 return searchLog(events, type, keyword);
             }
         }
-    }
+    }*/
 
     @Override
     public LogEvent[] getSystemLogs() throws LogViewerException {
@@ -131,7 +129,7 @@ public class CassandraLogProvider implements ILogProvider {
     }
 
     @Override
-    public LogEvent[] getLogEvents(String domain, String serverKey) throws LogViewerException {
+    public LogEvent[] getAllLogs(String domain, String serverKey) throws LogViewerException {
 
         // int tenantId = getCurrentTenantId(tenantDomain);
         // serviceName = getCurrentServerName(serviceName);
@@ -143,7 +141,7 @@ public class CassandraLogProvider implements ILogProvider {
             throw new LogViewerException("Cannot load cassandra configuration", e);
         }
         String colFamily = getCFName(config, domain, serverKey);
-        if (!isCFExsist(config.getProperty(CassandraConfigProperties.KEYSPACE), colFamily)) {
+        if (!isCFExsist(config.getLogProviderProperty(CassandraConfigProperties.KEYSPACE), colFamily)) {
             return new LogEvent[0];
         }
         RangeSlicesQuery<String, String, byte[]> rangeSlicesQuery = HFactory
@@ -165,12 +163,12 @@ public class CassandraLogProvider implements ILogProvider {
     }
 
     @Override
-    public LogEvent[] getLogEvents(String appName, String domain, String serverKey) throws LogViewerException {
-        return getLogEvents(domain, serverKey);
+    public LogEvent[] getLogsByAppName(String appName, String domain, String serverKey) throws LogViewerException {
+        return getAllLogs(domain, serverKey);
     }
 
     @Override
-    public LogEvent[] searchLogEvents(String type, String keyword, String appName, String domain, String serverKey) throws LogViewerException {
+    public LogEvent[] getLogs(String type, String keyword, String appName, String domain, String serverKey) throws LogViewerException {
         LogEvent[] events = getSortedLogsFromCassandra("", domain, serverKey);
         if (keyword == null || keyword.equals("")) {
             // keyword is null
@@ -192,11 +190,6 @@ public class CassandraLogProvider implements ILogProvider {
                 return searchLog(events, type, keyword);
             }
         }
-    }
-
-    @Override
-    public LogInfo[] getLogInfo(String tenantDomain, String serviceName) throws LogViewerException {
-        return new LogInfo[0];
     }
 
     @Override
@@ -226,16 +219,6 @@ public class CassandraLogProvider implements ILogProvider {
         return false;
     }
 
-    @Override
-    public LogInfo[] getLogsIndex(String tenantDomain, String serviceName) throws Exception {
-        return new LogInfo[0];
-    }
-
-    @Override
-    public DataHandler downloadLogFile(String logFile, String tenantDomain, String serviceName) throws LogViewerException{
-        return null;
-    }
-
     private Cluster retrieveCassandraCluster(String clusterName, String connectionUrl,
                                              Map<String, String> credentials) throws LogViewerException {
         LoggingConfig config;
@@ -245,13 +228,13 @@ public class CassandraLogProvider implements ILogProvider {
             throw new LogViewerException("Cannot read the log config file", e);
         }
         CassandraHostConfigurator hostConfigurator = new CassandraHostConfigurator(connectionUrl);
-        String prop = config.getProperty(CassandraConfigProperties.RETRY_DOWNED_HOSTS_ENABLE);
+        String prop = config.getLogProviderProperty(CassandraConfigProperties.RETRY_DOWNED_HOSTS_ENABLE);
         hostConfigurator.setRetryDownedHosts((prop == null || prop.equals("")) ? false : Boolean.valueOf(prop));
-        prop = config.getProperty(CassandraConfigProperties.RETRY_DOWNED_HOSTS_QUEUE);
+        prop = config.getLogProviderProperty(CassandraConfigProperties.RETRY_DOWNED_HOSTS_QUEUE);
         hostConfigurator.setRetryDownedHostsQueueSize((prop == null || prop.equals("")) ? -1 : Integer.valueOf(prop));
-        prop = config.getProperty(CassandraConfigProperties.AUTO_DISCOVERY_DELAY);
+        prop = config.getLogProviderProperty(CassandraConfigProperties.AUTO_DISCOVERY_DELAY);
         hostConfigurator.setAutoDiscoverHosts((prop == null || prop.equals("")) ? false : Boolean.valueOf(prop));
-        prop = config.getProperty(CassandraConfigProperties.AUTO_DISCOVERY_DELAY);
+        prop = config.getLogProviderProperty(CassandraConfigProperties.AUTO_DISCOVERY_DELAY);
         hostConfigurator.setAutoDiscoveryDelayInSeconds((prop == null || prop.equals("")) ? -1 : Integer.valueOf(prop));
         Cluster cluster = HFactory.createCluster(clusterName, hostConfigurator, credentials);
         return cluster;
@@ -270,8 +253,8 @@ public class CassandraLogProvider implements ILogProvider {
         } catch (Exception e) {
             throw new LogViewerException("Cannot read the log config file", e);
         }
-        String keySpaceName = config.getProperty(CassandraConfigProperties.KEYSPACE);
-        String consistencyLevel = config.getProperty(CassandraConfigProperties.CONSISTENCY_LEVEL);
+        String keySpaceName = config.getLogProviderProperty(CassandraConfigProperties.KEYSPACE);
+        String consistencyLevel = config.getLogProviderProperty(CassandraConfigProperties.CONSISTENCY_LEVEL);
         Cluster cluster;
         cluster = getCurrentCassandraCluster();
         // Create a customized Consistency Level
@@ -287,10 +270,10 @@ public class CassandraLogProvider implements ILogProvider {
         } catch (Exception e) {
             throw new LogViewerException("Cannot read the log config file", e);
         }
-        String connectionUrl = config.getProperty(CassandraConfigProperties.URL);
-        String userName = config.getProperty(CassandraConfigProperties.USER_NAME);
-        String password = config.getProperty(CassandraConfigProperties.PASSWORD);
-        String clusterName = config.getProperty(CassandraConfigProperties.CLUSTER);
+        String connectionUrl = config.getLogProviderProperty(CassandraConfigProperties.URL);
+        String userName = config.getLogProviderProperty(CassandraConfigProperties.USER_NAME);
+        String password = config.getLogProviderProperty(CassandraConfigProperties.PASSWORD);
+        String clusterName = config.getLogProviderProperty(CassandraConfigProperties.CLUSTER);
         Map<String, String> credentials = new HashMap<String, String>();
         credentials.put(LoggingConstants.USERNAME_KEY, userName);
         credentials.put(LoggingConstants.PASSWORD_KEY, password);
@@ -420,7 +403,7 @@ public class CassandraLogProvider implements ILogProvider {
             serverName = serverKey;
         }
         String currDateStr = getCurrentDate();
-        String colFamily = config.getProperty(CassandraConfigProperties.COLUMN_FAMILY) + "_" + currTenantId + "_" + serverName + "_"
+        String colFamily = config.getLogProviderProperty(CassandraConfigProperties.COLUMN_FAMILY) + "_" + currTenantId + "_" + serverName + "_"
                 + currDateStr;
         return colFamily;
     }
@@ -453,7 +436,7 @@ public class CassandraLogProvider implements ILogProvider {
 
     private LogEvent[] getSortedLogsFromCassandra(String applicationName, String domain, String serverKey) throws LogViewerException {
         Future<LogEvent[]> task = this.getExecutorService().submit(
-                new LogEventSorter(this.getLogEvents(domain, serverKey), ""));
+                new LogEventSorter(this.getAllLogs(domain, serverKey), ""));
         List<LogEvent> resultList = new ArrayList<LogEvent>();
         try {
             if (applicationName.equals("")) {

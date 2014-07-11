@@ -106,11 +106,16 @@ public final class LoggingConstants {
 		public static final String IS_SYSLOG_ON ="isSyslogOn";
     }
 
-    public static final class LogProviderProperties{
+    public static final class LogConfigProperties {
+        public static final String DEFAULT_LOGGING_CONFIG_NAMESPACE = "http://wso2.org/projects/carbon/carbon.xml";
+        public static final String LOGGING_CONFIG = "loggingConfig";
+        public static final String LOG_PROVIDER_CONFIG = "logProviderConfig";
+        public static final String LOG_FILE_PROVIDER_CONFIG = "logFileProviderConfig";
         public static final String PROPERTIES = "properties";
         public static final String PROPERTY = "property";
         public static final String PROPERTY_NAME = "name";
         public static final String PROPERTY_VALUE = "value";
+        public static final String CLASS_ATTRIBUTE = "class";
 
     }
     public static final class AppenderProperties {

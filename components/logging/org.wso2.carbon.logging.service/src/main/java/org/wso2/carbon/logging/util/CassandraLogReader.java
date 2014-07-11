@@ -69,7 +69,7 @@ public class CassandraLogReader {
 
 	public boolean isLogEventAppenderConfigured() {
 		LoggingConfig config = LoggingConfigManager.loadLoggingConfiguration();
-        String isCasAvailable = config.getProperty(CassandraConfigProperties.IS_CASSANDRA_AVAILABLE);
+        String isCasAvailable = config.getLogProviderProperty(CassandraConfigProperties.IS_CASSANDRA_AVAILABLE);
         if (isCasAvailable == null || isCasAvailable.equals("")) {
             return false;
         }
@@ -85,13 +85,13 @@ public class CassandraLogReader {
             throw new LogViewerException("Cannot read the log config file", e);
         }
 		CassandraHostConfigurator hostConfigurator = new CassandraHostConfigurator(connectionUrl);
-        String prop = config.getProperty(CassandraConfigProperties.RETRY_DOWNED_HOSTS_ENABLE);
+        String prop = config.getLogProviderProperty(CassandraConfigProperties.RETRY_DOWNED_HOSTS_ENABLE);
         hostConfigurator.setRetryDownedHosts((prop == null || prop.equals("")) ? false : Boolean.valueOf(prop));
-        prop = config.getProperty(CassandraConfigProperties.RETRY_DOWNED_HOSTS_QUEUE);
+        prop = config.getLogProviderProperty(CassandraConfigProperties.RETRY_DOWNED_HOSTS_QUEUE);
         hostConfigurator.setRetryDownedHostsQueueSize((prop == null || prop.equals("")) ? -1 : Integer.valueOf(prop));
-        prop = config.getProperty(CassandraConfigProperties.AUTO_DISCOVERY_DELAY);
+        prop = config.getLogProviderProperty(CassandraConfigProperties.AUTO_DISCOVERY_DELAY);
         hostConfigurator.setAutoDiscoverHosts((prop == null || prop.equals("")) ? false : Boolean.valueOf(prop));
-        prop = config.getProperty(CassandraConfigProperties.AUTO_DISCOVERY_DELAY);
+        prop = config.getLogProviderProperty(CassandraConfigProperties.AUTO_DISCOVERY_DELAY);
         hostConfigurator.setAutoDiscoveryDelayInSeconds((prop == null || prop.equals("")) ? -1 : Integer.valueOf(prop));
 		Cluster cluster = HFactory.createCluster(clusterName, hostConfigurator, credentials);
 		return cluster;
@@ -110,8 +110,8 @@ public class CassandraLogReader {
 		} catch (Exception e) {
 			throw new LogViewerException("Cannot read the log config file", e);
 		}
-        String keySpaceName = config.getProperty(CassandraConfigProperties.KEYSPACE);
-        String consistencyLevel = config.getProperty(CassandraConfigProperties.CONSISTENCY_LEVEL);
+        String keySpaceName = config.getLogProviderProperty(CassandraConfigProperties.KEYSPACE);
+        String consistencyLevel = config.getLogProviderProperty(CassandraConfigProperties.CONSISTENCY_LEVEL);
         Cluster cluster;
         cluster = getCurrentCassandraCluster();
         // Create a customized Consistency Level
@@ -127,10 +127,10 @@ public class CassandraLogReader {
 		} catch (Exception e) {
 			throw new LogViewerException("Cannot read the log config file", e);
 		}
-		String connectionUrl = config.getProperty(CassandraConfigProperties.URL);
-		String userName = config.getProperty(CassandraConfigProperties.USER_NAME);
-		String password = config.getProperty(CassandraConfigProperties.PASSWORD);
-        String clusterName = config.getProperty(CassandraConfigProperties.CLUSTER);
+		String connectionUrl = config.getLogProviderProperty(CassandraConfigProperties.URL);
+		String userName = config.getLogProviderProperty(CassandraConfigProperties.USER_NAME);
+		String password = config.getLogProviderProperty(CassandraConfigProperties.PASSWORD);
+        String clusterName = config.getLogProviderProperty(CassandraConfigProperties.CLUSTER);
         Map<String, String> credentials = new HashMap<String, String>();
 		credentials.put(LoggingConstants.USERNAME_KEY, userName);
 		credentials.put(LoggingConstants.PASSWORD_KEY, password);
@@ -260,7 +260,7 @@ public class CassandraLogReader {
             serverName = serverKey;
         }
         String currDateStr = getCurrentDate();
-        String colFamily = config.getProperty(CassandraConfigProperties.COLUMN_FAMILY) + "_" + currTenantId + "_" + serverName + "_"
+        String colFamily = config.getLogProviderProperty(CassandraConfigProperties.COLUMN_FAMILY) + "_" + currTenantId + "_" + serverName + "_"
                 + currDateStr;
         return colFamily;
     }
@@ -483,7 +483,7 @@ public class CassandraLogReader {
 			throw new LogViewerException("Cannot load cassandra configuration", e);
 		}
 		String colFamily = getCFName(config, domain, serverKey);
-        if (!isCFExsist(config.getProperty(CassandraConfigProperties.KEYSPACE), colFamily)) {
+        if (!isCFExsist(config.getLogProviderProperty(CassandraConfigProperties.KEYSPACE), colFamily)) {
             return new LogEvent[0];
         }
         RangeSlicesQuery<String, String, byte[]> rangeSlicesQuery = HFactory

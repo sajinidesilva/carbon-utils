@@ -125,15 +125,33 @@ public class LoggingConfigManager {
                         .createXMLStreamReader(inputStream);
                 StAXOMBuilder builder = new StAXOMBuilder(parser);
                 OMElement documentElement = builder.getDocumentElement();
-                String implClass = documentElement.getAttributeValue(new QName("", "class"));
-                LoggingConfig config = new LoggingConfig(implClass);
+                LoggingConfig config = new LoggingConfig();
 //                Class.forName(implClass);
                 @SuppressWarnings("rawtypes")
-                Iterator it = documentElement.getChildElements();
+                OMElement logProviderConfig = documentElement.getFirstChildWithName(
+                        getQName(LoggingConstants.LogConfigProperties.LOG_PROVIDER_CONFIG));
+                String implClass = logProviderConfig.getAttributeValue(new QName("", LoggingConstants.LogConfigProperties.CLASS_ATTRIBUTE));
+                config.setLogProviderImplClassName(implClass);
+                // load log provider configuration
+                OMElement propElement = logProviderConfig.getFirstChildWithName(getQName(LoggingConstants.LogConfigProperties.PROPERTIES));
+                Iterator it = propElement.getChildrenWithLocalName(LoggingConstants.LogConfigProperties.PROPERTY);
                 while (it.hasNext()) {
                     OMElement element = (OMElement) it.next();
-                    if (element.getText().equals(LoggingConstants.LogProviderProperties.PROPERTIES)) {
-                        loadProperties(element, config);
+                    if (element.getText().equals(LoggingConstants.LogConfigProperties.PROPERTY)) {
+                        loadLogProviderProperties(element, config);
+                    }
+                }
+                // load log file provider configurations
+                OMElement logFileProviderConfig = documentElement.getFirstChildWithName(
+                        getQName(LoggingConstants.LogConfigProperties.LOG_FILE_PROVIDER_CONFIG));
+                implClass = logFileProviderConfig.getAttributeValue(new QName("", LoggingConstants.LogConfigProperties.CLASS_ATTRIBUTE));
+                config.setLogFileProviderImplClassName(implClass);
+                propElement = logFileProviderConfig.getFirstChildWithName(getQName(LoggingConstants.LogConfigProperties.PROPERTIES));
+                it = logFileProviderConfig.getChildrenWithLocalName(LoggingConstants.LogConfigProperties.PROPERTY);
+                while (it.hasNext()) {
+                    OMElement element = (OMElement) it.next();
+                    if (element.getText().equals(LoggingConstants.LogConfigProperties.PROPERTY)) {
+                        loadLogFileProviderProperties(element, config);
                     }
                 }
                 return config;
@@ -159,16 +177,29 @@ public class LoggingConfigManager {
         // if the file not found.
     }
 
-    private static void loadProperties(OMElement element, LoggingConfig config) {
+    private static void loadLogProviderProperties(OMElement element, LoggingConfig config) {
         Iterator it = element.getChildElements();
         while (it.hasNext()) {
             OMElement propEle = (OMElement) it.next();
-            config.setProperty(propEle.getAttributeValue(getQName("name")), propEle.getAttributeValue(getQName("value")));
+            config.setLogProviderProperty(
+                    propEle.getAttributeValue(getQName(LoggingConstants.LogConfigProperties.PROPERTY_NAME)),
+                    propEle.getAttributeValue(getQName(LoggingConstants.LogConfigProperties.PROPERTY_VALUE)));
+        }
+
+    }
+
+    private static void loadLogFileProviderProperties(OMElement element, LoggingConfig config) {
+        Iterator it = element.getChildElements();
+        while (it.hasNext()) {
+            OMElement propEle = (OMElement) it.next();
+            config.setLogFileProviderProperty(
+                    propEle.getAttributeValue(getQName(LoggingConstants.LogConfigProperties.PROPERTY_NAME)),
+                    propEle.getAttributeValue(getQName(LoggingConstants.LogConfigProperties.PROPERTY_VALUE)));
         }
 
     }
 
     private static QName getQName(String localName) {
-        return new QName("http://wso2.org/projects/carbon/carbon.xml", localName);
+        return new QName(LoggingConstants.LogConfigProperties.DEFAULT_LOGGING_CONFIG_NAMESPACE, localName);
     }
 }

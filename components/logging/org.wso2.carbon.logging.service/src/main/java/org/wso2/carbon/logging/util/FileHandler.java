@@ -1,25 +1,5 @@
 package org.wso2.carbon.logging.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.activation.DataHandler;
-import javax.mail.util.ByteArrayDataSource;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
@@ -42,6 +22,25 @@ import org.wso2.carbon.logging.service.data.LoggingConfig;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.CarbonUtils;
+
+import javax.activation.DataHandler;
+import javax.mail.util.ByteArrayDataSource;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class FileHandler {
 	
@@ -101,12 +100,12 @@ public class FileHandler {
 		LoggingConfig config = LoggingConfigManager.loadLoggingConfiguration();
 		String url = "";
 		// TODO this will change depending on the hive impl
-		String hostUrl = config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HOST);
+		String hostUrl = config.getLogProviderProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HOST);
 		url = getFileLocation(hostUrl, fileName, domain, serverKey);
-		String userName = config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_PASSWORD);
-		String password = config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_USER);
-		int port = Integer.parseInt(config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_PORT));
-		String realm = config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_REALM);
+		String userName = config.getLogProviderProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_PASSWORD);
+		String password = config.getLogProviderProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_USER);
+		int port = Integer.parseInt(config.getLogProviderProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_PORT));
+		String realm = config.getLogProviderProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_REALM);
 		URI uri = new URI(url);
 		String host = uri.getHost();
 		HttpClient client = new HttpClient();
@@ -133,11 +132,11 @@ public class FileHandler {
         	LoggingConfig config = LoggingConfigManager.loadLoggingConfiguration();
         	String url = "";
     		// TODO this will change depending on the hive impl
-    		String hostUrl = config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HOST);
+    		String hostUrl = config.getLogProviderProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HOST);
     	    conf.set("fs.default.name", hostUrl);
     	    conf.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
     		//creating the file path.
-    		url = getFileLocation(config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HDFS_PATH), fileName, domain, serverKey);
+    		url = getFileLocation(config.getLogProviderProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HDFS_PATH), fileName, domain, serverKey);
 			if (log.isDebugEnabled()) {
 				log.debug("Connecting to hdfs file "+url);
 			}
@@ -165,10 +164,10 @@ public class FileHandler {
 		try {
 			LoggingConfig config = LoggingConfigManager
 					.loadLoggingConfiguration();
-			url = getFileLocation(config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HDFS_PATH), "", domain,
+			url = getFileLocation(config.getLogProviderProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HDFS_PATH), "", domain,
 					serverKey);
 			Configuration conf = new Configuration(false);
-			conf.set("fs.default.name", config.getProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HOST));
+			conf.set("fs.default.name", config.getLogProviderProperty(CassandraLogReader.CassandraConfigProperties.ARCHIVED_HOST));
 			conf.set("fs.hdfs.impl",
 					"org.apache.hadoop.hdfs.DistributedFileSystem");
 			FileSystem fs = FileSystem.get(conf);
