@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.carbon.logging.util;
+package org.wso2.carbon.logging.provider;
 
 import me.prettyprint.cassandra.model.ConfigurableConsistencyLevel;
 import me.prettyprint.cassandra.serializers.BytesArraySerializer;
@@ -42,6 +42,8 @@ import org.wso2.carbon.logging.service.LogViewerException;
 import org.wso2.carbon.logging.service.data.LogEvent;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
 import org.wso2.carbon.logging.sort.LogEventSorter;
+import org.wso2.carbon.logging.util.LoggingConstants;
+import org.wso2.carbon.logging.util.LoggingUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.text.DateFormat;
