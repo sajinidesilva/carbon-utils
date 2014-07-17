@@ -39,7 +39,7 @@ import org.apache.log4j.net.SyslogAppender;
 import org.springframework.util.Log4jConfigurer;
 import org.wso2.carbon.core.util.SystemFilter;
 import org.wso2.carbon.logging.appender.CarbonMemoryAppender;
-import org.wso2.carbon.logging.appenders.CircularBuffer;
+import org.wso2.carbon.utils.logging.CircularBuffer;
 import org.wso2.carbon.logging.internal.DataHolder;
 import org.wso2.carbon.logging.internal.LoggingServiceComponent;
 import org.wso2.carbon.logging.registry.RegistryManager;

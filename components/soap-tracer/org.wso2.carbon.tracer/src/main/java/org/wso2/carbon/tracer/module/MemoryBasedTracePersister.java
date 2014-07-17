@@ -20,7 +20,7 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
 import org.wso2.carbon.tracer.TracerConstants;
 import org.wso2.carbon.tracer.TracerUtils;
-import org.wso2.carbon.logging.appenders.CircularBuffer;
+import org.wso2.carbon.utils.logging.CircularBuffer;
 
 import java.util.HashMap;
 import java.util.Map;
