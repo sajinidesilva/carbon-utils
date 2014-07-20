@@ -23,13 +23,36 @@ import org.wso2.carbon.logging.service.data.LoggingConfig;
 
 import javax.activation.DataHandler;
 
-
+/**
+ * All log file providers must inherit this interface. Log viewer use this to get all the details related to log file.
+ */
 public interface ILogFileProvider {
 
+    /**
+     * Initialize the file log provider by reading the property comes with logging configuration file
+     * This will be called immediate after create new instance of ILogFileProvider
+     * @param loggingConfig - logging configuration
+     */
     public void init(LoggingConfig loggingConfig);
 
+    /**
+     * Return array of LogInfo, which is available under given tenant domain and serviceName
+     * @param tenantDomain - Tenant domain eg: t1.com
+     * @param serviceName - Service name or Server key
+     * @return array of LogInfo, which is available under given tenant domain and serviceName, <code>null</code>
+     * if there  is no LogInfo available.
+     * @throws LogViewerException
+     */
     public LogInfo[] getLogInfo(String tenantDomain, String serviceName) throws LogViewerException;
 
+    /**
+     * Download the file
+     * @param logFile - File name which need to download, this should not be null.
+     * @param tenantDomain - Tenant domain eg: t1.com
+     * @param serviceName - Service name or Server key
+     * @return DataHandler for the given logfile, return <code>null</code> if there is not such logfile.
+     * @throws LogViewerException
+     */
     public DataHandler downloadLogFile(String logFile, String tenantDomain, String serviceName)throws LogViewerException;
 
 
