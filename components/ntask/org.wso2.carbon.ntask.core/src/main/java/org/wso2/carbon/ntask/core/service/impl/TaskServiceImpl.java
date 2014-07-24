@@ -280,6 +280,9 @@ public class TaskServiceImpl implements TaskService {
 
         @Override
         public String getLocationResolverClass() {
+            if (locationResolverClass == null) {
+                return TaskServiceXMLConfiguration.DEFAULT_LOCATION_RESOLVER_CLASS;
+            }
             return locationResolverClass;
         }
 

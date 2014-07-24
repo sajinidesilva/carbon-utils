@@ -40,7 +40,7 @@ public class TaskServiceXMLConfiguration {
 
     private String locationResolverClass;
 
-    private static final String DEFAULT_LOCATION_RESOLVER_CLASS =
+    public static final String DEFAULT_LOCATION_RESOLVER_CLASS =
             "org.wso2.carbon.ntask.core.impl.RandomTaskLocationResolver";
 
     public TaskServerMode getTaskServerMode() {
