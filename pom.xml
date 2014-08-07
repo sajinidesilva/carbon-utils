@@ -1595,9 +1595,9 @@
         <hostObject.version>1.0.0</hostObject.version>
 
         <!-- Spring Framework -->
-        <orbit.version.spring>3.1.0.wso2v1</orbit.version.spring>
-        <exp.pkg.version.spring>3.1.0.wso2v1</exp.pkg.version.spring>
-        <imp.pkg.version.spring>[3.1.0.wso2v1, 3.2.0)</imp.pkg.version.spring>
+        <orbit.version.spring>3.2.9.wso2v1</orbit.version.spring>
+        <exp.pkg.version.spring>3.2.9.wso2v1</exp.pkg.version.spring>
+        <imp.pkg.version.spring>[3.2.9.wso2v1, 3.3.0)</imp.pkg.version.spring>
 
         <!-- P2 Plugin Version -->
         <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
