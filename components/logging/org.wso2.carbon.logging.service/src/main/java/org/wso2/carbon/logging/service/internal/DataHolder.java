@@ -5,39 +5,39 @@ import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.user.core.service.RealmService;
 
 public class DataHolder {
-	private static DataHolder dataHolder = new DataHolder();
-	private RealmService realmService;
-	private Registry registry;
-	private ConfigurationContext contextService;
+    private static DataHolder dataHolder = new DataHolder();
+    private RealmService realmService;
+    private Registry registry;
+    private ConfigurationContext contextService;
 
-	public static DataHolder getInstance() {
-		return dataHolder;
-	}
+    private DataHolder() {
+    }
 
-	private DataHolder() {
-	}
+    public static DataHolder getInstance() {
+        return dataHolder;
+    }
 
-	public void setRealmService(RealmService realmService) {
-		this.realmService = realmService;
-	}
+    public RealmService getRealmService() {
+        return realmService;
+    }
 
-	public RealmService getRealmService() {
-		return realmService;
-	}
+    public void setRealmService(RealmService realmService) {
+        this.realmService = realmService;
+    }
 
-	public void setServerConfigContext(ConfigurationContext configContext) {
-		this.contextService = configContext;
-	}
+    public ConfigurationContext getServerConfigContext() {
+        return this.contextService;
+    }
 
-	public ConfigurationContext getServerConfigContext() {
-		return this.contextService;
-	}
+    public void setServerConfigContext(ConfigurationContext configContext) {
+        this.contextService = configContext;
+    }
 
-	public void setRegistry(Registry registryParam) {
-		registry = registryParam;
-	}
+    public Registry getRegistry() {
+        return registry;
+    }
 
-	public Registry getRegistry() {
-		return registry;
-	}
+    public void setRegistry(Registry registryParam) {
+        registry = registryParam;
+    }
 }

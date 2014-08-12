@@ -22,38 +22,38 @@ package org.wso2.carbon.logging.service.data;
  * Bean class to store log information.
  */
 public class LogInfo {
-	
-	private String logName;
-	private String logDate;
-	private String fileSize;
-	
-	public LogInfo(String logName, String logDate, String fileSize) {
-		this.logName = logName;
-		this.logDate = logDate;
-		this.fileSize = fileSize;
-	}
 
-	public String getLogName() {
-		return logName;
-	}
+    private String logName;
+    private String logDate;
+    private String fileSize;
 
-	public void setLogName(String logName) {
-		this.logName = logName;
-	}
+    public LogInfo(String logName, String logDate, String fileSize) {
+        this.logName = logName;
+        this.logDate = logDate;
+        this.fileSize = fileSize;
+    }
 
-	public String getLogDate() {
-		return logDate;
-	}
+    public String getLogName() {
+        return logName;
+    }
 
-	public void setLogDate(String logDate) {
-		this.logDate = logDate;
-	}
+    public void setLogName(String logName) {
+        this.logName = logName;
+    }
 
-	public String getFileSize() {
-		return fileSize;
-	}
+    public String getLogDate() {
+        return logDate;
+    }
 
-	public void setFileSize(String fileSize) {
-		this.fileSize = fileSize;
-	}
+    public void setLogDate(String logDate) {
+        this.logDate = logDate;
+    }
+
+    public String getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(String fileSize) {
+        this.fileSize = fileSize;
+    }
 }

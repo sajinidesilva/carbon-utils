@@ -29,8 +29,8 @@ import org.wso2.carbon.logging.service.internal.LoggingServiceComponent;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.logging.handler.TenantDomainSetter;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.logging.LogRecord;
 
@@ -39,12 +39,19 @@ import java.util.logging.LogRecord;
  * requested via the logging web service. This maintains a circular buffer, of
  * some fixed amount (say 100).
  */
-    public class CarbonMemoryAppender extends AppenderSkeleton  implements LoggingBridge {
+public class CarbonMemoryAppender extends AppenderSkeleton implements LoggingBridge {
 
     private static final Log log = LogFactory.getLog(CarbonMemoryAppender.class);
     private CircularBuffer circularBuffer;
     private int bufferSize = -1;
     private String columnList;
+
+    public CarbonMemoryAppender() {
+    }
+
+    public CarbonMemoryAppender(CircularBuffer circularBuffer) {
+        this.circularBuffer = circularBuffer;
+    }
 
     public String getColumnList() {
         return columnList;
@@ -52,13 +59,6 @@ import java.util.logging.LogRecord;
 
     public void setColumnList(String columnList) {
         this.columnList = columnList;
-    }
-
-    public CarbonMemoryAppender() {
-    }
-
-    public CarbonMemoryAppender(CircularBuffer circularBuffer) {
-        this.circularBuffer = circularBuffer;
     }
 
     protected synchronized void append(LoggingEvent loggingEvent) {

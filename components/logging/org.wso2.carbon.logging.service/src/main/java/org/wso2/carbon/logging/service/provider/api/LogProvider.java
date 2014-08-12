@@ -28,8 +28,8 @@ public interface LogProvider {
     /**
      * Return the all application names deployed under provided tenant domain and server key
      *
-     * @param tenantDomain    - Tenant domain eg: t1.com
-     * @param serverKey - Server key
+     * @param tenantDomain - Tenant domain eg: t1.com
+     * @param serverKey    - Server key
      * @return - string List which has all application names, empty String List if there is no application registered under
      * given tenant domain and server key
      * @throws LogViewerException
@@ -47,8 +47,8 @@ public interface LogProvider {
     /**
      * Return all the logs available under given domain and server key
      *
-     * @param tenantDomain    - Tenant domain eg: t1.com
-     * @param serverKey - server key
+     * @param tenantDomain - Tenant domain eg: t1.com
+     * @param serverKey    - server key
      * @return - List of all LogEvents available under the tenant domain and server key. empty LogEvent array if there is
      * no LogEvents available.
      * @throws LogViewerException
@@ -58,9 +58,9 @@ public interface LogProvider {
     /**
      * Return all the LogEvents belongs to the application, which is deployed under given tenant domain and server key.
      *
-     * @param appName   - application name
-     * @param tenantDomain    - Tenant domain eg: t1.com
-     * @param serverKey - Server key
+     * @param appName      - application name
+     * @param tenantDomain - Tenant domain eg: t1.com
+     * @param serverKey    - Server key
      * @return all the LogEvents belongs to the application, which is deployed under given tenant domain and server key,
      * return  empty LogEvent array if there is no such LogEvents available.
      * @throws LogViewerException
@@ -71,11 +71,11 @@ public interface LogProvider {
      * Returns all LogEvents related to the given application, which match to given type and LogEvent message has given
      * key word with it. User can use this api for search operations.
      *
-     * @param type      - Log type , eg: ALL , INFO , DEBUG etc ....
-     * @param keyword   - Key word
-     * @param appName   - Application name
-     * @param tenantDomain    - Tenant domain eg: t1.com
-     * @param serverKey - Server key
+     * @param type         - Log type , eg: ALL , INFO , DEBUG etc ....
+     * @param keyword      - Key word
+     * @param appName      - Application name
+     * @param tenantDomain - Tenant domain eg: t1.com
+     * @param serverKey    - Server key
      * @return - all LogEvents related to the given application, which match to given type and LogEvent message has given
      * key word with it.  empty LogEvent array if there is no LogEvents available.
      * @throws LogViewerException
@@ -85,8 +85,8 @@ public interface LogProvider {
     /**
      * Return LogEvent count.
      *
-     * @param tenantDomain    - Tenant domain eg: t1.com
-     * @param serverKey - Server key
+     * @param tenantDomain - Tenant domain eg: t1.com
+     * @param serverKey    - Server key
      * @return - LogEvent count, <code>0</code> if there is no LogEvent.
      * @throws LogViewerException
      */

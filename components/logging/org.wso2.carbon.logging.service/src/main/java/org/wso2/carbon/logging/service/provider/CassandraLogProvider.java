@@ -36,10 +36,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.logging.service.provider.api.LogProvider;
 import org.wso2.carbon.logging.service.LogViewerException;
 import org.wso2.carbon.logging.service.data.LogEvent;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
+import org.wso2.carbon.logging.service.provider.api.LogProvider;
 import org.wso2.carbon.logging.service.sort.LogEventSorter;
 import org.wso2.carbon.logging.service.util.LoggingConstants;
 import org.wso2.carbon.logging.service.util.LoggingUtil;
@@ -61,9 +61,9 @@ import java.util.concurrent.Future;
 
 public class CassandraLogProvider implements LogProvider {
 
-    private static Log log = LogFactory.getLog(CassandraLogProvider.class);
     private final static StringSerializer stringSerializer = StringSerializer.get();
     private static final int MAX_NO_OF_EVENTS = 40000;
+    private static Log log = LogFactory.getLog(CassandraLogProvider.class);
     private ExecutorService executorService = Executors.newFixedThreadPool(1);
     private LoggingConfig config;
 
@@ -97,30 +97,6 @@ public class CassandraLogProvider implements LogProvider {
         }
         return getSortedApplicationNames(appList);
     }
-
-/*    public LogEvent[] getApplicationLogs(String type, String keyword, String appName, String domain, String serverKey) throws LogViewerException {
-        LogEvent[] events = getSortedLogsFromCassandra(appName, domain, serverKey);
-        if (keyword == null || keyword.equals("")) {
-            // keyword is null
-            if (type == null || type.equals("") || type.equalsIgnoreCase("ALL")) {
-                return events;
-            } else {
-                // type is NOT null and NOT equal to ALL Application Name is not
-                // needed
-                return getLogsForType(events, type);
-            }
-        } else {
-            // keyword is NOT null
-            if (type == null || type.equals("")) {
-                // type is null
-                return getLogsForKey(events, keyword);
-            } else {
-                // type is NOT null and keyword is NOT null, but type can be
-                // equal to ALL
-                return searchLog(events, type, keyword);
-            }
-        }
-    }*/
 
     @Override
     public List<LogEvent> getSystemLogs() throws LogViewerException {
@@ -278,23 +254,23 @@ public class CassandraLogProvider implements LogProvider {
             for (HColumn<String, byte[]> hc : row.getColumnSlice().getColumns()) {
                 if (hc.getName().equals(LoggingConstants.HColumn.TENANT_ID)) {
                     event.setTenantId(convertByteToString(hc.getValue()));
-                }else if (hc.getName().equals(LoggingConstants.HColumn.SERVER_NAME)) {
+                } else if (hc.getName().equals(LoggingConstants.HColumn.SERVER_NAME)) {
                     event.setServerName(convertByteToString(hc.getValue()));
-                }else if (hc.getName().equals(LoggingConstants.HColumn.APP_NAME)) {
+                } else if (hc.getName().equals(LoggingConstants.HColumn.APP_NAME)) {
                     event.setAppName(convertByteToString(hc.getValue()));
-                }else if (hc.getName().equals(LoggingConstants.HColumn.LOG_TIME)) {
+                } else if (hc.getName().equals(LoggingConstants.HColumn.LOG_TIME)) {
                     event.setLogTime(convertLongToString(convertByteToLong(hc.getValue(), 0)));
-                }else if (hc.getName().equals(LoggingConstants.HColumn.LOGGER)) {
+                } else if (hc.getName().equals(LoggingConstants.HColumn.LOGGER)) {
                     event.setLogger(convertByteToString(hc.getValue()));
-                }else if (hc.getName().equals(LoggingConstants.HColumn.PRIORITY)) {
+                } else if (hc.getName().equals(LoggingConstants.HColumn.PRIORITY)) {
                     event.setPriority(convertByteToString(hc.getValue()));
-                }else if (hc.getName().equals(LoggingConstants.HColumn.MESSAGE)) {
+                } else if (hc.getName().equals(LoggingConstants.HColumn.MESSAGE)) {
                     event.setMessage(convertByteToString(hc.getValue()));
-                }else if (hc.getName().equals(LoggingConstants.HColumn.IP)) {
+                } else if (hc.getName().equals(LoggingConstants.HColumn.IP)) {
                     event.setIp(convertByteToString(hc.getValue()));
-                }else if (hc.getName().equals(LoggingConstants.HColumn.STACKTRACE)) {
+                } else if (hc.getName().equals(LoggingConstants.HColumn.STACKTRACE)) {
                     event.setStacktrace(convertByteToString(hc.getValue()));
-                }else if (hc.getName().equals(LoggingConstants.HColumn.INSTANCE)) {
+                } else if (hc.getName().equals(LoggingConstants.HColumn.INSTANCE)) {
                     event.setIp(convertByteToString(hc.getValue()));
                 }
 
@@ -476,12 +452,12 @@ public class CassandraLogProvider implements LogProvider {
 
         public static final String KEYSPACE = "keyspace";
         public static final String COLUMN_FAMILY = "columnFamily";
-//        public static final String IS_CASSANDRA_AVAILABLE = "isDataFromCassandra";
+        //        public static final String IS_CASSANDRA_AVAILABLE = "isDataFromCassandra";
         public static final String CLUSTER = "cluster";
         public static final String CONSISTENCY_LEVEL = "cassandraConsistencyLevel";
         public static final String AUTO_DISCOVERY_ENABLE = "cassandraAutoDiscovery.enable";
         public static final String AUTO_DISCOVERY_DELAY = "cassandraAutoDiscovery.delay";
-//        public static final String RETRY_DOWNED_HOSTS = "retryDownedHosts";
+        //        public static final String RETRY_DOWNED_HOSTS = "retryDownedHosts";
         public static final String RETRY_DOWNED_HOSTS_ENABLE = "retryDownedHosts.enable";
         public static final String RETRY_DOWNED_HOSTS_QUEUE_SIZE = "retryDownedHosts.queueSize";
 //        public static final String AUTO_DISCOVERY = "cassandraAutoDiscovery";

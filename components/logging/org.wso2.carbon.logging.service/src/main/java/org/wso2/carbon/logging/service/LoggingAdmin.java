@@ -28,18 +28,20 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.Priority;
 import org.apache.log4j.net.SyslogAppender;
-import org.wso2.carbon.logging.service.data.LogData;
+import org.wso2.carbon.logging.service.config.SyslogConfigManager;
 import org.wso2.carbon.logging.service.data.AppenderData;
+import org.wso2.carbon.logging.service.data.LogData;
 import org.wso2.carbon.logging.service.data.LoggerData;
 import org.wso2.carbon.logging.service.data.SyslogData;
-import org.wso2.carbon.logging.service.config.SyslogConfigManager;
 import org.wso2.carbon.logging.service.registry.RegistryManager;
 import org.wso2.carbon.logging.service.util.LoggingConstants;
 import org.wso2.carbon.logging.service.util.LoggingUtil;
-import org.wso2.carbon.utils.ServerConstants;
-import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.Collection;
+import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.utils.ServerConstants;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,8 +51,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * This is the Admin service used for obtaining Log4J information about the system and also used for
@@ -76,9 +76,9 @@ public class LoggingAdmin {
      * @throws Exception
      */
     public LogData getSystemLog() throws Exception {
-        boolean  isLogFileFound = Boolean.valueOf(LoggingUtil.getConfigurationProperty(
+        boolean isLogFileFound = Boolean.valueOf(LoggingUtil.getConfigurationProperty(
                 LoggingConstants.LOG4J_FILE_FOUND));
-        if(!isLogFileFound){
+        if (!isLogFileFound) {
             throw new Exception("Log4j.properties file not found, please put a log4j.properties file to the classpath");
         }
 
@@ -87,7 +87,7 @@ public class LoggingAdmin {
         // loading initial data
         logData.setLogLevel(LoggingUtil.getSystemLogLevel());
         logData.setLogPattern(LoggingUtil.getSystemLogPattern());
-        
+
         // set the appenders
         AppenderData[] appenderData = getAllAppenderData();
         if (appenderData.length > 0) {
@@ -173,35 +173,35 @@ public class LoggingAdmin {
                 parentName);
     }
 
-	public void updateSyslogConfig(String url, String port, String realm,
-			String userName, String password) throws LoggingAdminException {
-		try {
-			registryManager.updateSyslogConfig(url, port, realm, userName,
-					password);
-		} catch (Exception e) {
-			throw new LoggingAdminException("Cannot update the syslog config",
-					e);
-		}
+    public void updateSyslogConfig(String url, String port, String realm,
+                                   String userName, String password) throws LoggingAdminException {
+        try {
+            registryManager.updateSyslogConfig(url, port, realm, userName,
+                    password);
+        } catch (Exception e) {
+            throw new LoggingAdminException("Cannot update the syslog config",
+                    e);
+        }
 
-	}
-	
-	public SyslogData getSyslogData() throws LoggingAdminException {
-		try {
-			return registryManager.getSyslogData();
-		} catch (Exception e) {
-			throw new LoggingAdminException("Cannot retretrieve syslog configuration",
-					e);
-		}
-	}
-	
-	public String removeSyslogPattern (String appenderPattern) {
-		return appenderPattern.replace(SyslogConfigManager.getSyslogPattern().trim(), "");
-	}
-	
-	private String  addSyslogPattern (String appenderPattern) {
-		return SyslogConfigManager.getSyslogPattern()+" "+appenderPattern;
-	}
-    
+    }
+
+    public SyslogData getSyslogData() throws LoggingAdminException {
+        try {
+            return registryManager.getSyslogData();
+        } catch (Exception e) {
+            throw new LoggingAdminException("Cannot retretrieve syslog configuration",
+                    e);
+        }
+    }
+
+    public String removeSyslogPattern(String appenderPattern) {
+        return appenderPattern.replace(SyslogConfigManager.getSyslogPattern().trim(), "");
+    }
+
+    private String addSyslogPattern(String appenderPattern) {
+        return SyslogConfigManager.getSyslogPattern() + " " + appenderPattern;
+    }
+
     /**
      * Set the Appender information. We receive all the parameters from the update appenders method
      * but we have to only update the relevent data.
@@ -240,7 +240,7 @@ public class LoggingAdmin {
             }
         }
         Appender appender = null;
-        for (Iterator<Appender> iter = appenderSet.iterator(); iter.hasNext();) {
+        for (Iterator<Appender> iter = appenderSet.iterator(); iter.hasNext(); ) {
             appender = iter.next();
             if (appender.getName().equals(appenderName)) {
                 break;
@@ -256,8 +256,8 @@ public class LoggingAdmin {
 
             //Registry operations are performed before updating the actual appender in the memory
             if (isFileAppender) {
-            	//TODO add syslogPattern to  appenderPattern
-            	appenderPattern = addSyslogPattern(appenderPattern);
+                //TODO add syslogPattern to  appenderPattern
+                appenderPattern = addSyslogPattern(appenderPattern);
                 // Check if the file is valid
                 logFileName = logFileName.replace('\\', '/');
                 File logFile = new File(logFileName);
@@ -334,10 +334,10 @@ public class LoggingAdmin {
             }
         }
     }
-    
+
     public boolean isStratosService() throws Exception {
-		return LoggingUtil.isStratosService();
-	}
+        return LoggingUtil.isStratosService();
+    }
 
     /**
      * Globally update the System Logging configuration. The global logging level & the log pattern
@@ -398,7 +398,7 @@ public class LoggingAdmin {
         }
 
         Layout patternLayout = new PatternLayout(logPattern);
-        for(Appender appender:appenderSet){
+        for (Appender appender : appenderSet) {
             if (appender instanceof AppenderSkeleton) {
                 AppenderSkeleton appenderSkeleton = (AppenderSkeleton) appender;
                 appenderSkeleton.setThreshold(systemLevel);
@@ -464,7 +464,7 @@ public class LoggingAdmin {
         }
         AppenderData[] appenderDataArray = new AppenderData[appenderSet.size()];
         int i = 0;
-        for (Iterator<Appender> iterator = appenderSet.iterator(); iterator.hasNext();) {
+        for (Iterator<Appender> iterator = appenderSet.iterator(); iterator.hasNext(); ) {
             appenderDataArray[i] = toAppenderData(iterator.next());
             i++;
         }
@@ -544,7 +544,7 @@ public class LoggingAdmin {
     private Appender getTheFirstAppenderInLogger(Logger logger) {
         Enumeration appenders = logger.getAllAppenders();
         Appender targetAppender = null;
-        if(appenders.hasMoreElements()) {
+        if (appenders.hasMoreElements()) {
             targetAppender = (Appender) appenders.nextElement();
         }
         return targetAppender;

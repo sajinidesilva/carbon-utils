@@ -15,22 +15,6 @@
  */
 package org.wso2.carbon.logging.service.appender;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.LogRecord;
-
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
@@ -58,6 +42,22 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
 import org.wso2.carbon.utils.logging.TenantAwarePatternLayout;
 import org.wso2.carbon.utils.logging.handler.TenantDomainSetter;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.LogRecord;
 
 /**
  * BAMLogEventAppender - appends logs to BAM
@@ -239,7 +239,7 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
                 System.err.println("FATAL: LogEventAppender Cannot publish log events");
                 t.printStackTrace();
                 numOfConsecutiveFailures++;
-                if(numOfConsecutiveFailures >= getMaxTolerableConsecutiveFailure()){
+                if (numOfConsecutiveFailures >= getMaxTolerableConsecutiveFailure()) {
                     System.err.println("WARN: Number of consecutive log publishing failures reached the threshold of " +
                             getMaxTolerableConsecutiveFailure() + ". Purging log event array. Some logs will be lost.");
                     loggingEvents.clear();
@@ -264,27 +264,27 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
             String serverKey = getCurrentServerName();
             String currDateStr = getCurrentDate();
             if (dataPublisher == null) {
-            	 dataPublisher = new DataPublisher(url, userName, password);
+                dataPublisher = new DataPublisher(url, userName, password);
             }
             StreamData data = StreamDefinitionCache.getStream(tenantId);
             if (currDateStr.equals(data.getDate())) {
-            	streamId = data.getStreamId();
+                streamId = data.getStreamId();
             } else {
-            	  streamId = dataPublisher.defineStream("{" + "'name':'log" + "." + tenantId + "."
-                          + serverKey + "." + currDateStr + "'," + "  'version':'1.0.0',"
-                          + "  'nickName': 'Logs'," + "  'description': 'Logging Event',"
-                          + "  'metaData':[" + "          {'name':'clientType','type':'STRING'}" + "  ],"
-                          + "  'payloadData':[" + "          {'name':'tenantID','type':'STRING'},"
-                          + "          {'name':'serverName','type':'STRING'},"
-                          + "          {'name':'appName','type':'STRING'},"
-                          + "          {'name':'logTime','type':'LONG'},"
-                          + "          {'name':'priority','type':'STRING'},"
-                          + "          {'name':'message','type':'STRING'},"
-                          + "          {'name':'logger','type':'STRING'},"
-                          + "          {'name':'ip','type':'STRING'},"
-                          + "          {'name':'instance','type':'STRING'},"
-                          + "          {'name':'stacktrace','type':'STRING'}" + "  ]" + "}");
-            	  StreamDefinitionCache.putStream(tenantId, streamId, currDateStr);
+                streamId = dataPublisher.defineStream("{" + "'name':'log" + "." + tenantId + "."
+                        + serverKey + "." + currDateStr + "'," + "  'version':'1.0.0',"
+                        + "  'nickName': 'Logs'," + "  'description': 'Logging Event',"
+                        + "  'metaData':[" + "          {'name':'clientType','type':'STRING'}" + "  ],"
+                        + "  'payloadData':[" + "          {'name':'tenantID','type':'STRING'},"
+                        + "          {'name':'serverName','type':'STRING'},"
+                        + "          {'name':'appName','type':'STRING'},"
+                        + "          {'name':'logTime','type':'LONG'},"
+                        + "          {'name':'priority','type':'STRING'},"
+                        + "          {'name':'message','type':'STRING'},"
+                        + "          {'name':'logger','type':'STRING'},"
+                        + "          {'name':'ip','type':'STRING'},"
+                        + "          {'name':'instance','type':'STRING'},"
+                        + "          {'name':'stacktrace','type':'STRING'}" + "  ]" + "}");
+                StreamDefinitionCache.putStream(tenantId, streamId, currDateStr);
             }
             List<String> patterns = Arrays.asList(columnList.split(","));
             String tenantID = "";

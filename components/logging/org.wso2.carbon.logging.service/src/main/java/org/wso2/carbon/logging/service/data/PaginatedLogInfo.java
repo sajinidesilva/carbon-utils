@@ -18,37 +18,36 @@
  */
 package org.wso2.carbon.logging.service.data;
 
-import java.util.List;
-
 import org.wso2.carbon.utils.Pageable;
+
+import java.util.List;
 
 /**
  * Bean for paginated Login Information
  */
 public class PaginatedLogInfo implements Pageable {
 
-	private LogInfo[] logInfo;
-	private int numberOfPages;
+    private LogInfo[] logInfo;
+    private int numberOfPages;
 
-	public int getNumberOfPages() {
-		return numberOfPages;
-	}
+    public int getNumberOfPages() {
+        return numberOfPages;
+    }
 
-	public LogInfo[] getLogInfo() {
-		return logInfo;
-	}
+    public void setNumberOfPages(int numberOfPages) {
+        this.numberOfPages = numberOfPages;
+    }
 
-	public void setLogInfo(LogInfo[] logInfo) {
-		this.logInfo = logInfo;
-	}
+    public LogInfo[] getLogInfo() {
+        return logInfo;
+    }
 
+    public void setLogInfo(LogInfo[] logInfo) {
+        this.logInfo = logInfo;
+    }
 
-	public <T> void set(List<T> items) {
-		this.logInfo = items.toArray(new LogInfo[items.size()]);
-	}
-
-	public void setNumberOfPages(int numberOfPages) {
-		this.numberOfPages = numberOfPages;
-	}
+    public <T> void set(List<T> items) {
+        this.logInfo = items.toArray(new LogInfo[items.size()]);
+    }
 
 }

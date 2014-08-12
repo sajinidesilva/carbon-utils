@@ -141,7 +141,7 @@ public class FileLogProvider implements LogFileProvider {
     /**
      * Get Log file index from log collector server.
      *
-     * @param tenantId    -
+     * @param tenantId  -
      * @param serverKey -
      * @return LogInfo {Log Name, Date, Size}
      * @throws org.wso2.carbon.logging.service.LogViewerException

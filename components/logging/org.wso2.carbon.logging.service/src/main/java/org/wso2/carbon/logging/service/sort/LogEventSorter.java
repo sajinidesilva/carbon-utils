@@ -1,5 +1,10 @@
 package org.wso2.carbon.logging.service.sort;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.logging.service.data.LogEvent;
+import org.wso2.carbon.logging.service.util.LoggingConstants;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,35 +13,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.logging.service.data.LogEvent;
-import org.wso2.carbon.logging.service.util.LoggingConstants;
-
 public class LogEventSorter implements Callable<List<LogEvent>> {
 
-    private List<LogEvent> events;
-    private List<LogEvent> preprocessedEvents;
     private static LogTaskThreadPoolExecuter executer;
     private static Log log = LogFactory.getLog(LogEventSorter.class);
+    private List<LogEvent> events;
+    private List<LogEvent> preprocessedEvents;
 
     public LogEventSorter(List<LogEvent> events) {
         this.events = events;
         executer = new LogTaskThreadPoolExecuter();
         this.preprocessedEvents = new ArrayList<LogEvent>();
 
-    }
-
-    private List<LogEvent> getLogEvents() {
-        return this.events;
-    }
-
-    private LogTaskThreadPoolExecuter getExecuter() {
-        return executer;
-    }
-
-    public List<LogEvent> getPreprocessedEvents() {
-        return preprocessedEvents;
     }
 
     private static List<LogEvent> sortLogs(List<LogEvent> logEvents, int left, int right) {
@@ -74,7 +62,6 @@ public class LogEventSorter implements Callable<List<LogEvent>> {
         return storeIndex;
     }
 
-
     private static Date createDateObject(String date) {
         Date d = null;
         DateFormat formatter;
@@ -85,6 +72,18 @@ public class LogEventSorter implements Callable<List<LogEvent>> {
             log.error("Illegal Date Format", e);
         }
         return d;
+    }
+
+    private List<LogEvent> getLogEvents() {
+        return this.events;
+    }
+
+    private LogTaskThreadPoolExecuter getExecuter() {
+        return executer;
+    }
+
+    public List<LogEvent> getPreprocessedEvents() {
+        return preprocessedEvents;
     }
 
     @Override

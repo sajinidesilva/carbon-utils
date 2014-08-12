@@ -39,11 +39,11 @@ public class StreamDefinitionCache {
                     .maximumSize(1000)
                     .expireAfterAccess(120, TimeUnit.MINUTES)
                     .build(new CacheLoader<String, StreamData>() {
-                        @Override
-                        public StreamData load(String tenantId) throws Exception {
-                            return new StreamData(tenantId, "");
-                        }
-                    }
+                               @Override
+                               public StreamData load(String tenantId) throws Exception {
+                                   return new StreamData(tenantId, "");
+                               }
+                           }
                     );
         }
 

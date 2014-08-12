@@ -33,6 +33,7 @@ public class LoggingConfig {
     public void setLogProviderProperty(String key, String value) {
         this.logProviderPropMap.put(key, value);
     }
+
     public void setLogFileProviderProperty(String key, String value) {
         this.logFileProviderPropMap.put(key, value);
     }
@@ -40,6 +41,7 @@ public class LoggingConfig {
     public String getLogProviderProperty(String key) {
         return this.logProviderPropMap.get(key);
     }
+
     public String getLogFileProviderProperty(String key) {
         return this.logProviderPropMap.get(key);
     }

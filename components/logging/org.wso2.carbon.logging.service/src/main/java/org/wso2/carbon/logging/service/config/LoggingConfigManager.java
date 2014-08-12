@@ -22,37 +22,33 @@ import java.util.Iterator;
 
 public class LoggingConfigManager {
 
-	private static final Log log = LogFactory.getLog(LoggingConfigManager.class);
-	private static LoggingConfigManager cassandraConfig;
-	private static BundleContext bundleContext;
+    private static final Log log = LogFactory.getLog(LoggingConfigManager.class);
+    private static LoggingConfigManager cassandraConfig;
+    private static BundleContext bundleContext;
     private static LoggingConfig loggingConfig;
 
-	public static LoggingConfigManager getCassandraConfig() {
-		return cassandraConfig;
-	}
+    public static LoggingConfigManager getCassandraConfig() {
+        return cassandraConfig;
+    }
 
-	public static void setBundleContext(BundleContext bundleContext) {
-		LoggingConfigManager.bundleContext = bundleContext;
-	}
+    public static void setCassandraConfig(LoggingConfigManager syslogConfig) {
+        LoggingConfigManager.cassandraConfig = syslogConfig;
+    }
 
-	public static void setCassandraConfig(LoggingConfigManager syslogConfig) {
-		LoggingConfigManager.cassandraConfig = syslogConfig;
-	}
+    public static void setBundleContext(BundleContext bundleContext) {
+        LoggingConfigManager.bundleContext = bundleContext;
+    }
 
-	public static Log getLog() {
-		return log;
-	}
+    public static Log getLog() {
+        return log;
+    }
 
-	public LoggingConfig getSyslogData() {
-		return null;
-	}
-
-	/**
-	 * Returns the configurations from the Cassandra configuration file.
-	 * 
-	 * @return cassandra configurations
-	 */
-	public static LoggingConfig loadLoggingConfiguration() {
+    /**
+     * Returns the configurations from the Cassandra configuration file.
+     *
+     * @return cassandra configurations
+     */
+    public static LoggingConfig loadLoggingConfiguration() {
         if (loggingConfig != null) {
             return loggingConfig;
         }
@@ -67,51 +63,13 @@ public class LoggingConfigManager {
         return loggingConfig;
     }
 
-	private InputStream getInputStream(String configFilename)
-			throws IOException {
-		InputStream inStream = null;
-		File configFile = new File(configFilename);
-		if (configFile.exists()) {
-			inStream = new FileInputStream(configFile);
-		}
-		String warningMessage = "";
-		if (inStream == null) {
-			URL url;
-			if (bundleContext != null) {
-				if ((url = bundleContext.getBundle().getResource(
-						LoggingConstants.LOGGING_CONF_FILE)) != null) {
-					inStream = url.openStream();
-				} else {
-					warningMessage = "Bundle context could not find resource "
-							+ LoggingConstants.LOGGING_CONF_FILE
-							+ " or user does not have sufficient permission to access the resource.";
-					log.warn(warningMessage);
-				}
-
-			} else {
-				if ((url = this.getClass().getClassLoader()
-						.getResource(LoggingConstants.LOGGING_CONF_FILE)) != null) {
-					inStream = url.openStream();
-				} else {
-					warningMessage = "Could not find resource "
-							+ LoggingConstants.LOGGING_CONF_FILE
-							+ " or user does not have sufficient permission to access the resource.";
-					log.warn(warningMessage);
-				}
-			}
-		}
-		return inStream;
-	}
-
-
     /**
      * Loads the given Syslog Configuration file.
      *
-     * @param configFilename
-     *            Name of the configuration file
+     * @param configFilename Name of the configuration file
      * @return the syslog configuration data. null will be return if there any issue while loading configurations
      */
-    private static LoggingConfig loadLoggingConfiguration(String configFilename){
+    private static LoggingConfig loadLoggingConfiguration(String configFilename) {
         InputStream inputStream = null;
         try {
             inputStream = new LoggingConfigManager()
@@ -236,5 +194,45 @@ public class LoggingConfigManager {
 
     private static QName getQName(String localName) {
         return new QName(LoggingConstants.LogConfigProperties.DEFAULT_LOGGING_CONFIG_NAMESPACE, localName);
+    }
+
+    public LoggingConfig getSyslogData() {
+        return null;
+    }
+
+    private InputStream getInputStream(String configFilename)
+            throws IOException {
+        InputStream inStream = null;
+        File configFile = new File(configFilename);
+        if (configFile.exists()) {
+            inStream = new FileInputStream(configFile);
+        }
+        String warningMessage = "";
+        if (inStream == null) {
+            URL url;
+            if (bundleContext != null) {
+                if ((url = bundleContext.getBundle().getResource(
+                        LoggingConstants.LOGGING_CONF_FILE)) != null) {
+                    inStream = url.openStream();
+                } else {
+                    warningMessage = "Bundle context could not find resource "
+                            + LoggingConstants.LOGGING_CONF_FILE
+                            + " or user does not have sufficient permission to access the resource.";
+                    log.warn(warningMessage);
+                }
+
+            } else {
+                if ((url = this.getClass().getClassLoader()
+                        .getResource(LoggingConstants.LOGGING_CONF_FILE)) != null) {
+                    inStream = url.openStream();
+                } else {
+                    warningMessage = "Could not find resource "
+                            + LoggingConstants.LOGGING_CONF_FILE
+                            + " or user does not have sufficient permission to access the resource.";
+                    log.warn(warningMessage);
+                }
+            }
+        }
+        return inStream;
     }
 }
