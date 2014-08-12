@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.logging.provider;
+package org.wso2.carbon.logging.service.provider;
 
 import me.prettyprint.cassandra.model.ConfigurableConsistencyLevel;
 import me.prettyprint.cassandra.serializers.BytesArraySerializer;
@@ -34,14 +34,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.logging.config.LoggingConfigManager;
-import org.wso2.carbon.logging.internal.LoggingServiceComponent;
+import org.wso2.carbon.logging.service.config.LoggingConfigManager;
+import org.wso2.carbon.logging.service.internal.LoggingServiceComponent;
 import org.wso2.carbon.logging.service.LogViewerException;
 import org.wso2.carbon.logging.service.data.LogEvent;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
-import org.wso2.carbon.logging.sort.LogEventSorter;
-import org.wso2.carbon.logging.util.LoggingConstants;
-import org.wso2.carbon.logging.util.LoggingUtil;
+import org.wso2.carbon.logging.service.sort.LogEventSorter;
+import org.wso2.carbon.logging.service.util.LoggingConstants;
+import org.wso2.carbon.logging.service.util.LoggingUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -294,8 +294,8 @@ public class CassandraLogReader {
 	}
 
 	private LogEvent[] getSortedLogsFromCassandra(String applicationName, String domain, String serverKey) throws LogViewerException {
-		Future<LogEvent[]> task = this.getExecutorService().submit(
-				new LogEventSorter(this.getSystemLogs(domain, serverKey), ""));
+		/*Future<LogEvent[]> task = this.getExecutorService().submit(
+				new LogEventSorter(this.getSystemLogs(domain, serverKey));
 		List<LogEvent> resultList = new ArrayList<LogEvent>();
 		try {
 			if (applicationName.equals("")) {
@@ -318,8 +318,9 @@ public class CassandraLogReader {
 			log.error("Error occurred while retrieving the sorted log event list", e);
 			throw new LogViewerException(
 					"Error occurred while retrieving the sorted log event list");
-		}
+		}*/
 
+        return null;
 	}
 
 	private LogEvent[] searchLog(LogEvent[] sortedLogs, String type, String keyword)

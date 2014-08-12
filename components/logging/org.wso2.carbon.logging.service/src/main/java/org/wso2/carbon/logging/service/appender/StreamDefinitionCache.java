@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.logging.appender;
+package org.wso2.carbon.logging.service.appender;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;

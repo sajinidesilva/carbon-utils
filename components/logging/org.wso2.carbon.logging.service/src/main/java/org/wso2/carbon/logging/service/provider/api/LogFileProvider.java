@@ -15,45 +15,49 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.carbon.logging.provider.api;
+package org.wso2.carbon.logging.service.provider.api;
 
 import org.wso2.carbon.logging.service.LogViewerException;
 import org.wso2.carbon.logging.service.data.LogInfo;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
 
 import javax.activation.DataHandler;
+import java.util.List;
 
 /**
  * All log file providers must inherit this interface. Log viewer use this to get all the details related to log file.
  */
-public interface ILogFileProvider {
+public interface LogFileProvider {
 
     /**
      * Initialize the file log provider by reading the property comes with logging configuration file
      * This will be called immediate after create new instance of ILogFileProvider
+     *
      * @param loggingConfig - logging configuration
      */
     public void init(LoggingConfig loggingConfig);
 
     /**
      * Return array of LogInfo, which is available under given tenant domain and serviceName
+     *
      * @param tenantDomain - Tenant domain eg: t1.com
-     * @param serviceName - Service name or Server key
-     * @return array of LogInfo, which is available under given tenant domain and serviceName, <code>null</code>
+     * @param serviceName  - Service name or Server key
+     * @return array of LogInfo, which is available under given tenant domain and serviceName,  empty LogInfo array
      * if there  is no LogInfo available.
      * @throws LogViewerException
      */
-    public LogInfo[] getLogInfo(String tenantDomain, String serviceName) throws LogViewerException;
+    public List<LogInfo> getLogInfo(String tenantDomain, String serviceName) throws LogViewerException;
 
     /**
      * Download the file
-     * @param logFile - File name which need to download, this should not be null.
+     *
+     * @param logFile      - File name which need to download, this should not be null.
      * @param tenantDomain - Tenant domain eg: t1.com
-     * @param serviceName - Service name or Server key
+     * @param serviceName  - Service name or Server key
      * @return DataHandler for the given logfile, return <code>null</code> if there is not such logfile.
      * @throws LogViewerException
      */
-    public DataHandler downloadLogFile(String logFile, String tenantDomain, String serviceName)throws LogViewerException;
+    public DataHandler downloadLogFile(String logFile, String tenantDomain, String serviceName) throws LogViewerException;
 
 
 }

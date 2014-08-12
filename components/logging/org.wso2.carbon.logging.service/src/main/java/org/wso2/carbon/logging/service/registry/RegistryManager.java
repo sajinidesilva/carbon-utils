@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.logging.registry;
+package org.wso2.carbon.logging.service.registry;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,17 +28,16 @@ import org.apache.log4j.Layout;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.net.SyslogAppender;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
-import org.wso2.carbon.logging.appender.CarbonMemoryAppender;
 import org.wso2.carbon.utils.logging.CircularBuffer;
-import org.wso2.carbon.logging.config.SyslogConfigManager;
-import org.wso2.carbon.logging.config.SyslogConfiguration;
+import org.wso2.carbon.logging.service.appender.CarbonMemoryAppender;
+import org.wso2.carbon.logging.appenders.CircularBuffer;
+import org.wso2.carbon.logging.service.config.SyslogConfigManager;
+import org.wso2.carbon.logging.service.config.SyslogConfiguration;
 import org.wso2.carbon.logging.service.data.SyslogData;
-import org.wso2.carbon.logging.util.LoggingConstants;
+import org.wso2.carbon.logging.service.util.LoggingConstants;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;

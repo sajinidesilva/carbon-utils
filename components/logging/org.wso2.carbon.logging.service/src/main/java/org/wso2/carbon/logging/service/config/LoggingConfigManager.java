@@ -1,4 +1,4 @@
-package org.wso2.carbon.logging.config;
+package org.wso2.carbon.logging.service.config;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
@@ -6,7 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
-import org.wso2.carbon.logging.util.LoggingConstants;
+import org.wso2.carbon.logging.service.util.LoggingConstants;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.utils.CarbonUtils;
 
@@ -63,7 +63,8 @@ public class LoggingConfigManager {
                 + LoggingConstants.ETC_DIR
                 + RegistryConstants.PATH_SEPARATOR
                 + LoggingConstants.LOGGING_CONF_FILE;
-        return loadLoggingConfiguration(cassandraConfigFileName);
+        loggingConfig = loadLoggingConfiguration(cassandraConfigFileName);
+        return loggingConfig;
     }
 
 	private InputStream getInputStream(String configFilename)
@@ -126,34 +127,14 @@ public class LoggingConfigManager {
                 StAXOMBuilder builder = new StAXOMBuilder(parser);
                 OMElement documentElement = builder.getDocumentElement();
                 LoggingConfig config = new LoggingConfig();
-//                Class.forName(implClass);
                 @SuppressWarnings("rawtypes")
                 OMElement logProviderConfig = documentElement.getFirstChildWithName(
                         getQName(LoggingConstants.LogConfigProperties.LOG_PROVIDER_CONFIG));
-                String implClass = logProviderConfig.getAttributeValue(new QName("", LoggingConstants.LogConfigProperties.CLASS_ATTRIBUTE));
-                config.setLogProviderImplClassName(implClass);
-                // load log provider configuration
-                OMElement propElement = logProviderConfig.getFirstChildWithName(getQName(LoggingConstants.LogConfigProperties.PROPERTIES));
-                Iterator it = propElement.getChildrenWithLocalName(LoggingConstants.LogConfigProperties.PROPERTY);
-                while (it.hasNext()) {
-                    OMElement element = (OMElement) it.next();
-                    if (element.getText().equals(LoggingConstants.LogConfigProperties.PROPERTY)) {
-                        loadLogProviderProperties(element, config);
-                    }
-                }
+                loadLogProviderProperties(config, logProviderConfig);
                 // load log file provider configurations
                 OMElement logFileProviderConfig = documentElement.getFirstChildWithName(
                         getQName(LoggingConstants.LogConfigProperties.LOG_FILE_PROVIDER_CONFIG));
-                implClass = logFileProviderConfig.getAttributeValue(new QName("", LoggingConstants.LogConfigProperties.CLASS_ATTRIBUTE));
-                config.setLogFileProviderImplClassName(implClass);
-                propElement = logFileProviderConfig.getFirstChildWithName(getQName(LoggingConstants.LogConfigProperties.PROPERTIES));
-                it = logFileProviderConfig.getChildrenWithLocalName(LoggingConstants.LogConfigProperties.PROPERTY);
-                while (it.hasNext()) {
-                    OMElement element = (OMElement) it.next();
-                    if (element.getText().equals(LoggingConstants.LogConfigProperties.PROPERTY)) {
-                        loadLogFileProviderProperties(element, config);
-                    }
-                }
+                loadLogFileProviderProperties(config, logFileProviderConfig);
                 return config;
             } catch (Exception e) {
                 String msg = "Error in loading Stratos Configurations File: "
@@ -175,6 +156,60 @@ public class LoggingConfigManager {
                 + "Default Settings will be used.");
         return null;
         // if the file not found.
+    }
+
+    private static void loadLogFileProviderProperties(LoggingConfig config, OMElement logFileProviderConfig) {
+        String implClass = logFileProviderConfig.getAttributeValue(new QName("", LoggingConstants.LogConfigProperties.CLASS_ATTRIBUTE));
+        if (implClass != null) {
+            config.setLogFileProviderImplClassName(implClass);
+            OMElement propElement = logFileProviderConfig.getFirstChildWithName(getQName(LoggingConstants.LogConfigProperties.PROPERTIES));
+            Object ntEle;
+            OMElement propEle;
+            if (propElement != null) {
+                Iterator it = propElement.getChildrenWithLocalName(LoggingConstants.LogConfigProperties.PROPERTY);
+                while (it.hasNext()) {
+                    ntEle = it.next();
+                    if (ntEle instanceof OMElement) {
+                        propEle = (OMElement) ntEle;
+                        config.setLogFileProviderProperty(
+                                propEle.getAttributeValue(new QName(LoggingConstants.LogConfigProperties.PROPERTY_NAME)),
+                                propEle.getAttributeValue(new QName(LoggingConstants.LogConfigProperties.PROPERTY_VALUE)));
+                    }
+                }
+            } else {
+                log.error("Error loading log file provider properties, check the logging configuration file");
+            }
+        } else {
+            log.error("LogFileProvider implementation class name is null, check the logging configuration file");
+        }
+    }
+
+    private static void loadLogProviderProperties(LoggingConfig config, OMElement logProviderConfig) {
+        String implClass = logProviderConfig.getAttributeValue(new QName("", LoggingConstants.LogConfigProperties.CLASS_ATTRIBUTE));
+        if (implClass != null) {
+            config.setLogProviderImplClassName(implClass);
+            // load log provider configuration
+            OMElement propElement = logProviderConfig.getFirstChildWithName(getQName(LoggingConstants.LogConfigProperties.PROPERTIES));
+            if (propElement != null) {
+                Iterator it = propElement.getChildrenWithLocalName(LoggingConstants.LogConfigProperties.PROPERTY);
+                OMElement propEle;
+                Object ntEle;
+                while (it.hasNext()) {
+                    ntEle = it.next();
+                    if (ntEle instanceof OMElement) {
+                        propEle = (OMElement) ntEle;
+                        config.setLogProviderProperty(
+                                propEle.getAttributeValue(new QName(LoggingConstants.LogConfigProperties.PROPERTY_NAME)),
+                                propEle.getAttributeValue(new QName(LoggingConstants.LogConfigProperties.PROPERTY_VALUE)));
+                    }
+                }
+            } else {
+                log.error("Error loading log provider properties, check the logging configuration file ");
+            }
+        } else {
+            log.error("LogProvider implementation class name is null, check the loggging configuration file");
+        }
+
     }
 
     private static void loadLogProviderProperties(OMElement element, LoggingConfig config) {

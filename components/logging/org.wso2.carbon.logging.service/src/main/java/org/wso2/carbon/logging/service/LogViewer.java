@@ -21,17 +21,17 @@ import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.Logger;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.logging.appender.LogEventAppender;
-import org.wso2.carbon.logging.config.LoggingConfigManager;
-import org.wso2.carbon.logging.config.ServiceConfigManager;
+import org.wso2.carbon.logging.service.appender.LogEventAppender;
+import org.wso2.carbon.logging.service.config.LoggingConfigManager;
+import org.wso2.carbon.logging.service.config.ServiceConfigManager;
 import org.wso2.carbon.logging.service.data.LogEvent;
 import org.wso2.carbon.logging.service.data.LogInfo;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
 import org.wso2.carbon.logging.service.data.PaginatedLogEvent;
 import org.wso2.carbon.logging.service.data.PaginatedLogInfo;
-import org.wso2.carbon.logging.provider.api.ILogFileProvider;
-import org.wso2.carbon.logging.provider.api.ILogProvider;
-import org.wso2.carbon.logging.util.LoggingUtil;
+import org.wso2.carbon.logging.service.provider.api.LogFileProvider;
+import org.wso2.carbon.logging.service.provider.api.LogProvider;
+import org.wso2.carbon.logging.service.util.LoggingUtil;
 import org.wso2.carbon.utils.DataPaginator;
 
 import javax.activation.DataHandler;
@@ -47,8 +47,8 @@ public class LogViewer {
 
 	private static final Log log = LogFactory.getLog(LogViewer.class);
     private static LoggingConfig loggingConfig = LoggingConfigManager.loadLoggingConfiguration();
-    private static ILogFileProvider logFileProvider;
-    private static ILogProvider logProvider;
+    private static LogFileProvider logFileProvider;
+    private static LogProvider logProvider;
 
     static {
         // initiate Log provider instance
@@ -57,7 +57,7 @@ public class LogViewer {
             if (lpClass != null && !lpClass.equals("")) {
                 Class logProviderClass = Class.forName(lpClass);
                 Constructor constructor = logProviderClass.getConstructor();
-                logProvider = (ILogProvider) constructor.newInstance();
+                logProvider = (LogProvider) constructor.newInstance();
                 logProvider.init(loggingConfig);
             } else {
                 log.error("Log provider is not defined in logging configuration file");
@@ -72,7 +72,7 @@ public class LogViewer {
             if (lfpClass != null && ! lfpClass.equals("")) {
                 Class logFileProviderClass = Class.forName(lfpClass);
                 Constructor constructor = logFileProviderClass.getConstructor();
-                logFileProvider = (ILogFileProvider) constructor.newInstance();
+                logFileProvider = (LogFileProvider) constructor.newInstance();
                 logFileProvider.init(loggingConfig);
             } else {
                 log.error("Log file provider is not defined in logging configuration file");
@@ -85,9 +85,8 @@ public class LogViewer {
 
 	public PaginatedLogInfo getPaginatedLogInfo(int pageNumber, String tenantDomain,
 			String serviceName) throws LogViewerException {
-		LogInfo[] logs = logFileProvider.getLogInfo(tenantDomain, serviceName);
-		if (logs != null) {
-			List<LogInfo> logInfoList = Arrays.asList(logs);
+		List<LogInfo> logInfoList = logFileProvider.getLogInfo(tenantDomain, serviceName);
+		if (logInfoList != null && logInfoList.size() > 0) {
 			// Pagination
 			PaginatedLogInfo paginatedLogInfo = new PaginatedLogInfo();
 			DataPaginator.doPaging(pageNumber, logInfoList, paginatedLogInfo);
@@ -97,10 +96,9 @@ public class LogViewer {
 		}
 	}
 
-	public PaginatedLogInfo getLocalLogFiles(int pageNumber, String domain, String serverKey) throws LogViewerException {
-        LogInfo[] logs = logFileProvider.getLogInfo(domain, serverKey);
-        if (logs != null) {
-            List<LogInfo> logInfoList = Arrays.asList(logs);
+	public PaginatedLogInfo getLocalLogFiles(int pageNumber, String tenantDomain, String serverKey) throws LogViewerException {
+        List<LogInfo> logInfoList = logFileProvider.getLogInfo(tenantDomain, serverKey);
+        if (logInfoList != null && logInfoList.size() > 0) {
             PaginatedLogInfo paginatedLogInfo = new PaginatedLogInfo();
             DataPaginator.doPaging(pageNumber, logInfoList, paginatedLogInfo);
             return paginatedLogInfo;
@@ -109,8 +107,8 @@ public class LogViewer {
         }
     }
 
-	public DataHandler downloadArchivedLogFiles(String logFile, String domain, String serverKey) throws Exception {
-		return logFileProvider.downloadLogFile(logFile, domain, serverKey);
+	public DataHandler downloadArchivedLogFiles(String logFile, String tenantDomain, String serverKey) throws Exception {
+		return logFileProvider.downloadLogFile(logFile, tenantDomain, serverKey);
 	}
 
 	 public boolean isValidTenantDomain(String tenantDomain) {
@@ -126,8 +124,8 @@ public class LogViewer {
 	    return LoggingUtil.isManager();
 	 }
 
-    public boolean isValidTenant(String domain) {
-        return LoggingUtil.isValidTenant(domain);
+    public boolean isValidTenant(String tenantDomain) {
+        return LoggingUtil.isValidTenant(tenantDomain);
     }
 
 	public int getLineNumbers(String logFile) throws Exception {
@@ -139,8 +137,9 @@ public class LogViewer {
 		return LoggingUtil.getLogLinesFromFile(logFile, maxLogs, start, end);
 	}
 
-	public String[] getApplicationNames(String domain, String serverKey) throws LogViewerException {
-        return logProvider.getApplicationNames(domain, serverKey);
+	public String[] getApplicationNames(String tenantDomain, String serverKey) throws LogViewerException {
+        List<String> appNameList = logProvider.getApplicationNames(tenantDomain, serverKey);
+        return appNameList.toArray(new String[appNameList.size()]);
     }
 
 	public boolean isLogEventReciverConfigured() {
@@ -166,15 +165,15 @@ public class LogViewer {
 	}
 
 	public LogEvent[] getAllSystemLogs() throws LogViewerException {
-        return logProvider.getSystemLogs();
-	}
+        List<LogEvent> logEventList = logProvider.getSystemLogs();
+        return logEventList.toArray(new LogEvent[logEventList.size()]);
+    }
 
-    public PaginatedLogEvent getPaginatedLogEvents(int pageNumber, String type, String keyword, String domain, String serverKey)
+    public PaginatedLogEvent getPaginatedLogEvents(int pageNumber, String type, String keyword, String tenantDomain, String serverKey)
             throws LogViewerException {
 
-        LogEvent[] list = logProvider.getLogs(type, keyword, null, domain, serverKey);
-        if (list != null) {
-            List<LogEvent> logMsgList = Arrays.asList(list);
+        List<LogEvent> logMsgList = logProvider.getLogs(type, keyword, null, tenantDomain, serverKey);
+        if (logMsgList != null && logMsgList.size() > 0) {
             PaginatedLogEvent paginatedLogEvent = new PaginatedLogEvent();
             DataPaginator.doPaging(pageNumber, logMsgList, paginatedLogEvent);
             return paginatedLogEvent;
@@ -184,15 +183,14 @@ public class LogViewer {
 
     }
 
-	public int getNoOfLogEvents(String domain, String serverKey) throws LogViewerException {
-        return logProvider.logsCount(domain, serverKey);
+	public int getNoOfLogEvents(String tenantDomain, String serverKey) throws LogViewerException {
+        return logProvider.logsCount(tenantDomain, serverKey);
     }
 
 	public PaginatedLogEvent getPaginatedApplicationLogEvents(int pageNumber, String type,
-			String keyword, String applicationName, String domain, String serverKey) throws Exception {
-        LogEvent[] list = logProvider.getLogs(type, keyword, applicationName, domain, serverKey);
-        if (list != null) {
-            List<LogEvent> logMsgList = Arrays.asList(list);
+			String keyword, String applicationName, String tenantDomain, String serverKey) throws Exception {
+        List<LogEvent> logMsgList = logProvider.getLogs(type, keyword, applicationName, tenantDomain, serverKey);
+        if (logMsgList != null  && logMsgList.size() > 0) {
             PaginatedLogEvent paginatedLogEvent = new PaginatedLogEvent();
             DataPaginator.doPaging(pageNumber, logMsgList, paginatedLogEvent);
             return paginatedLogEvent;
@@ -201,30 +199,19 @@ public class LogViewer {
         }
     }
 
-    public LogEvent[] getLogs(String type, String keyword, String domain, String serverKey) throws LogViewerException {
-        return logProvider.getLogs(type, keyword, null, domain, serverKey);
+    public LogEvent[] getLogs(String type, String keyword, String tenantDomain,
+                                  String serverKey) throws LogViewerException {
+        List<LogEvent> logEventList = logProvider.getLogs(type, keyword, null, tenantDomain, serverKey);
+        return logEventList.toArray(new LogEvent[logEventList.size()]);
     }
 
-    public LogEvent[] getApplicationLogs(String type, String keyword, String appName, String domain, String serverKey) throws LogViewerException {
-        return logProvider.getLogs(type, keyword, appName, domain, serverKey);
+    public LogEvent[] getApplicationLogs(String type, String keyword, String appName, String tenantDomain,
+                                        String serverKey) throws LogViewerException {
+        List<LogEvent> logEventList = logProvider.getLogs(type, keyword, appName, tenantDomain, serverKey);
+        return logEventList.toArray(new LogEvent[logEventList.size()]);
     }
 
 	public boolean clearLogs() {
         return logProvider.clearLogs();
-        /*Appender appender = Logger.getRootLogger().getAppender(
-				LoggingConstants.WSO2CARBON_MEMORY_APPENDER);
-		if (appender instanceof CarbonMemoryAppender) {
-			try {
-				CarbonMemoryAppender memoryAppender = (CarbonMemoryAppender) appender;
-				if (memoryAppender.getCircularQueue() != null) {
-					memoryAppender.getCircularQueue().clear();
-				}
-				return true;
-			} catch (Exception e) {
-				return false;
-			}
-		} else {
-			return false;
-		}*/
     }
 }

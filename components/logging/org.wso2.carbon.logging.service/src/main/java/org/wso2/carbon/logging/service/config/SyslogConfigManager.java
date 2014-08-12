@@ -1,4 +1,4 @@
-package org.wso2.carbon.logging.config;
+package org.wso2.carbon.logging.service.config;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,7 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.logging.service.data.SyslogData;
-import org.wso2.carbon.logging.util.LoggingConstants;
+import org.wso2.carbon.logging.service.util.LoggingConstants;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.utils.CarbonUtils;
 

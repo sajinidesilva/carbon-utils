@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.logging.internal;
+package org.wso2.carbon.logging.service.internal;
 
 import java.io.File;
 
@@ -22,9 +22,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.logging.registry.RegistryManager;
-import org.wso2.carbon.logging.util.LoggingConstants;
-import org.wso2.carbon.logging.util.LoggingUtil;
+import org.wso2.carbon.logging.service.registry.RegistryManager;
+import org.wso2.carbon.logging.service.util.LoggingConstants;
+import org.wso2.carbon.logging.service.util.LoggingUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.service.RealmService;

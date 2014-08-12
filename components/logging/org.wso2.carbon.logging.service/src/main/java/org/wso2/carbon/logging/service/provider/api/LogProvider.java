@@ -1,92 +1,100 @@
-package org.wso2.carbon.logging.provider.api;
+package org.wso2.carbon.logging.service.provider.api;
 
 import org.wso2.carbon.logging.service.LogViewerException;
 import org.wso2.carbon.logging.service.data.LogEvent;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
 
+import java.util.List;
 
 /**
  * This interface should be inherited by all the log providers, This will allow you to plug any log provider to carbon
  * server. Carbon log viewer will use this interface to get the LogEvents and show it on Log View UI.
- *
- * use logging-config.xml file to provide all the configuration which require to initialized the log provider implementation
+ * <p/>
+ * use logging-config.xml file to provide all the configuration which is required to initialized the log provider implementation
  * for an example, cassandra base log provider need to know about keyspace, column family , etc ... You can configure these
- * details in logging-config.xml file and accesses using LoggingConfig class which contain all configuration parameter at
+ * details in logging-config.xml file and access using LoggingConfig class which contain all configuration parameter at
  * runtime.
- *
  */
-public interface ILogProvider {
+public interface LogProvider {
 
     /**
      * Initialize the log provider by reading the property comes with logging configuration file
      * This will be called immediate after create new instance of ILogProvider
+     *
      * @param loggingConfig
      */
     public void init(LoggingConfig loggingConfig);
 
     /**
      * Return the all application names deployed under provided tenant domain and server key
-     * @param domain - Tenant domain eg: t1.com
+     *
+     * @param tenantDomain    - Tenant domain eg: t1.com
      * @param serverKey - Server key
-     * @return - string array which has all application names, <code>null</code> if there is no application registered under
+     * @return - string List which has all application names, empty String List if there is no application registered under
      * given tenant domain and server key
      * @throws LogViewerException
      */
-    public String[] getApplicationNames(String domain, String serverKey) throws LogViewerException;
+    public List<String> getApplicationNames(String tenantDomain, String serverKey) throws LogViewerException;
 
     /**
      * Return array of system LogEvents
-     * @return - Array of LogEvent , <code>null</code> if no system LogEvents available.
+     *
+     * @return - List of LogEvent , <code>null</code> if no system LogEvents available.
      * @throws LogViewerException
      */
-    public LogEvent[] getSystemLogs() throws LogViewerException;
+    public List<LogEvent> getSystemLogs() throws LogViewerException;
 
     /**
      * Return all the logs available under given domain and server key
-     * @param domain - Tenant domain eg: t1.com
+     *
+     * @param tenantDomain    - Tenant domain eg: t1.com
      * @param serverKey - server key
-     * @return - Array of all LogEvents available under the tenant domain and server key. <code>null</code> if there is
+     * @return - List of all LogEvents available under the tenant domain and server key. empty LogEvent array if there is
      * no LogEvents available.
      * @throws LogViewerException
      */
-    public LogEvent[] getAllLogs(String domain, String serverKey) throws LogViewerException;
+    public List<LogEvent> getAllLogs(String tenantDomain, String serverKey) throws LogViewerException;
 
     /**
      * Return all the LogEvents belongs to the application, which is deployed under given tenant domain and server key.
-     * @param appName - application name
-     * @param domain - Tenant domain eg: t1.com
+     *
+     * @param appName   - application name
+     * @param tenantDomain    - Tenant domain eg: t1.com
      * @param serverKey - Server key
      * @return all the LogEvents belongs to the application, which is deployed under given tenant domain and server key,
-     * return <code>null</code> if there is no such LogEvents available.
+     * return  empty LogEvent array if there is no such LogEvents available.
      * @throws LogViewerException
      */
-    public LogEvent[] getLogsByAppName(String appName, String domain, String serverKey) throws LogViewerException;
+    public List<LogEvent> getLogsByAppName(String appName, String tenantDomain, String serverKey) throws LogViewerException;
 
     /**
      * Returns all LogEvents related to the given application, which match to given type and LogEvent message has given
      * key word with it. User can use this api for search operations.
-     * @param type - Log type , eg: ALL , INFO , DEBUG etc ....
-     * @param keyword - Key word
-     * @param appName - Application name
-     * @param domain - Tenant domain eg: t1.com
+     *
+     * @param type      - Log type , eg: ALL , INFO , DEBUG etc ....
+     * @param keyword   - Key word
+     * @param appName   - Application name
+     * @param tenantDomain    - Tenant domain eg: t1.com
      * @param serverKey - Server key
      * @return - all LogEvents related to the given application, which match to given type and LogEvent message has given
-     * key word with it. <code>null</code> if there is no LogEvents available.
+     * key word with it.  empty LogEvent array if there is no LogEvents available.
      * @throws LogViewerException
      */
-    public LogEvent[] getLogs(String type, String keyword, String appName, String domain, String serverKey) throws LogViewerException;
+    public List<LogEvent> getLogs(String type, String keyword, String appName, String tenantDomain, String serverKey) throws LogViewerException;
 
     /**
      * Return LogEvent count.
-     * @param domain - Tenant domain eg: t1.com
+     *
+     * @param tenantDomain    - Tenant domain eg: t1.com
      * @param serverKey - Server key
      * @return - LogEvent count, <code>0</code> if there is no LogEvent.
      * @throws LogViewerException
      */
-    public int logsCount(String domain, String serverKey) throws LogViewerException;
+    public int logsCount(String tenantDomain, String serverKey) throws LogViewerException;
 
     /**
      * Do clear operation, if it is a in memory log provider then this can be used to clear the memory.
+     *
      * @return - <code>true</code>  if clear operation success, <code>false</code>  if not.
      */
     public boolean clearLogs();

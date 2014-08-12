@@ -1,4 +1,4 @@
-package org.wso2.carbon.logging.session;
+package org.wso2.carbon.logging.service.session;
 
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.ServiceContext;

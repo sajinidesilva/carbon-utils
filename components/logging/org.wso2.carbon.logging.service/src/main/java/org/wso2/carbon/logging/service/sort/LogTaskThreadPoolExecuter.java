@@ -1,4 +1,4 @@
-package org.wso2.carbon.logging.sort;
+package org.wso2.carbon.logging.service.sort;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;

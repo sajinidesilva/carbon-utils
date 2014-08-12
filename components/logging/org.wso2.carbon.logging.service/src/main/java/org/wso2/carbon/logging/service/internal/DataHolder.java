@@ -1,4 +1,4 @@
-package org.wso2.carbon.logging.internal;
+package org.wso2.carbon.logging.service.internal;
 
 import org.apache.axis2.context.ConfigurationContext;
 import org.wso2.carbon.registry.core.Registry;

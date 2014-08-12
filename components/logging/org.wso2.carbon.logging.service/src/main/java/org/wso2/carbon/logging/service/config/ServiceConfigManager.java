@@ -1,4 +1,4 @@
-package org.wso2.carbon.logging.config;
+package org.wso2.carbon.logging.service.config;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,7 +15,7 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.logging.service.LogViewerException;
-import org.wso2.carbon.logging.util.LoggingConstants;
+import org.wso2.carbon.logging.service.util.LoggingConstants;
 import org.wso2.carbon.utils.CarbonUtils;
 
 public class ServiceConfigManager {

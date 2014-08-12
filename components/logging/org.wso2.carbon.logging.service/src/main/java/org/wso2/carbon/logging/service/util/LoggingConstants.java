@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.logging.util;
+package org.wso2.carbon.logging.service.util;
 
 import org.wso2.carbon.core.RegistryResources;
 

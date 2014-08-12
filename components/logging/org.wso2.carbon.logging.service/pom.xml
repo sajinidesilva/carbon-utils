@@ -41,30 +41,16 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Name>${project.artifactId}</Bundle-Name>
-						<Private-Package>org.wso2.carbon.logging.internal</Private-Package>
+						<Private-Package>org.wso2.carbon.logging.service.internal</Private-Package>
 						<Export-Package>
-                            org.wso2.carbon.logging.registry,
-                            org.wso2.carbon.logging.service.*,
-                            org.wso2.carbon.logging.config.*,
-                            org.wso2.carbon.logging.appender.*,
-                            org.wso2.carbon.logging.provider.*,
-                            org.wso2.carbon.logging.session.*,
-                            org.wso2.carbon.logging.sort.*,
-                            org.wso2.carbon.logging.util
+                            org.wso2.carbon.logging.service.*;version="4.3.0",
                         </Export-Package>
 						<Import-Package>
-							!org.wso2.carbon.logging.registry,
-							!org.wso2.carbon.logging.service.*,
-							!org.wso2.carbon.logging.config.*,
-							!org.wso2.carbon.logging.appender.*,
-							!org.wso2.carbon.logging.provider.*,
-							!org.wso2.carbon.logging.session.*,
-							!org.wso2.carbon.logging.sort.*,
-							!org.wso2.carbon.logging.util,
+							!org.wso2.carbon.logging.service.*;version="4.3.0",
 							org.apache.axis2.*; version="${axis2.osgi.version.range}",
 							org.springframework.*;version="3.1.0.wso2v1",
-							org.wso2.carbon.utils; version="0.0.0",
-							org.wso2.carbon.registry.core.*,
+							org.wso2.carbon.utils;version="4.3.0",
+							org.wso2.carbon.registry.core.*;version="1.0.1",
 							org.apache.commons.logging,
 							org.apache.log4j; version="0.0.0",
 							org.apache.log4j.net;

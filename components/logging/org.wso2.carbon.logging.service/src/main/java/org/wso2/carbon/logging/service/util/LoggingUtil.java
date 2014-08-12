@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.wso2.carbon.logging.util;
+package org.wso2.carbon.logging.service.util;
 
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.AxisService;
@@ -33,16 +33,16 @@ import org.springframework.util.Log4jConfigurer;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.util.SystemFilter;
-import org.wso2.carbon.logging.appender.CarbonMemoryAppender;
 import org.wso2.carbon.utils.logging.CircularBuffer;
-import org.wso2.carbon.logging.appender.LogEventAppender;
-import org.wso2.carbon.utils.logging.CircularBuffer;
-import org.wso2.carbon.logging.config.ServiceConfigManager;
-import org.wso2.carbon.logging.config.SyslogConfigManager;
-import org.wso2.carbon.logging.config.SyslogConfiguration;
-import org.wso2.carbon.logging.internal.DataHolder;
-import org.wso2.carbon.logging.internal.LoggingServiceComponent;
-import org.wso2.carbon.logging.registry.RegistryManager;
+import org.wso2.carbon.logging.service.appender.CarbonMemoryAppender;
+import org.wso2.carbon.logging.service.appender.LogEventAppender;
+import org.wso2.carbon.logging.appenders.CircularBuffer;
+import org.wso2.carbon.logging.service.config.ServiceConfigManager;
+import org.wso2.carbon.logging.service.config.SyslogConfigManager;
+import org.wso2.carbon.logging.service.config.SyslogConfiguration;
+import org.wso2.carbon.logging.service.internal.DataHolder;
+import org.wso2.carbon.logging.service.internal.LoggingServiceComponent;
+import org.wso2.carbon.logging.service.registry.RegistryManager;
 import org.wso2.carbon.logging.service.LogViewerException;
 import org.wso2.carbon.logging.service.data.SyslogData;
 import org.wso2.carbon.registry.core.Collection;

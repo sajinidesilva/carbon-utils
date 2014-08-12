@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.carbon.logging.provider;
+package org.wso2.carbon.logging.service.provider;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -27,17 +27,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.logging.provider.api.ILogFileProvider;
-import org.wso2.carbon.logging.config.ServiceConfigManager;
-import org.wso2.carbon.logging.config.SyslogConfigManager;
-import org.wso2.carbon.logging.config.SyslogConfiguration;
 import org.wso2.carbon.logging.service.LogViewerException;
+import org.wso2.carbon.logging.service.config.ServiceConfigManager;
+import org.wso2.carbon.logging.service.config.SyslogConfigManager;
+import org.wso2.carbon.logging.service.config.SyslogConfiguration;
 import org.wso2.carbon.logging.service.data.LogInfo;
-import org.wso2.carbon.logging.service.data.LogMessage;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
 import org.wso2.carbon.logging.service.data.SyslogData;
-import org.wso2.carbon.logging.util.LoggingConstants;
-import org.wso2.carbon.logging.util.LoggingUtil;
+import org.wso2.carbon.logging.service.provider.api.LogFileProvider;
+import org.wso2.carbon.logging.service.util.LoggingConstants;
+import org.wso2.carbon.logging.service.util.LoggingUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -54,7 +53,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -62,21 +60,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class FileLogProvider implements ILogFileProvider {
+public class FileLogProvider implements LogFileProvider {
 
 
     private static Log log = LogFactory.getLog(FileLogProvider.class);
-
-    private static final LogMessage[] NO_LOGS_MESSAGE = new LogMessage[] { new LogMessage(
-            "NO_LOGS", "INFO") };
-    private static final LogInfo[] NO_LOGS_INFO = new LogInfo[] { new LogInfo("NO_LOG_FILES",
-            "---", "---") };
 
     /**
      * Initialize the log provider by reading the property comes with logging configuration file
      * This will be called immediate after create new instance of ILogProvider
      *
-     * @param loggingConfig
+     * @param loggingConfig -
      */
     @Override
     public void init(LoggingConfig loggingConfig) {
@@ -84,14 +77,14 @@ public class FileLogProvider implements ILogFileProvider {
     }
 
     @Override
-    public LogInfo[] getLogInfo(String domain, String serverKey) throws LogViewerException {
+    public List<LogInfo> getLogInfo(String tenantDomain, String serverKey) throws LogViewerException {
         String folderPath = CarbonUtils.getCarbonLogsPath();
-        LogInfo log = null;
-        if((((domain.equals("") || domain == null) && isSuperTenantUser()) ||
-                domain.equalsIgnoreCase(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)) &&
+        List<LogInfo> logs = new ArrayList<LogInfo>();
+        LogInfo log;
+        if ((((tenantDomain == null || tenantDomain.equals("")) && isSuperTenantUser()) ||
+                (tenantDomain != null && tenantDomain.equalsIgnoreCase(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME))) &&
                 (serverKey == null || serverKey.equals("") || serverKey.equalsIgnoreCase(getCurrentServerName()))) {
 
-            ArrayList<LogInfo> logs = new ArrayList<LogInfo>();
             File folder = new File(folderPath);
             FileFilter fileFilter = new WildcardFileFilter(
                     LoggingConstants.RegexPatterns.LOCAL_CARBON_LOG_PATTERN);
@@ -109,42 +102,32 @@ public class FileLogProvider implements ILogFileProvider {
                     log = new LogInfo(filename, LoggingConstants.RegexPatterns.CURRENT_LOG,
                             getFileSize(logfile));
                 }
-                if (log != null) {
-                    logs.add(log);
-                }
+                logs.add(log);
             }
-            return getSortedLogInfo(logs.toArray(new LogInfo[logs.size()]));
-        } else {
-            return null;
         }
+        return getSortedLogInfo(logs);
 
-    }
-
-
-    public LogInfo[] getLogsIndex(String tenantDomain, String serviceName) throws Exception {
-        return new LogInfo[0];
     }
 
     @Override
-    public DataHandler downloadLogFile(String logFile, String tenantDomain, String serviceName) throws LogViewerException {
+    public DataHandler downloadLogFile(String logFile, String tenantDomain, String serverKey) throws LogViewerException {
         InputStream is;
         int tenantId = LoggingUtil.getTenantIdForDomain(tenantDomain);
         try {
-            is = getInputStream(logFile, tenantId, serviceName);
+            is = getInputStream(logFile, tenantId, serverKey);
         } catch (LogViewerException e) {
             throw new LogViewerException("Cannot read InputStream from the file " + logFile, e);
         }
         try {
             ByteArrayDataSource bytArrayDS = new ByteArrayDataSource(is, "application/zip");
-            DataHandler dataHandler = new DataHandler(bytArrayDS);
-            return dataHandler;
+            return new DataHandler(bytArrayDS);
         } catch (IOException e) {
             throw new LogViewerException("Cannot read file size from the " + logFile, e);
         } finally {
             try {
                 is.close();
             } catch (IOException e) {
-                throw new LogViewerException("Cannot close the input stream " + logFile, e);
+                log.error("Error while closing inputStream of log file");
             }
         }
     }
@@ -158,15 +141,15 @@ public class FileLogProvider implements ILogFileProvider {
     /**
      * Get Log file index from log collector server.
      *
-     * @param tenantId
-     * @param serviceName
+     * @param tenantId    -
+     * @param serverKey -
      * @return LogInfo {Log Name, Date, Size}
      * @throws org.wso2.carbon.logging.service.LogViewerException
      */
-    private LogInfo[] getLogInfo(int tenantId, String serviceName) throws LogViewerException {
+    private List<LogInfo> getLogInfo(int tenantId, String serverKey) throws LogViewerException {
         InputStream logStream;
         try {
-            logStream = getLogDataStream("", tenantId, serviceName);
+            logStream = getLogDataStream("", tenantId, serverKey);
         } catch (HttpException e) {
             throw new LogViewerException("Cannot establish the connection to the syslog server", e);
         } catch (IOException e) {
@@ -178,7 +161,7 @@ public class FileLogProvider implements ILogFileProvider {
         }
         BufferedReader dataInput = new BufferedReader(new InputStreamReader(logStream));
         String line;
-        ArrayList<LogInfo> logs = new ArrayList<LogInfo>();
+        List<LogInfo> logs = new ArrayList<LogInfo>();
         Pattern pattern = Pattern.compile(LoggingConstants.RegexPatterns.SYS_LOG_FILE_NAME_PATTERN);
         try {
             while ((line = dataInput.readLine()) != null) {
@@ -199,7 +182,7 @@ public class FileLogProvider implements ILogFileProvider {
                             .split(LoggingConstants.RegexPatterns.GT_PATTARN);
                     Matcher matcher = pattern.matcher(logFileName[0]);
                     if (matcher.find()) {
-                        if (logFileName != null && dates != null && sizes != null) {
+                        if (dates != null) {
                             String logName = logFileName[0].replace(
                                     LoggingConstants.RegexPatterns.BACK_SLASH_PATTERN, "");
                             logName = logName.replaceAll("%20", " ");
@@ -214,14 +197,14 @@ public class FileLogProvider implements ILogFileProvider {
             throw new LogViewerException("Cannot find the specified file location to the log file",
                     e);
         }
-        return getSortedLogInfo(logs.toArray(new LogInfo[logs.size()]));
+        return getSortedLogInfo(logs);
     }
 
-    private LogInfo[] getSortedLogInfo(LogInfo logs[]) {
-        int maxLen = logs.length;
-        if (maxLen > 0) {
-            List<LogInfo> logInfoList = Arrays.asList(logs);
-            Collections.sort(logInfoList, new Comparator<Object>() {
+    private List<LogInfo> getSortedLogInfo(List<LogInfo> logs) {
+        if (logs == null || logs.size() == 0) {
+            return getDefaultLogInfo();
+        } else {
+            Collections.sort(logs, new Comparator<Object>() {
                 public int compare(Object o1, Object o2) {
                     LogInfo log1 = (LogInfo) o1;
                     LogInfo log2 = (LogInfo) o2;
@@ -229,16 +212,14 @@ public class FileLogProvider implements ILogFileProvider {
                 }
 
             });
-            return (LogInfo[]) logInfoList.toArray(new LogInfo[logInfoList.size()]);
-        } else {
-            return NO_LOGS_INFO;
+            return logs;
         }
     }
 
     private InputStream getLogDataStream(String logFile, int tenantId, String productName)
             throws Exception {
         SyslogData syslogData = getSyslogData();
-        String url = "";
+        String url;
         // manager can view all the products tenant log information
         url = getLogsServerURLforTenantService(syslogData.getUrl(), logFile, tenantId, productName);
         String password = syslogData.getPassword();
@@ -263,14 +244,13 @@ public class FileLogProvider implements ILogFileProvider {
     /*
      * get logs from the local file system.
      */
-    private LogInfo[] getLocalLogInfo(String domain, String serverKey) {
+    private List<LogInfo> getLocalLogInfo(String tenantDomain, String serverKey) {
         String folderPath = CarbonUtils.getCarbonLogsPath();
-        LogInfo log = null;
-        if((((domain.equals("") || domain == null) && isSuperTenantUser()) ||
-                domain.equalsIgnoreCase(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)) &&
-                (serverKey == null || serverKey.equals("") || serverKey.equalsIgnoreCase(getCurrentServerName()))) {
+        List<LogInfo> logs = new ArrayList<LogInfo>();
+        LogInfo log;
+        if ((((tenantDomain.equals("")) && isSuperTenantUser()) || tenantDomain.equalsIgnoreCase(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME))
+                && (serverKey == null || serverKey.equals("") || serverKey.equalsIgnoreCase(getCurrentServerName()))) {
 
-            ArrayList<LogInfo> logs = new ArrayList<LogInfo>();
             File folder = new File(folderPath);
             FileFilter fileFilter = new WildcardFileFilter(
                     LoggingConstants.RegexPatterns.LOCAL_CARBON_LOG_PATTERN);
@@ -288,20 +268,16 @@ public class FileLogProvider implements ILogFileProvider {
                     log = new LogInfo(filename, LoggingConstants.RegexPatterns.CURRENT_LOG,
                             getFileSize(logfile));
                 }
-                if (log != null) {
-                    logs.add(log);
-                }
+                logs.add(log);
             }
-            return getSortedLogInfo(logs.toArray(new LogInfo[logs.size()]));
-        } else {
-            return null;
         }
+        return getSortedLogInfo(logs);
 
     }
 
     private String getLogsServerURLforTenantService(String syslogServerURL, String logFile,
-                                                    int tenantId, String serviceName) throws LogViewerException {
-        String serverurl = "";
+                                                    int tenantId, String serverKey) throws LogViewerException {
+        String serverUrl;
         String lastChar = String.valueOf(syslogServerURL.charAt(syslogServerURL.length() - 1));
         if (lastChar.equals(LoggingConstants.URL_SEPARATOR)) { // http://my.log.server/logs/stratos/
             syslogServerURL = syslogServerURL.substring(0, syslogServerURL.length() - 1);
@@ -309,19 +285,19 @@ public class FileLogProvider implements ILogFileProvider {
         if (isSuperTenantUser()) { // ST can view tenant specific log files.
             if (isManager()) { // manager can view different services log
                 // messages.
-                if (serviceName != null && serviceName.length() > 0) {
-                    serverurl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
-                            + LoggingConstants.URL_SEPARATOR + serviceName
+                if (serverKey != null && serverKey.length() > 0) {
+                    serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
+                            + LoggingConstants.URL_SEPARATOR + serverKey
                             + LoggingConstants.URL_SEPARATOR;
                 } else {
-                    serverurl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
+                    serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
                             + LoggingConstants.URL_SEPARATOR
                             + LoggingConstants.WSO2_STRATOS_MANAGER
                             + LoggingConstants.URL_SEPARATOR;
                 }
                 try {
                     if (!isStratosService()) { // stand-alone apps.
-                        serverurl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
+                        serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
                                 + LoggingConstants.URL_SEPARATOR
                                 + ServerConfiguration.getInstance().getFirstProperty("ServerKey")
                                 + LoggingConstants.URL_SEPARATOR;
@@ -331,7 +307,7 @@ public class FileLogProvider implements ILogFileProvider {
                 }
             } else { // for other stratos services can view only their relevant
                 // logs.
-                serverurl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
+                serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
                         + LoggingConstants.URL_SEPARATOR
                         + ServerConfiguration.getInstance().getFirstProperty("ServerKey")
                         + LoggingConstants.URL_SEPARATOR;
@@ -339,58 +315,49 @@ public class FileLogProvider implements ILogFileProvider {
 
         } else { // tenant level logging
             if (isManager()) {
-                if (serviceName != null && serviceName.length() > 0) {
-                    serverurl = syslogServerURL + LoggingConstants.URL_SEPARATOR
-                            + CarbonContext.getCurrentContext().getTenantId()
-                            + LoggingConstants.URL_SEPARATOR + serviceName
+                if (serverKey != null && serverKey.length() > 0) {
+                    serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR
+                            + CarbonContext.getThreadLocalCarbonContext().getTenantId()
+                            + LoggingConstants.URL_SEPARATOR + serverKey
                             + LoggingConstants.URL_SEPARATOR;
                 } else {
-                    serverurl = syslogServerURL + LoggingConstants.URL_SEPARATOR
-                            + CarbonContext.getCurrentContext().getTenantId()
+                    serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR
+                            + CarbonContext.getThreadLocalCarbonContext().getTenantId()
                             + LoggingConstants.URL_SEPARATOR
                             + LoggingConstants.WSO2_STRATOS_MANAGER
                             + LoggingConstants.URL_SEPARATOR;
                 }
             } else {
-                serverurl = syslogServerURL + LoggingConstants.URL_SEPARATOR
-                        + CarbonContext.getCurrentContext().getTenantId()
+                serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR
+                        + CarbonContext.getThreadLocalCarbonContext().getTenantId()
                         + LoggingConstants.URL_SEPARATOR
                         + ServerConfiguration.getInstance().getFirstProperty("ServerKey")
                         + LoggingConstants.URL_SEPARATOR;
             }
         }
-        serverurl = serverurl.replaceAll("\\s", "%20");
+        serverUrl = serverUrl.replaceAll("\\s", "%20");
         logFile = logFile.replaceAll("\\s", "%20");
-        return serverurl + logFile;
+        return serverUrl + logFile;
     }
 
     public boolean isStratosService() throws LogViewerException {
-        String serviceName = ServerConfiguration.getInstance().getFirstProperty("ServerKey");
-        return ServiceConfigManager.isStratosService(serviceName);
+        String serverKey = ServerConfiguration.getInstance().getFirstProperty("ServerKey");
+        return ServiceConfigManager.isStratosService(serverKey);
     }
 
     public boolean isManager() {
-        if (LoggingConstants.WSO2_STRATOS_MANAGER.equalsIgnoreCase(ServerConfiguration.getInstance()
-                .getFirstProperty("ServerKey"))) {
-            return true;
-        } else {
-            return false;
-        }
+        return LoggingConstants.WSO2_STRATOS_MANAGER.equalsIgnoreCase(ServerConfiguration.getInstance()
+                .getFirstProperty("ServerKey"));
     }
 
     public boolean isSuperTenantUser() {
-        CarbonContext carbonContext = CarbonContext.getCurrentContext();
+        CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();
         int tenantId = carbonContext.getTenantId();
-        if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
-            return true;
-        } else {
-            return false;
-        }
+        return tenantId == MultitenantConstants.SUPER_TENANT_ID;
     }
 
     private String getCurrentServerName() {
-        String serverName = ServerConfiguration.getInstance().getFirstProperty("ServerKey");
-        return serverName;
+        return ServerConfiguration.getInstance().getFirstProperty("ServerKey");
     }
 
     private String getFileSize(File file) {
@@ -403,12 +370,12 @@ public class FileLogProvider implements ILogFileProvider {
         return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
-    private InputStream getInputStream(String logFile, int tenantId, String serviceName)
+    private InputStream getInputStream(String logFile, int tenantId, String serverKey)
             throws LogViewerException {
         InputStream inputStream;
         try {
             if (isSyslogOn()) {
-                inputStream = getLogDataStream(logFile, tenantId, serviceName);
+                inputStream = getLogDataStream(logFile, tenantId, serverKey);
             } else {
                 if (isSuperTenantUser()) {
                     inputStream = getLocalInputStream(logFile);
@@ -424,10 +391,18 @@ public class FileLogProvider implements ILogFileProvider {
     }
 
     private InputStream getLocalInputStream(String logFile) throws FileNotFoundException {
-        logFile = logFile.substring(logFile.lastIndexOf(System.getProperty("file.separator"))+1);
+        logFile = logFile.substring(logFile.lastIndexOf(System.getProperty("file.separator")) + 1);
         String fileName = CarbonUtils.getCarbonLogsPath() + LoggingConstants.URL_SEPARATOR
                 + logFile;
-        InputStream is = new BufferedInputStream(new FileInputStream(fileName));
-        return is;
+        return new BufferedInputStream(new FileInputStream(fileName));
     }
+
+
+    private List<LogInfo> getDefaultLogInfo() {
+        List<LogInfo> defaultLoginfoList = new ArrayList<LogInfo>();
+        defaultLoginfoList.add(new LogInfo("NO_LOG_FILES",
+                "---", "---"));
+        return defaultLoginfoList;
+    }
+
 }

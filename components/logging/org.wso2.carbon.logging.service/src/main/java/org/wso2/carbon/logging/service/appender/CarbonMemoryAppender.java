@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.wso2.carbon.logging.appender;
+package org.wso2.carbon.logging.service.appender;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
@@ -23,6 +25,7 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.logging.CircularBuffer;
 import org.wso2.carbon.utils.logging.LoggingUtils;
 import org.wso2.carbon.logging.internal.LoggingServiceComponent;
+import org.wso2.carbon.logging.service.internal.LoggingServiceComponent;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
@@ -38,6 +41,7 @@ import java.util.logging.LogRecord;
  */
     public class CarbonMemoryAppender extends AppenderSkeleton  implements LoggingBridge {
 
+    private static final Log log = LogFactory.getLog(CarbonMemoryAppender.class);
     private CircularBuffer circularBuffer;
     private int bufferSize = -1;
     private String columnList;
@@ -66,10 +70,8 @@ import java.util.logging.LogRecord;
                 try {
                     tenantId = getTenantIdForDomain(tenantDomain);
                 } catch (UserStoreException e) {
-                    System.err.println("Cannot find tenant id for the given tenant domain.");
-                    e.printStackTrace();
+                    log.warn("Cannot find tenant id for the given tenant domain.", e);
                     //Ignore this exception.
-                    //log.error("Cannot find tenant id for the given tenant domain.", e);
                 }
             }
         }

@@ -1,4 +1,4 @@
-package org.wso2.carbon.logging.config;
+package org.wso2.carbon.logging.service.config;
 
 public class SyslogConfiguration {
 
