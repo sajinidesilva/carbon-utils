@@ -105,9 +105,6 @@ public class CassandraLogProvider implements LogProvider {
 
     @Override
     public List<LogEvent> getAllLogs(String tenantDomain, String serverKey) throws LogViewerException {
-
-        // int tenantId = getCurrentTenantId(tenantDomain);
-        // serviceName = getCurrentServerName(serviceName);
         Keyspace currKeyspace = getCurrentCassandraKeyspace();
         String colFamily = getCFName(config, tenantDomain, serverKey);
         if (!isCFExsist(config.getLogProviderProperty(CassandraConfigProperties.KEYSPACE), colFamily)) {
@@ -118,7 +115,6 @@ public class CassandraLogProvider implements LogProvider {
                         BytesArraySerializer.get());
         rangeSlicesQuery.setColumnFamily(colFamily);
         rangeSlicesQuery.setRowCount(MAX_NO_OF_EVENTS);
-
         rangeSlicesQuery.setColumnNames(LoggingConstants.HColumn.TENANT_ID,
                 LoggingConstants.HColumn.SERVER_NAME, LoggingConstants.HColumn.APP_NAME,
                 LoggingConstants.HColumn.LOG_TIME, LoggingConstants.HColumn.LOGGER,
@@ -126,7 +122,6 @@ public class CassandraLogProvider implements LogProvider {
                 LoggingConstants.HColumn.IP, LoggingConstants.HColumn.STACKTRACE,
                 LoggingConstants.HColumn.INSTANCE);
         rangeSlicesQuery.setRange("", "", false, 30);
-
         return getLoggingResultList(rangeSlicesQuery);
     }
 
@@ -164,7 +159,6 @@ public class CassandraLogProvider implements LogProvider {
     public int logsCount(String tenantDomain, String serverKey) throws LogViewerException {
         Keyspace currKeyspace = getCurrentCassandraKeyspace();
         String colFamily = getCFName(config, tenantDomain, serverKey);
-
         RangeSlicesQuery<String, String, String> rangeSlicesQuery = HFactory
                 .createRangeSlicesQuery(currKeyspace, stringSerializer, stringSerializer,
                         stringSerializer);
@@ -252,28 +246,12 @@ public class CassandraLogProvider implements LogProvider {
             LogEvent event = new LogEvent();
             event.setKey(row.getKey());
             for (HColumn<String, byte[]> hc : row.getColumnSlice().getColumns()) {
-                if (hc.getName().equals(LoggingConstants.HColumn.TENANT_ID)) {
-                    event.setTenantId(convertByteToString(hc.getValue()));
-                } else if (hc.getName().equals(LoggingConstants.HColumn.SERVER_NAME)) {
-                    event.setServerName(convertByteToString(hc.getValue()));
-                } else if (hc.getName().equals(LoggingConstants.HColumn.APP_NAME)) {
-                    event.setAppName(convertByteToString(hc.getValue()));
-                } else if (hc.getName().equals(LoggingConstants.HColumn.LOG_TIME)) {
-                    event.setLogTime(convertLongToString(convertByteToLong(hc.getValue(), 0)));
-                } else if (hc.getName().equals(LoggingConstants.HColumn.LOGGER)) {
-                    event.setLogger(convertByteToString(hc.getValue()));
-                } else if (hc.getName().equals(LoggingConstants.HColumn.PRIORITY)) {
-                    event.setPriority(convertByteToString(hc.getValue()));
-                } else if (hc.getName().equals(LoggingConstants.HColumn.MESSAGE)) {
-                    event.setMessage(convertByteToString(hc.getValue()));
-                } else if (hc.getName().equals(LoggingConstants.HColumn.IP)) {
-                    event.setIp(convertByteToString(hc.getValue()));
-                } else if (hc.getName().equals(LoggingConstants.HColumn.STACKTRACE)) {
-                    event.setStacktrace(convertByteToString(hc.getValue()));
-                } else if (hc.getName().equals(LoggingConstants.HColumn.INSTANCE)) {
-                    event.setIp(convertByteToString(hc.getValue()));
+                if (hc.getName().equalsIgnoreCase(LoggingConstants.HColumn.LOG_TIME)) {
+                    LoggingUtil.setInstanceProperty(hc.getName(), convertLongToString(convertByteToLong(hc.getValue()
+                            , 0)), event);
+                } else {
+                    LoggingUtil.setInstanceProperty(hc.getName(), convertByteToString(hc.getValue()), event);
                 }
-
             }
             resultList.add(event);
         }

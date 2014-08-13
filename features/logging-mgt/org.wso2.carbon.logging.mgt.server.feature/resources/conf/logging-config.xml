@@ -23,7 +23,7 @@
 <loggingConfig xmlns="http://wso2.org/projects/carbon/carbon.xml">
 
     <!-- Default log provider -->
-    <logProviderConfig class="org.wso2.carbon.logging.provider.TenantAwareLogProvider">
+    <logProviderConfig class="org.wso2.carbon.logging.service.provider.InMemoryLogProvider">
         <properties/>
     </logProviderConfig>
 
@@ -54,7 +54,7 @@
 
 
     <!-- Default log file provider -->
-    <logFileProviderConfig class="org.wso2.carbon.logging.provider.FileLogProvider">
+    <logFileProviderConfig class="org.wso2.carbon.logging.service.provider.FileLogProvider">
         <properties/>
     </logFileProviderConfig>
 
