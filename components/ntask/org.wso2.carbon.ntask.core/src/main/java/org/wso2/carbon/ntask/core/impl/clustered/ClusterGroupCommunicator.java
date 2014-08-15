@@ -255,9 +255,11 @@ public class ClusterGroupCommunicator implements MembershipListener {
         }
     }
 
+    /*
     @Override
     public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
     }
+    */
 
     public Map<String, Member> getMemberMap() {
         return membersMap;
