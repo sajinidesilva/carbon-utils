@@ -221,12 +221,14 @@ public class RegistrySubscriptionManager implements SubscriptionManager {
                     // some propertiest stary with registry we need to skip them.
                     if (!subscriptionID.startsWith("registry")) {
                         topicName = topicIndexResource.getProperty(subscriptionID);
-                        subscriptionResource = userRegistry.get(getResourcePath(subscriptionID, topicName));
-                        subscription = JavaUtil.getSubscription(subscriptionResource);
-                        subscription.setId(subscriptionID);
-                        subscription.setTopicName(topicName);
-                        subscription.setTenantId(EventBrokerHolder.getInstance().getTenantId());
-                        subscriptions.add(subscription);
+                        if (userRegistry.resourceExists(getResourcePath(subscriptionID, topicName))) {
+                        	subscriptionResource = userRegistry.get(getResourcePath(subscriptionID, topicName));
+                            subscription = JavaUtil.getSubscription(subscriptionResource);
+                            subscription.setId(subscriptionID);
+                            subscription.setTopicName(topicName);
+                            subscription.setTenantId(EventBrokerHolder.getInstance().getTenantId());
+                            subscriptions.add(subscription);
+                        }                        
                     }
                 }
             }
@@ -244,7 +246,7 @@ public class RegistrySubscriptionManager implements SubscriptionManager {
                     this.registryService.getGovernanceSystemRegistry(EventBrokerHolder.getInstance().getTenantId());
             Resource topicIndexResource = userRegistry.get(this.indexStoragePath);
             String subscriptionPath = getResourcePath(id, topicIndexResource.getProperty(id));
-            if (subscriptionPath != null) {
+            if (subscriptionPath != null && userRegistry.resourceExists(subscriptionPath)) {
                 Resource subscriptionResource = userRegistry.get(subscriptionPath);
                 Subscription subscription = JavaUtil.getSubscription(subscriptionResource);
                 subscription.setTenantId(EventBrokerHolder.getInstance().getTenantId());
