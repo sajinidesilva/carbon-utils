@@ -89,6 +89,10 @@
             <artifactId>hector-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.cassandra.wso2</groupId>
+            <artifactId>cassandra-thrift</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.hadoop.wso2</groupId>
             <artifactId>hadoop-core</artifactId>
         </dependency>
@@ -158,13 +162,11 @@
                                 <bundleDef>org.slf4j:slf4j-api</bundleDef>
                                 <bundleDef>org.slf4j:slf4j-log4j12</bundleDef>
                                 <bundleDef>org.hectorclient.wso2:hector-core</bundleDef>
+                                <bundleDef>org.apache.cassandra.thrift.wso2:cassandra-thrift</bundleDef>
                                 <bundleDef>antlr.wso2:antlr</bundleDef>
                                 <bundleDef>org.antlr.wso2:antlr-runtime</bundleDef>
                                 <bundleDef>com.google.guava:guava</bundleDef>
-                                <importBundleDef>org.apache.hadoop.wso2:hadoop-core
-                                </importBundleDef>
-                                <bundleDef>commons-configuration.wso2:commons-configuration
-                                </bundleDef>
+                                <bundleDef>commons-configuration.wso2:commons-configuration</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>

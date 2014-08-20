@@ -23,13 +23,13 @@
 <loggingConfig xmlns="http://wso2.org/projects/carbon/carbon.xml">
 
     <!-- Default log provider -->
-    <logProviderConfig class="org.wso2.carbon.logging.provider.TenantAwareLogProvider">
+    <logProviderConfig class="org.wso2.carbon.logging.service.provider.InMemoryLogProvider">
         <properties/>
     </logProviderConfig>
 
 
     <!--Uncomment this block to use CassandraLogProvider-->
-    <!--<logProviderConfig xmlns="http://wso2.org/projects/carbon/carbon.xml" class="org.wso2.carbon.logging.provider.CassandraLogProvider">
+    <!--<logProviderConfig xmlns="http://wso2.org/projects/carbon/carbon.xml" class="org.wso2.carbon.logging.service.provider.CassandraLogProvider">
         <properties>
             <property name="userName" value="admin"/>
             <property name="password" value="admin"/>
@@ -54,7 +54,7 @@
 
 
     <!-- Default log file provider -->
-    <logFileProviderConfig class="org.wso2.carbon.logging.provider.FileLogProvider">
+    <logFileProviderConfig class="org.wso2.carbon.logging.service.provider.FileLogProvider">
         <properties/>
     </logFileProviderConfig>
 
