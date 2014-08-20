@@ -26,7 +26,7 @@ import org.apache.axis2.util.Loader;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 import org.wso2.carbon.tracer.TracerConstants;
-import org.wso2.carbon.logging.appenders.CircularBuffer;
+import org.wso2.carbon.utils.logging.CircularBuffer;
 
 /**
  * 

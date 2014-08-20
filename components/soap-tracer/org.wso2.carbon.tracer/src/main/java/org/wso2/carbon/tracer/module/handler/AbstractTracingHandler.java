@@ -23,7 +23,7 @@ import org.apache.axis2.handlers.AbstractHandler;
 import org.wso2.carbon.tracer.TracerConstants;
 import org.wso2.carbon.tracer.module.TracePersister;
 import org.wso2.carbon.tracer.service.MessageInfo;
-import org.wso2.carbon.logging.appenders.CircularBuffer;
+import org.wso2.carbon.utils.logging.CircularBuffer;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
