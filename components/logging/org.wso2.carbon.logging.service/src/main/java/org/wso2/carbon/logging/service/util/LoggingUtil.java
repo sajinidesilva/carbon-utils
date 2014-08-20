@@ -29,7 +29,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.net.SyslogAppender;
-import org.springframework.util.Log4jConfigurer;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.util.SystemFilter;
@@ -200,22 +199,6 @@ public class LoggingUtil {
             return true;
         } catch (LogViewerException e) {
             return false;
-        }
-    }
-
-    public static void restoreDefaults() throws Exception {
-        registryManager.removeAllRegistryEntries();
-        LogManager.resetConfiguration();
-
-        try {
-            //Log4jConfigurer.initLogging("classpath:log4j.properties");
-            String logFile = CarbonUtils.getCarbonConfigDirPath()
-                    + RegistryConstants.PATH_SEPARATOR + "log4j.properties";
-            Log4jConfigurer.initLogging(logFile);
-        } catch (FileNotFoundException e) {
-            String msg = "Cannot restore default logging configuration."
-                    + " log4j.properties file not found in the classpath";
-            throw new Exception(msg, e);
         }
     }
 
@@ -506,69 +489,6 @@ public class LoggingUtil {
         int s = (p * 5) + 1;
         int y = q > 0 ? t : s;
         return y;
-    }
-
-    /**
-     * Find and invoke the setter method with the name of form setXXX passing in the value given
-     * on the POJO object
-     *
-     * @param key name of the setter field
-     * @param val value to be set
-     * @param obj POJO instance
-     */
-    public static void setInstanceProperty(String key, Object val, Object obj) {
-        String mName = "set" + Character.toUpperCase(key.charAt(0)) + key.substring(1);
-        Method method;
-        boolean invoked = false;
-        try {
-            Method[] methods = obj.getClass().getMethods();
-            for (Method method1 : methods) {
-                if (mName.equals(method1.getName())) {
-                    Class[] params = method1.getParameterTypes();
-                    if (params.length != 1) {
-                        throw new NoSuchMethodException("Did not find a setter method named : " + mName +
-                                "() that takes a single String, int, long, float, double ," +
-                                "OMElement or boolean parameter");
-                    } else if (val instanceof String) {
-                        String value = (String) val;
-                        if (String.class.equals(params[0])) {
-                            method = obj.getClass().getMethod(mName, String.class);
-                            method.invoke(obj, new String[]{value});
-                        } else if (int.class.equals(params[0])) {
-                            method = obj.getClass().getMethod(mName, int.class);
-                            method.invoke(obj, new Integer[]{new Integer(value)});
-                        } else if (long.class.equals(params[0])) {
-                            method = obj.getClass().getMethod(mName, long.class);
-                            method.invoke(obj, new Long[]{new Long(value)});
-                        } else if (float.class.equals(params[0])) {
-                            method = obj.getClass().getMethod(mName, float.class);
-                            method.invoke(obj, new Float[]{new Float(value)});
-                        } else if (double.class.equals(params[0])) {
-                            method = obj.getClass().getMethod(mName, double.class);
-                            method.invoke(obj, new Double[]{new Double(value)});
-                        } else if (boolean.class.equals(params[0])) {
-                            method = obj.getClass().getMethod(mName, boolean.class);
-                            method.invoke(obj, new Boolean[]{Boolean.valueOf(value)});
-                        } else {
-                            continue;
-                        }
-                    } else {
-                        continue;
-                    }
-                    invoked = true;
-                    break;
-                }
-            }
-            if (!invoked) {
-                log.error("Did not find a setter method named : " + mName +
-                        "() that takes a single String, int, long, float, double " +
-                        "or boolean parameter");
-            }
-        } catch (Exception e) {
-            log.error("Error invoking setter method named : " + mName +
-                    "() that takes a single String, int, long, float, double " +
-                    "or boolean parameter");
-        }
     }
 
 }

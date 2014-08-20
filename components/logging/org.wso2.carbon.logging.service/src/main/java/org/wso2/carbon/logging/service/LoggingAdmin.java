@@ -447,10 +447,6 @@ public class LoggingAdmin {
         }
     }
 
-    public void restoreDefaults() throws Exception {
-        LoggingUtil.restoreDefaults();
-    }
-
     private AppenderData[] getAllAppenderData() {
         Set<Appender> appenderSet = new HashSet<Appender>();
         Logger rootLogger = Logger.getRootLogger();

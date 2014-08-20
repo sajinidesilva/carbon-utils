@@ -29,7 +29,7 @@
 
 
     <!--Uncomment this block to use CassandraLogProvider-->
-    <!--<logProviderConfig xmlns="http://wso2.org/projects/carbon/carbon.xml" class="org.wso2.carbon.logging.provider.CassandraLogProvider">
+    <!--<logProviderConfig xmlns="http://wso2.org/projects/carbon/carbon.xml" class="org.wso2.carbon.logging.service.provider.CassandraLogProvider">
         <properties>
             <property name="userName" value="admin"/>
             <property name="password" value="admin"/>

@@ -73,7 +73,6 @@ public class FileLogProvider implements LogFileProvider {
      */
     @Override
     public void init(LoggingConfig loggingConfig) {
-
     }
 
     @Override
@@ -86,15 +85,12 @@ public class FileLogProvider implements LogFileProvider {
                 (serverKey == null || serverKey.equals("") || serverKey.equalsIgnoreCase(getCurrentServerName()))) {
 
             File folder = new File(folderPath);
-            FileFilter fileFilter = new WildcardFileFilter(
-                    LoggingConstants.RegexPatterns.LOCAL_CARBON_LOG_PATTERN);
+            FileFilter fileFilter = new WildcardFileFilter(LoggingConstants.RegexPatterns.LOCAL_CARBON_LOG_PATTERN);
             File[] listOfFiles = folder.listFiles(fileFilter);
             for (File file : listOfFiles) {
                 String filename = file.getName();
-                String fileDates[] = filename
-                        .split(LoggingConstants.RegexPatterns.LOG_FILE_DATE_SEPARATOR);
-                String filePath = CarbonUtils.getCarbonLogsPath() + LoggingConstants.URL_SEPARATOR
-                        + filename;
+                String fileDates[] = filename.split(LoggingConstants.RegexPatterns.LOG_FILE_DATE_SEPARATOR);
+                String filePath = CarbonUtils.getCarbonLogsPath() + LoggingConstants.URL_SEPARATOR + filename;
                 File logfile = new File(filePath);
                 if (fileDates.length == 2) {
                     log = new LogInfo(filename, fileDates[1], getFileSize(logfile));
@@ -106,7 +102,6 @@ public class FileLogProvider implements LogFileProvider {
             }
         }
         return getSortedLogInfo(logs);
-
     }
 
     @Override
@@ -194,8 +189,7 @@ public class FileLogProvider implements LogFileProvider {
             }
             dataInput.close();
         } catch (IOException e) {
-            throw new LogViewerException("Cannot find the specified file location to the log file",
-                    e);
+            throw new LogViewerException("Cannot find the specified file location to the log file", e);
         }
         return getSortedLogInfo(logs);
     }
@@ -252,21 +246,17 @@ public class FileLogProvider implements LogFileProvider {
                 && (serverKey == null || serverKey.equals("") || serverKey.equalsIgnoreCase(getCurrentServerName()))) {
 
             File folder = new File(folderPath);
-            FileFilter fileFilter = new WildcardFileFilter(
-                    LoggingConstants.RegexPatterns.LOCAL_CARBON_LOG_PATTERN);
+            FileFilter fileFilter = new WildcardFileFilter(LoggingConstants.RegexPatterns.LOCAL_CARBON_LOG_PATTERN);
             File[] listOfFiles = folder.listFiles(fileFilter);
             for (File file : listOfFiles) {
                 String filename = file.getName();
-                String fileDates[] = filename
-                        .split(LoggingConstants.RegexPatterns.LOG_FILE_DATE_SEPARATOR);
-                String filePath = CarbonUtils.getCarbonLogsPath() + LoggingConstants.URL_SEPARATOR
-                        + filename;
+                String fileDates[] = filename.split(LoggingConstants.RegexPatterns.LOG_FILE_DATE_SEPARATOR);
+                String filePath = CarbonUtils.getCarbonLogsPath() + LoggingConstants.URL_SEPARATOR + filename;
                 File logfile = new File(filePath);
                 if (fileDates.length == 2) {
                     log = new LogInfo(filename, fileDates[1], getFileSize(logfile));
                 } else {
-                    log = new LogInfo(filename, LoggingConstants.RegexPatterns.CURRENT_LOG,
-                            getFileSize(logfile));
+                    log = new LogInfo(filename, LoggingConstants.RegexPatterns.CURRENT_LOG, getFileSize(logfile));
                 }
                 logs.add(log);
             }
@@ -287,12 +277,10 @@ public class FileLogProvider implements LogFileProvider {
                 // messages.
                 if (serverKey != null && serverKey.length() > 0) {
                     serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
-                            + LoggingConstants.URL_SEPARATOR + serverKey
-                            + LoggingConstants.URL_SEPARATOR;
+                            + LoggingConstants.URL_SEPARATOR + serverKey + LoggingConstants.URL_SEPARATOR;
                 } else {
                     serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
-                            + LoggingConstants.URL_SEPARATOR
-                            + LoggingConstants.WSO2_STRATOS_MANAGER
+                            + LoggingConstants.URL_SEPARATOR + LoggingConstants.WSO2_STRATOS_MANAGER
                             + LoggingConstants.URL_SEPARATOR;
                 }
                 try {

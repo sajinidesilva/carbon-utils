@@ -85,7 +85,6 @@ public class CassandraLogProvider implements LogProvider {
         try {
             allLogs = getAllLogs(tenantDomain, serverKey);
         } catch (LogViewerException e) {
-            log.error("Error retrieving application logs", e);
             throw new LogViewerException("Error retrieving application logs", e);
         }
         for (LogEvent event : allLogs) {
@@ -246,11 +245,26 @@ public class CassandraLogProvider implements LogProvider {
             LogEvent event = new LogEvent();
             event.setKey(row.getKey());
             for (HColumn<String, byte[]> hc : row.getColumnSlice().getColumns()) {
-                if (hc.getName().equalsIgnoreCase(LoggingConstants.HColumn.LOG_TIME)) {
-                    LoggingUtil.setInstanceProperty(hc.getName(), convertLongToString(convertByteToLong(hc.getValue()
-                            , 0)), event);
-                } else {
-                    LoggingUtil.setInstanceProperty(hc.getName(), convertByteToString(hc.getValue()), event);
+                if (hc.getName().equals(LoggingConstants.HColumn.TENANT_ID)) {
+                    event.setTenantId(convertByteToString(hc.getValue()));
+                } else if (hc.getName().equals(LoggingConstants.HColumn.SERVER_NAME)) {
+                    event.setServerName(convertByteToString(hc.getValue()));
+                } else if (hc.getName().equals(LoggingConstants.HColumn.APP_NAME)) {
+                    event.setAppName(convertByteToString(hc.getValue()));
+                } else if (hc.getName().equals(LoggingConstants.HColumn.LOG_TIME)) {
+                    event.setLogTime(convertLongToString(convertByteToLong(hc.getValue(), 0)));
+                } else if (hc.getName().equals(LoggingConstants.HColumn.LOGGER)) {
+                    event.setLogger(convertByteToString(hc.getValue()));
+                } else if (hc.getName().equals(LoggingConstants.HColumn.PRIORITY)) {
+                    event.setPriority(convertByteToString(hc.getValue()));
+                } else if (hc.getName().equals(LoggingConstants.HColumn.MESSAGE)) {
+                    event.setMessage(convertByteToString(hc.getValue()));
+                } else if (hc.getName().equals(LoggingConstants.HColumn.IP)) {
+                    event.setIp(convertByteToString(hc.getValue()));
+                } else if (hc.getName().equals(LoggingConstants.HColumn.STACKTRACE)) {
+                    event.setStacktrace(convertByteToString(hc.getValue()));
+                } else if (hc.getName().equals(LoggingConstants.HColumn.INSTANCE)) {
+                    event.setInstance(convertByteToString(hc.getValue()));
                 }
             }
             resultList.add(event);
@@ -295,8 +309,8 @@ public class CassandraLogProvider implements LogProvider {
             serverName = serverKey;
         }
         String currDateStr = getCurrentDate();
-        return config.getLogProviderProperty(CassandraConfigProperties.COLUMN_FAMILY) + "_" + currTenantId + "_" + serverName + "_"
-                + currDateStr;
+        return config.getLogProviderProperty(CassandraConfigProperties.COLUMN_FAMILY) + "_" + currTenantId + "_"
+                + serverName + "_" + currDateStr;
     }
 
     private List<LogEvent> getLogsForType(List<LogEvent> logEvents, String type) {
@@ -342,13 +356,9 @@ public class CassandraLogProvider implements LogProvider {
                 return resultList;
             }
         } catch (InterruptedException e) {
-            log.error("Error occurred while retrieving the sorted log event list", e);
-            throw new LogViewerException(
-                    "Error occurred while retrieving the sorted log event list");
+            throw new LogViewerException("Error occurred while retrieving the sorted log event list", e);
         } catch (ExecutionException e) {
-            log.error("Error occurred while retrieving the sorted log event list", e);
-            throw new LogViewerException(
-                    "Error occurred while retrieving the sorted log event list");
+            throw new LogViewerException("Error occurred while retrieving the sorted log event list", e);
         }
 
     }
@@ -375,7 +385,6 @@ public class CassandraLogProvider implements LogProvider {
             }
             return (resultList.isEmpty() ? null : resultList);
         }
-
     }
 
     private ExecutorService getExecutorService() {
@@ -396,8 +405,7 @@ public class CassandraLogProvider implements LogProvider {
                 }
             }
         } catch (LogViewerException e) {
-            log.error("Error occurred while retrieving column families", e);
-            throw new LogViewerException("Error occurred while retrieving column families");
+            throw new LogViewerException("Error occurred while retrieving column families", e);
         }
         return false;
     }
@@ -407,17 +415,25 @@ public class CassandraLogProvider implements LogProvider {
             public int compare(String s1, String s2) {
                 return s1.toLowerCase().compareTo(s2.toLowerCase());
             }
-
         });
         return appNames;
     }
 
     public static final class CassandraConfigProperties {
-        public static final String URL = "url";
         public static final String USER_NAME = "userName";
         public static final String PASSWORD = "password";
         public static final String CASSANDRA_HOST = "cassandraHost";
+        public static final String KEYSPACE = "keyspace";
+        public static final String COLUMN_FAMILY = "columnFamily";
+        public static final String CLUSTER = "cluster";
+        public static final String CONSISTENCY_LEVEL = "cassandraConsistencyLevel";
+        public static final String AUTO_DISCOVERY_ENABLE = "cassandraAutoDiscovery.enable";
+        public static final String AUTO_DISCOVERY_DELAY = "cassandraAutoDiscovery.delay";
+        public static final String RETRY_DOWNED_HOSTS_ENABLE = "retryDownedHosts.enable";
+        public static final String RETRY_DOWNED_HOSTS_QUEUE_SIZE = "retryDownedHosts.queueSize";
+
 /*        public static final String PUBLISHER_URL = "publisherURL";
+        public static final String URL = "url";
         public static final String PUBLISHER_USER = "publisherUser";
         public static final String PUBLISHER_PASSWORD = "publisherPassword";
         public static final String ARCHIVED_HOST = "archivedHost";
@@ -426,19 +442,10 @@ public class CassandraLogProvider implements LogProvider {
         public static final String ARCHIVED_PORT = "archivedPort";
         public static final String ARCHIVED_REALM = "archivedRealm";
         public static final String ARCHIVED_HDFS_PATH = "archivedHDFSPath";
-        public static final String HIVE_QUERY = "hiveQuery";*/
-
-        public static final String KEYSPACE = "keyspace";
-        public static final String COLUMN_FAMILY = "columnFamily";
-        //        public static final String IS_CASSANDRA_AVAILABLE = "isDataFromCassandra";
-        public static final String CLUSTER = "cluster";
-        public static final String CONSISTENCY_LEVEL = "cassandraConsistencyLevel";
-        public static final String AUTO_DISCOVERY_ENABLE = "cassandraAutoDiscovery.enable";
-        public static final String AUTO_DISCOVERY_DELAY = "cassandraAutoDiscovery.delay";
-        //        public static final String RETRY_DOWNED_HOSTS = "retryDownedHosts";
-        public static final String RETRY_DOWNED_HOSTS_ENABLE = "retryDownedHosts.enable";
-        public static final String RETRY_DOWNED_HOSTS_QUEUE_SIZE = "retryDownedHosts.queueSize";
-//        public static final String AUTO_DISCOVERY = "cassandraAutoDiscovery";
+        public static final String HIVE_QUERY = "hiveQuery";
+        public static final String IS_CASSANDRA_AVAILABLE = "isDataFromCassandra";
+        public static final String RETRY_DOWNED_HOSTS = "retryDownedHosts";
+        public static final String AUTO_DISCOVERY = "cassandraAutoDiscovery"*/;
 
     }
 }

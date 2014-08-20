@@ -23,7 +23,7 @@
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-utils</artifactId>
         <version>4.3.0-SNAPSHOT</version>
-	<relativePath>../../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -31,15 +31,12 @@
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Logging Aggregator Module</name>
     <url>http://wso2.org</url>
-         
-   <modules>
-                <module>org.wso2.carbon.logging.service</module>
-                <module>org.wso2.carbon.logging.admin.ui</module>
-                <module>org.wso2.carbon.logging.view.ui</module>
-<!--
-                <module>org.wso2.carbon.logging.summarizer</module>
--->
-            </modules>
+
+    <modules>
+        <module>org.wso2.carbon.logging.service</module>
+        <module>org.wso2.carbon.logging.admin.ui</module>
+        <module>org.wso2.carbon.logging.view.ui</module>
+    </modules>
 
     <dependencyManagement>
         <dependencies>
@@ -52,11 +49,6 @@
                 <groupId>org.apache.axis2.wso2</groupId>
                 <artifactId>axis2</artifactId>
                 <version>${axis2.wso2.verison.logging}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.utils</artifactId>
-                <version>${project.version.logging}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -73,37 +65,30 @@
                 <artifactId>org.wso2.carbon.logging</artifactId>
                 <version>${project.version.logging}</version>
             </dependency>
-
-	
             <dependency>
                 <groupId>commons-httpclient.wso2</groupId>
                 <artifactId>commons-httpclient</artifactId>
                 <version>${orbit.version.commons.httpclient.logging}</version>
             </dependency>
-             <!--Hector  -->
-	    <dependency>
-		<groupId>org.hectorclient</groupId>
-		<artifactId>hector-core</artifactId>
-		<version>${hector-core.version}</version>
-	    </dependency>
-	    <dependency>
-		<groupId>org.springframework.ws.wso2</groupId>
-		<artifactId>spring.framework</artifactId>
-		<version>${orbit.version.spring}</version>
-	   </dependency>
+            <!--Hector  -->
+            <dependency>
+                <groupId>org.hectorclient</groupId>
+                <artifactId>hector-core</artifactId>
+                <version>${hector-core.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <properties>
-      
         <project.version.logging>${project.version}</project.version.logging>
         <axis2.wso2.verison.logging>${axis2.wso2.version}</axis2.wso2.verison.logging>
-        <orbit.version.commons.httpclient.logging>${orbit.version.commons.httpclient}</orbit.version.commons.httpclient.logging>
-	<cassandra.version>1.1.0-wso2v1</cassandra.version>
-	<libthrift.version>0.5</libthrift.version>
-	<hector-core.version>1.1-0</hector-core.version>
-	<perf4j.version>0.9.12.wso2v1</perf4j.version>
-	<highscale.version>1.0.wso2v1</highscale.version>	
+        <orbit.version.commons.httpclient.logging>${orbit.version.commons.httpclient}
+        </orbit.version.commons.httpclient.logging>
+        <cassandra.version>1.1.0-wso2v1</cassandra.version>
+        <libthrift.version>0.5</libthrift.version>
+        <hector-core.version>1.1-0</hector-core.version>
+        <perf4j.version>0.9.12.wso2v1</perf4j.version>
+        <highscale.version>1.0.wso2v1</highscale.version>
     </properties>
 
 </project>
