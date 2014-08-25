@@ -32,13 +32,14 @@ import org.wso2.carbon.databridge.commons.exception.MalformedStreamDefinitionExc
 import org.wso2.carbon.databridge.commons.exception.StreamDefinitionException;
 import org.wso2.carbon.databridge.commons.exception.TransportException;
 import org.wso2.carbon.utils.logging.LoggingUtils;
-import org.wso2.carbon.logging.internal.LoggingServiceComponent;
-import org.wso2.carbon.logging.util.LoggingConstants;
+import org.wso2.carbon.logging.service.internal.LoggingServiceComponent;
+import org.wso2.carbon.logging.service.util.LoggingConstants;
 import org.wso2.carbon.logging.service.internal.LoggingServiceComponent;
 import org.wso2.carbon.logging.service.util.LoggingConstants;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.logging.LoggingUtils;
 import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
 import org.wso2.carbon.utils.logging.TenantAwarePatternLayout;
 import org.wso2.carbon.utils.logging.handler.TenantDomainSetter;
