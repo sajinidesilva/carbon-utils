@@ -42,14 +42,14 @@ import java.util.logging.LogRecord;
 public class CarbonMemoryAppender extends AppenderSkeleton implements LoggingBridge {
 
     private static final Log log = LogFactory.getLog(CarbonMemoryAppender.class);
-    private CircularBuffer circularBuffer;
+    private CircularBuffer<TenantAwareLoggingEvent> circularBuffer;
     private int bufferSize = -1;
     private String columnList;
 
     public CarbonMemoryAppender() {
     }
 
-    public CarbonMemoryAppender(CircularBuffer circularBuffer) {
+    public CarbonMemoryAppender(CircularBuffer<TenantAwareLoggingEvent> circularBuffer) {
         this.circularBuffer = circularBuffer;
     }
 
@@ -122,17 +122,17 @@ public class CarbonMemoryAppender extends AppenderSkeleton implements LoggingBri
         return circularBuffer;
     }
 
-    public void setCircularBuffer(CircularBuffer circularBuffer) {
+    public void setCircularBuffer(CircularBuffer<TenantAwareLoggingEvent> circularBuffer) {
         this.circularBuffer = circularBuffer;
     }
 
     public void activateOptions() {
         if (bufferSize < 0) {
             if (circularBuffer == null) {
-                this.circularBuffer = new CircularBuffer();
+                this.circularBuffer = new CircularBuffer<TenantAwareLoggingEvent>();
             }
         } else {
-            this.circularBuffer = new CircularBuffer(bufferSize);
+            this.circularBuffer = new CircularBuffer<TenantAwareLoggingEvent>(bufferSize);
         }
     }
 

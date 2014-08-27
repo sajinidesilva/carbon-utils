@@ -46,10 +46,10 @@ public abstract class AbstractTracingHandler extends AbstractHandler {
                                  String serviceName,
                                  String operationName,
                                  Long msgSeq) {
-        CircularBuffer buffer =
-            (CircularBuffer) configCtx.getProperty(TracerConstants.MSG_SEQ_BUFFER);
+        CircularBuffer<MessageInfo> buffer =
+            (CircularBuffer<MessageInfo>) configCtx.getProperty(TracerConstants.MSG_SEQ_BUFFER);
         if (buffer == null){
-            buffer = new CircularBuffer(TracerConstants.MSG_BUFFER_SZ);
+            buffer = new CircularBuffer<MessageInfo>(TracerConstants.MSG_BUFFER_SZ);
             configCtx.setProperty(TracerConstants.MSG_SEQ_BUFFER, buffer);
         }
         GregorianCalendar cal = new GregorianCalendar();
