@@ -53,7 +53,7 @@ import org.wso2.carbon.databridge.commons.exception.DifferentStreamDefinitionAlr
 import org.wso2.carbon.databridge.commons.exception.MalformedStreamDefinitionException;
 import org.wso2.carbon.databridge.commons.exception.StreamDefinitionException;
 import org.wso2.carbon.databridge.commons.exception.TransportException;
-import org.wso2.carbon.logging.appenders.LoggingUtils;
+import org.wso2.carbon.utils.logging.LoggingUtils;
 import org.wso2.carbon.logging.internal.LoggingServiceComponent;
 import org.wso2.carbon.logging.util.LoggingConstants;
 import org.wso2.carbon.user.api.UserStoreException;
