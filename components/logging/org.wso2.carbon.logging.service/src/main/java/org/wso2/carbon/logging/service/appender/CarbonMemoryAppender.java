@@ -24,7 +24,6 @@ import org.wso2.carbon.bootstrap.logging.LoggingBridge;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.logging.CircularBuffer;
 import org.wso2.carbon.utils.logging.LoggingUtils;
-import org.wso2.carbon.logging.internal.LoggingServiceComponent;
 import org.wso2.carbon.logging.service.internal.LoggingServiceComponent;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.tenant.TenantManager;

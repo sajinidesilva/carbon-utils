@@ -78,13 +78,8 @@
             <artifactId>org.wso2.carbon.databridge.agent.thrift</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.cassandra.wso2</groupId>
-            <artifactId>cassandra-thrift</artifactId>
-        </dependency>
-        <!--Hector -->
-        <dependency>
-            <groupId>org.hectorclient.wso2</groupId>
-            <artifactId>hector-core</artifactId>
+            <groupId>com.google.guava.wso2</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
     </dependencies>
 
