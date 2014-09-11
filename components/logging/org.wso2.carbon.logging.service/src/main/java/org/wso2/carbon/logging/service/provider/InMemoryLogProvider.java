@@ -43,6 +43,7 @@ public class InMemoryLogProvider implements LogProvider {
 
     private static final Log log = LogFactory.getLog(InMemoryLogProvider.class);
     private static final int DEFAULT_NO_OF_LOGS = 100;
+    private static final String SERVER_KEY = "ServerKey";
 
     /**
      * Initialize the log provider by reading the property comes with logging configuration file
@@ -60,11 +61,11 @@ public class InMemoryLogProvider implements LogProvider {
         List<String> appList = new ArrayList<String>();
         List<LogEvent> allLogs = getLogsByAppName("", tenantDomain, serverKey);
         for (LogEvent event : allLogs) {
-            if (event.getAppName() != null && !event.getAppName().equals("")
-                    && !event.getAppName().equals("NA")
+            if (event.getAppName() != null && !"".equals(event.getAppName())
+                    && !"NA".equals(event.getAppName())
                     && !LoggingUtil.isAdmingService(event.getAppName())
                     && !appList.contains(event.getAppName())
-                    && !event.getAppName().equals("STRATOS_ROOT")) {
+                    && !"STRATOS_ROOT".equals(event.getAppName())) {
                 appList.add(event.getAppName());
             }
         }
@@ -102,7 +103,7 @@ public class InMemoryLogProvider implements LogProvider {
 
     private List<TenantAwareLoggingEvent> getTenantAwareLoggingEventList(CarbonMemoryAppender memoryAppender) {
         int definedAmount;
-        if ((memoryAppender.getCircularQueue() != null)) {
+        if (memoryAppender.getCircularQueue() != null) {
             definedAmount = memoryAppender.getBufferSize();
             if (definedAmount < 1) {
                 return memoryAppender.getCircularQueue().get(DEFAULT_NO_OF_LOGS);
@@ -135,7 +136,7 @@ public class InMemoryLogProvider implements LogProvider {
                     String productName = productPattern.format(tenantAwareLoggingEvent);
                     String tenantId = tenantIdPattern.format(tenantAwareLoggingEvent);
                     if (isCurrentTenantId(tenantId, tenantDomain) && isCurrentProduct(productName, serverKey)) {
-                        if (appName == null || appName.equals("")) {
+                        if (appName == null || "".equals(appName)) {
                             resultList.add(createLogEvent(tenantAwareLoggingEvent));
                         } else {
                             TenantAwarePatternLayout appPattern = new TenantAwarePatternLayout("%A");
@@ -155,9 +156,9 @@ public class InMemoryLogProvider implements LogProvider {
 
     @Override
     public List<LogEvent> getLogs(String type, String keyword, String appName, String tenantDomain, String serverKey) throws LogViewerException {
-        if (keyword == null || keyword.equals("")) {
+        if (keyword == null || "".equals(keyword)) {
             // invalid keyword
-            if (type == null || type.equals("") || type.equalsIgnoreCase("ALL")) {
+            if (type == null || "".equals(type) || "ALL".equals(type)) {
                 return this.getLogs(appName, tenantDomain, serverKey);
             } else {
                 // type is NOT null and NOT equal to ALL Application Name is not needed
@@ -165,7 +166,7 @@ public class InMemoryLogProvider implements LogProvider {
             }
         } else {
             // valid keyword
-            if (type == null || type.equals("")) {
+            if (type == null || "".equals(type)) {
                 // invalid type
                 return this.getLogsForKey(keyword, appName, tenantDomain, serverKey);
             } else {
@@ -209,7 +210,7 @@ public class InMemoryLogProvider implements LogProvider {
                     String productName = productPattern.format(tenantAwareLoggingEvent);
                     String tenantId = tenantIdPattern.format(tenantAwareLoggingEvent);
                     if (isCurrentTenantId(tenantId, tenantDomain) && isCurrentProduct(productName, serverKey)) {
-                        if (appName == null || appName.equals("")) {
+                        if (appName == null || "".equals(appName)) {
                             resultList.add(createLogEvent(tenantAwareLoggingEvent));
                         } else {
                             TenantAwarePatternLayout appPattern = new TenantAwarePatternLayout("%A");
@@ -239,7 +240,7 @@ public class InMemoryLogProvider implements LogProvider {
 
     private boolean isCurrentTenantId(String tenantId, String domain) {
         String currTenantId;
-        if (domain.equals("")) {
+        if ("".equals(domain)) {
             currTenantId = String.valueOf(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
             return currTenantId.equals(tenantId);
         } else {
@@ -254,8 +255,8 @@ public class InMemoryLogProvider implements LogProvider {
     }
 
     private boolean isCurrentProduct(String productName, String serverKey) {
-        if (serverKey.equals("")) {
-            String currProductName = ServerConfiguration.getInstance().getFirstProperty("ServerKey");
+        if ("".equals(serverKey)) {
+            String currProductName = ServerConfiguration.getInstance().getFirstProperty(SERVER_KEY);
             return currProductName.equals(productName);
         } else {
             return productName.equals(serverKey);
@@ -272,29 +273,29 @@ public class InMemoryLogProvider implements LogProvider {
         for (String pattern : patterns) {
             String currEle = (pattern).replace("%", "");
             TenantAwarePatternLayout patternLayout = new TenantAwarePatternLayout("%" + currEle);
-            if (currEle.equals("T")) {
+            if ("T".equals(currEle)) {
                 event.setTenantId(patternLayout.format(logEvt));
-            } else if (currEle.equals("S")) {
+            } else if ("S".equals(currEle)) {
                 event.setServerName(patternLayout.format(logEvt));
-            } else if (currEle.equals("A")) {
+            } else if ("A".equals(currEle)) {
                 event.setAppName(patternLayout.format(logEvt));
-            } else if (currEle.equals("d")) {
+            } else if ("d".equals(currEle)) {
                 event.setLogTime(patternLayout.format(logEvt));
-            } else if (currEle.equals("c")) {
+            } else if ("c".equals(currEle)) {
                 event.setLogger(patternLayout.format(logEvt));
-            } else if (currEle.equals("p")) {
+            } else if ("p".equals(currEle)) {
                 event.setPriority(patternLayout.format(logEvt));
-            } else if (currEle.equals("m")) {
+            } else if ("m".equals(currEle)) {
                 event.setMessage(patternLayout.format(logEvt));
-            } else if (currEle.equals("I")) {
+            } else if ("I".equals(currEle)) {
                 event.setInstance(patternLayout.format(logEvt));
-            } else if (currEle.equals("Stacktrace")) {
+            } else if ("Stacktrace".equals(currEle)) {
                 if (logEvt.getThrowableInformation() != null) {
                     event.setStacktrace(getStacktrace(logEvt.getThrowableInformation().getThrowable()));
                 } else {
                     event.setStacktrace("");
                 }
-            } else if (currEle.equals("H")) {
+            } else if ("H".equals(currEle)) {
                 event.setIp(patternLayout.format(logEvt));
             }
         }
@@ -344,7 +345,7 @@ public class InMemoryLogProvider implements LogProvider {
                             && (logger.toLowerCase().contains(keyword.toLowerCase()));
                     if (isCurrentTenantId(tenantId, tenantDomain) && isCurrentProduct(productName, serverKey)
                             && (isInLogMessage || isInLogger)) {
-                        if (appName == null || appName.equals("")) {
+                        if (appName == null || "".equals(appName)) {
                             resultList.add(createLogEvent(tenantAwareLoggingEvent));
                         } else {
                             TenantAwarePatternLayout appPattern = new TenantAwarePatternLayout("%A");
@@ -377,7 +378,7 @@ public class InMemoryLogProvider implements LogProvider {
                     String productName = productPattern.format(tenantAwareLoggingEvent);
                     String tenantId = tenantIdPattern.format(tenantAwareLoggingEvent);
                     if ((priority.equals(type) && isCurrentTenantId(tenantId, tenantDomain) && isCurrentProduct(productName, serverKey))) {
-                        if (appName == null || appName.equals("")) {
+                        if (appName == null || "".equals(appName)) {
                             resultList.add(createLogEvent(tenantAwareLoggingEvent));
                         } else {
                             TenantAwarePatternLayout appPattern = new TenantAwarePatternLayout("%A");
