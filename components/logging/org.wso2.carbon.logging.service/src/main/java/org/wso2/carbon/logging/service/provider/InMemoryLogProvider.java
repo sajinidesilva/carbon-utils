@@ -96,7 +96,7 @@ public class InMemoryLogProvider implements LogProvider {
         List<LogEvent> defaultLogEvents = new ArrayList<LogEvent>();
         defaultLogEvents.add(new LogEvent(
                 "The log must be configured to use the "
-                        + "org.wso2.carbon.logging.core.util.MemoryAppender to view entries through the admin console",
+                        + "org.wso2.carbon.logging.service.appender.CarbonMemoryAppender to view entries through the admin console",
                 "NA"));
         return defaultLogEvents;
     }
@@ -312,14 +312,8 @@ public class InMemoryLogProvider implements LogProvider {
     }
 
     private List<LogEvent> reverseLogList(List<LogEvent> resultList) {
-        if (resultList == null || resultList.size() == 0) {
-            return resultList;
-        }
-        ArrayList<LogEvent> reverseList = new ArrayList<LogEvent>(resultList.size());
-        for (int i = resultList.size() - 1; i >= 0; i--) {
-            reverseList.add(resultList.get(i));
-        }
-        return reverseList;
+        Collections.reverse(resultList);
+        return resultList;
     }
 
     private List<LogEvent> getLogsForKey(String keyword, String appName, String tenantDomain, String serverKey) {
