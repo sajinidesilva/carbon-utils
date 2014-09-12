@@ -122,7 +122,6 @@ public class InMemoryLogProvider implements LogProvider {
 
     @Override
     public List<LogEvent> getLogsByAppName(String appName, String tenantDomain, String serverKey) throws LogViewerException {
-        // TODO - return List
         List<LogEvent> resultList = new ArrayList<LogEvent>();
         Appender appender = Logger.getRootLogger().getAppender(
                 LoggingConstants.WSO2CARBON_MEMORY_APPENDER);

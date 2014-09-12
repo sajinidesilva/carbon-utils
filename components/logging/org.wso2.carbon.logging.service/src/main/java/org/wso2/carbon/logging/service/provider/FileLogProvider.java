@@ -70,7 +70,7 @@ public class FileLogProvider implements LogFileProvider {
 
     /**
      * Initialize the log provider by reading the property comes with logging configuration file
-     * This will be called immediate after create new instance of ILogProvider
+     * This will be called immediate after create new instance of LogProvider
      *
      * @param loggingConfig -
      */
@@ -112,25 +112,27 @@ public class FileLogProvider implements LogFileProvider {
 
     @Override
     public DataHandler downloadLogFile(String logFile, String tenantDomain, String serverKey) throws LogViewerException {
-        InputStream is;
+        InputStream is = null;
+        ByteArrayDataSource bytArrayDS;
         int tenantId = LoggingUtil.getTenantIdForDomain(tenantDomain);
         try {
             is = getInputStream(logFile, tenantId, serverKey);
-        } catch (LogViewerException e) {
-            throw new LogViewerException("Cannot read InputStream from the file " + logFile, e);
-        }
-        try {
-            ByteArrayDataSource bytArrayDS = new ByteArrayDataSource(is, APPLICATION_TYPE_ZIP);
+            bytArrayDS = new ByteArrayDataSource(is, APPLICATION_TYPE_ZIP);
             return new DataHandler(bytArrayDS);
+        } catch (LogViewerException e) {
+            log.error("Cannot read InputStream from the file " + logFile, e);
+            throw e;
         } catch (IOException e) {
-            throw new LogViewerException("Cannot read file size from the " + logFile, e);
+            String msg = "Cannot read file size from the " + logFile;
+            log.error(msg, e);
+            throw new LogViewerException(msg, e);
         } finally {
-            try {
-                if (null != is) {
+            if (null != is) {
+                try {
                     is.close();
+                } catch (IOException e) {
+                    log.error("Error while closing inputStream of log file", e);
                 }
-            } catch (IOException e) {
-                log.error("Error while closing inputStream of log file", e);
             }
         }
     }
@@ -144,8 +146,8 @@ public class FileLogProvider implements LogFileProvider {
     /**
      * Get Log file index from log collector server.
      *
-     * @param tenantId  -
-     * @param serverKey -
+     * @param tenantId  - tenant ID
+     * @param serverKey - server key
      * @return LogInfo {Log Name, Date, Size}
      * @throws org.wso2.carbon.logging.service.LogViewerException
      */
@@ -289,58 +291,54 @@ public class FileLogProvider implements LogFileProvider {
                 // manager can view different services log
                 // messages.
                 if (serverKey != null && serverKey.length() > 0) {
-                    serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
-                            + LoggingConstants.URL_SEPARATOR + serverKey + LoggingConstants.URL_SEPARATOR;
+                    serverUrl = getServerUrl(syslogServerURL, tenantId, serverKey);
                 } else {
-                    serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
-                            + LoggingConstants.URL_SEPARATOR + LoggingConstants.WSO2_STRATOS_MANAGER
-                            + LoggingConstants.URL_SEPARATOR;
+                    serverUrl = getServerUrl(syslogServerURL, tenantId,
+                                             LoggingConstants.WSO2_STRATOS_MANAGER);
                 }
-                try {
-                    if (!isStratosService()) { // stand-alone apps.
-                        serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
-                                + LoggingConstants.URL_SEPARATOR
-                                + ServerConfiguration.getInstance().getFirstProperty(SERVER_KEY)
-                                + LoggingConstants.URL_SEPARATOR;
-                    }
-                } catch (LogViewerException e) {
-                    throw new LogViewerException("Cannot get log ServerURL for Tenant Service", e);
+                if (!isStratosService()) {
+                    // stand-alone apps.
+                    serverUrl = getServerUrl(syslogServerURL, tenantId,
+                                             ServerConfiguration.getInstance()
+                                                                .getFirstProperty(SERVER_KEY));
                 }
             } else {
                 // for other stratos services can view only their relevant
                 // logs.
-                serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
-                        + LoggingConstants.URL_SEPARATOR
-                        + ServerConfiguration.getInstance().getFirstProperty(SERVER_KEY)
-                        + LoggingConstants.URL_SEPARATOR;
+                serverUrl = getServerUrl(syslogServerURL, tenantId,
+                                         ServerConfiguration.getInstance()
+                                                            .getFirstProperty(SERVER_KEY));
             }
 
         } else {
             // tenant level logging
             if (isManager()) {
                 if (serverKey != null && serverKey.length() > 0) {
-                    serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR
-                            + CarbonContext.getThreadLocalCarbonContext().getTenantId()
-                            + LoggingConstants.URL_SEPARATOR + serverKey
-                            + LoggingConstants.URL_SEPARATOR;
+                    serverUrl = getServerUrl(syslogServerURL,
+                                             CarbonContext.getThreadLocalCarbonContext()
+                                                          .getTenantId(),
+                                             serverKey);
                 } else {
-                    serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR
-                            + CarbonContext.getThreadLocalCarbonContext().getTenantId()
-                            + LoggingConstants.URL_SEPARATOR
-                            + LoggingConstants.WSO2_STRATOS_MANAGER
-                            + LoggingConstants.URL_SEPARATOR;
+                    serverUrl = getServerUrl(syslogServerURL,
+                                             CarbonContext.getThreadLocalCarbonContext()
+                                                          .getTenantId(),
+                                             LoggingConstants.WSO2_STRATOS_MANAGER);
                 }
             } else {
-                serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR
-                        + CarbonContext.getThreadLocalCarbonContext().getTenantId()
-                        + LoggingConstants.URL_SEPARATOR
-                        + ServerConfiguration.getInstance().getFirstProperty(SERVER_KEY)
-                        + LoggingConstants.URL_SEPARATOR;
+                serverUrl = getServerUrl(syslogServerURL,
+                                         CarbonContext.getThreadLocalCarbonContext().getTenantId(),
+                                         ServerConfiguration.getInstance()
+                                                            .getFirstProperty(SERVER_KEY));
             }
         }
         serverUrl = serverUrl.replaceAll("\\s", URL_ENCODED_SPACE_CHAR);
         logFile = logFile.replaceAll("\\s", URL_ENCODED_SPACE_CHAR);
         return serverUrl + logFile;
+    }
+
+    private String getServerUrl(String syslogServerURL, int tenantId, String serverKey) {
+        return syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
+                + LoggingConstants.URL_SEPARATOR + serverKey + LoggingConstants.URL_SEPARATOR;
     }
 
     public boolean isStratosService() throws LogViewerException {
