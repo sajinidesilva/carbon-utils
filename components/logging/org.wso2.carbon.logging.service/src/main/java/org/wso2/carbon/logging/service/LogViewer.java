@@ -59,7 +59,8 @@ public class LogViewer {
                 logProvider = (LogProvider) constructor.newInstance();
                 logProvider.init(loggingConfig);
             } else {
-                log.error("Log provider is not defined in logging configuration file : conf/etc/logging-config.xml");
+                log.error(
+                        "Log provider is not defined in logging configuration file : conf/etc/logging-config.xml");
             }
         } catch (Exception e) {
             log.error("Error while loading log provider implementation class", e);
@@ -74,7 +75,8 @@ public class LogViewer {
                 logFileProvider = (LogFileProvider) constructor.newInstance();
                 logFileProvider.init(loggingConfig);
             } else {
-                log.error("Log file provider is not defined in logging configuration file : conf/etc/logging-config.xml");
+                log.error(
+                        "Log file provider is not defined in logging configuration file : conf/etc/logging-config.xml");
             }
         } catch (Exception e) {
             log.error("Error while loading log file provider implementation class", e);
