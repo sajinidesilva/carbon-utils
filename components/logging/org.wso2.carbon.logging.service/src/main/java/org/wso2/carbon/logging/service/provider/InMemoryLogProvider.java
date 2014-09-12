@@ -248,7 +248,7 @@ public class InMemoryLogProvider implements LogProvider {
                 currTenantId = String.valueOf(LoggingUtil.getTenantIdForDomain(domain));
                 return currTenantId.equals(tenantId);
             } catch (LogViewerException e) {
-                log.error("Error while getting current tenantId for domain " + domain);
+                log.error("Error while getting current tenantId for domain " + domain, e);
                 return false;
             }
         }
