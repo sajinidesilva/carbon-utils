@@ -63,6 +63,9 @@ import java.util.regex.Pattern;
 public class FileLogProvider implements LogFileProvider {
 
 
+    private static final String APPLICATION_TYPE_ZIP = "application/zip";
+    private static final String SERVER_KEY = "ServerKey";
+    private static final String URL_ENCODED_SPACE_CHAR = "%20";
     private static Log log = LogFactory.getLog(FileLogProvider.class);
 
     /**
@@ -79,26 +82,29 @@ public class FileLogProvider implements LogFileProvider {
     public List<LogInfo> getLogInfo(String tenantDomain, String serverKey) throws LogViewerException {
         String folderPath = CarbonUtils.getCarbonLogsPath();
         List<LogInfo> logs = new ArrayList<LogInfo>();
-        LogInfo log;
-        if ((((tenantDomain == null || tenantDomain.equals("")) && isSuperTenantUser()) ||
-                (tenantDomain != null && tenantDomain.equalsIgnoreCase(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME))) &&
-                (serverKey == null || serverKey.equals("") || serverKey.equalsIgnoreCase(getCurrentServerName()))) {
+        LogInfo logInfo;
+        String currentServerName = getCurrentServerName();
+        if ((((tenantDomain == null || "".equals(tenantDomain)) && isSuperTenantUser()) ||
+             (tenantDomain != null && MultitenantConstants.SUPER_TENANT_DOMAIN_NAME
+                     .equalsIgnoreCase(tenantDomain))) &&
+            (serverKey == null || "".equals(serverKey) || serverKey.equalsIgnoreCase(
+                    currentServerName))) {
 
             File folder = new File(folderPath);
             FileFilter fileFilter = new WildcardFileFilter(LoggingConstants.RegexPatterns.LOCAL_CARBON_LOG_PATTERN);
             File[] listOfFiles = folder.listFiles(fileFilter);
             for (File file : listOfFiles) {
                 String filename = file.getName();
-                String fileDates[] = filename.split(LoggingConstants.RegexPatterns.LOG_FILE_DATE_SEPARATOR);
+                String[] fileDates = filename.split(LoggingConstants.RegexPatterns.LOG_FILE_DATE_SEPARATOR);
                 String filePath = CarbonUtils.getCarbonLogsPath() + LoggingConstants.URL_SEPARATOR + filename;
                 File logfile = new File(filePath);
                 if (fileDates.length == 2) {
-                    log = new LogInfo(filename, fileDates[1], getFileSize(logfile));
+                    logInfo = new LogInfo(filename, fileDates[1], getFileSize(logfile));
                 } else {
-                    log = new LogInfo(filename, LoggingConstants.RegexPatterns.CURRENT_LOG,
+                    logInfo = new LogInfo(filename, LoggingConstants.RegexPatterns.CURRENT_LOG,
                             getFileSize(logfile));
                 }
-                logs.add(log);
+                logs.add(logInfo);
             }
         }
         return getSortedLogInfo(logs);
@@ -114,15 +120,17 @@ public class FileLogProvider implements LogFileProvider {
             throw new LogViewerException("Cannot read InputStream from the file " + logFile, e);
         }
         try {
-            ByteArrayDataSource bytArrayDS = new ByteArrayDataSource(is, "application/zip");
+            ByteArrayDataSource bytArrayDS = new ByteArrayDataSource(is, APPLICATION_TYPE_ZIP);
             return new DataHandler(bytArrayDS);
         } catch (IOException e) {
             throw new LogViewerException("Cannot read file size from the " + logFile, e);
         } finally {
             try {
-                is.close();
+                if (null != is) {
+                    is.close();
+                }
             } catch (IOException e) {
-                log.error("Error while closing inputStream of log file");
+                log.error("Error while closing inputStream of log file", e);
             }
         }
     }
@@ -160,12 +168,12 @@ public class FileLogProvider implements LogFileProvider {
         Pattern pattern = Pattern.compile(LoggingConstants.RegexPatterns.SYS_LOG_FILE_NAME_PATTERN);
         try {
             while ((line = dataInput.readLine()) != null) {
-                String fileNameLinks[] = line
+                String[] fileNameLinks = line
                         .split(LoggingConstants.RegexPatterns.LINK_SEPARATOR_PATTERN);
-                String fileDates[] = line
-                        .split((LoggingConstants.RegexPatterns.SYSLOG_DATE_SEPARATOR_PATTERN));
-                String dates[] = null;
-                String sizes[] = null;
+                String[] fileDates = line
+                        .split(LoggingConstants.RegexPatterns.SYSLOG_DATE_SEPARATOR_PATTERN);
+                String[] dates = null;
+                String[] sizes = null;
                 if (fileDates.length == 3) {
                     dates = fileDates[1]
                             .split(LoggingConstants.RegexPatterns.COLUMN_SEPARATOR_PATTERN);
@@ -173,17 +181,15 @@ public class FileLogProvider implements LogFileProvider {
                             .split(LoggingConstants.RegexPatterns.COLUMN_SEPARATOR_PATTERN);
                 }
                 if (fileNameLinks.length == 2) {
-                    String logFileName[] = fileNameLinks[1]
+                    String[] logFileName = fileNameLinks[1]
                             .split(LoggingConstants.RegexPatterns.GT_PATTARN);
                     Matcher matcher = pattern.matcher(logFileName[0]);
-                    if (matcher.find()) {
-                        if (dates != null) {
-                            String logName = logFileName[0].replace(
-                                    LoggingConstants.RegexPatterns.BACK_SLASH_PATTERN, "");
-                            logName = logName.replaceAll("%20", " ");
-                            LogInfo log = new LogInfo(logName, dates[0], sizes[0]);
-                            logs.add(log);
-                        }
+                    if (matcher.find() && dates != null) {
+                        String logName = logFileName[0].replace(
+                                LoggingConstants.RegexPatterns.BACK_SLASH_PATTERN, "");
+                        logName = logName.replaceAll(URL_ENCODED_SPACE_CHAR, " ");
+                        LogInfo logInfo = new LogInfo(logName, dates[0], sizes[0]);
+                        logs.add(logInfo);
                     }
                 }
             }
@@ -195,7 +201,7 @@ public class FileLogProvider implements LogFileProvider {
     }
 
     private List<LogInfo> getSortedLogInfo(List<LogInfo> logs) {
-        if (logs == null || logs.size() == 0) {
+        if (logs == null || logs.isEmpty()) {
             return getDefaultLogInfo();
         } else {
             Collections.sort(logs, new Comparator<Object>() {
@@ -241,24 +247,29 @@ public class FileLogProvider implements LogFileProvider {
     private List<LogInfo> getLocalLogInfo(String tenantDomain, String serverKey) {
         String folderPath = CarbonUtils.getCarbonLogsPath();
         List<LogInfo> logs = new ArrayList<LogInfo>();
-        LogInfo log;
-        if ((((tenantDomain.equals("")) && isSuperTenantUser()) || tenantDomain.equalsIgnoreCase(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME))
-                && (serverKey == null || serverKey.equals("") || serverKey.equalsIgnoreCase(getCurrentServerName()))) {
+        LogInfo logInfo;
+        String currentServerName = getCurrentServerName();
+        if (((("".equals(
+                tenantDomain)) && isSuperTenantUser()) || MultitenantConstants
+                     .SUPER_TENANT_DOMAIN_NAME
+                     .equalsIgnoreCase(tenantDomain))
+            && (serverKey == null || "".equals(serverKey) || serverKey.equalsIgnoreCase(
+                currentServerName))) {
 
             File folder = new File(folderPath);
             FileFilter fileFilter = new WildcardFileFilter(LoggingConstants.RegexPatterns.LOCAL_CARBON_LOG_PATTERN);
             File[] listOfFiles = folder.listFiles(fileFilter);
             for (File file : listOfFiles) {
                 String filename = file.getName();
-                String fileDates[] = filename.split(LoggingConstants.RegexPatterns.LOG_FILE_DATE_SEPARATOR);
+                String[] fileDates = filename.split(LoggingConstants.RegexPatterns.LOG_FILE_DATE_SEPARATOR);
                 String filePath = CarbonUtils.getCarbonLogsPath() + LoggingConstants.URL_SEPARATOR + filename;
                 File logfile = new File(filePath);
                 if (fileDates.length == 2) {
-                    log = new LogInfo(filename, fileDates[1], getFileSize(logfile));
+                    logInfo = new LogInfo(filename, fileDates[1], getFileSize(logfile));
                 } else {
-                    log = new LogInfo(filename, LoggingConstants.RegexPatterns.CURRENT_LOG, getFileSize(logfile));
+                    logInfo = new LogInfo(filename, LoggingConstants.RegexPatterns.CURRENT_LOG, getFileSize(logfile));
                 }
-                logs.add(log);
+                logs.add(logInfo);
             }
         }
         return getSortedLogInfo(logs);
@@ -272,8 +283,10 @@ public class FileLogProvider implements LogFileProvider {
         if (lastChar.equals(LoggingConstants.URL_SEPARATOR)) { // http://my.log.server/logs/stratos/
             syslogServerURL = syslogServerURL.substring(0, syslogServerURL.length() - 1);
         }
-        if (isSuperTenantUser()) { // ST can view tenant specific log files.
-            if (isManager()) { // manager can view different services log
+        if (isSuperTenantUser()) {
+            // ST can view tenant specific log files.
+            if (isManager()) {
+                // manager can view different services log
                 // messages.
                 if (serverKey != null && serverKey.length() > 0) {
                     serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
@@ -287,21 +300,23 @@ public class FileLogProvider implements LogFileProvider {
                     if (!isStratosService()) { // stand-alone apps.
                         serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
                                 + LoggingConstants.URL_SEPARATOR
-                                + ServerConfiguration.getInstance().getFirstProperty("ServerKey")
+                                + ServerConfiguration.getInstance().getFirstProperty(SERVER_KEY)
                                 + LoggingConstants.URL_SEPARATOR;
                     }
                 } catch (LogViewerException e) {
                     throw new LogViewerException("Cannot get log ServerURL for Tenant Service", e);
                 }
-            } else { // for other stratos services can view only their relevant
+            } else {
+                // for other stratos services can view only their relevant
                 // logs.
                 serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR + tenantId
                         + LoggingConstants.URL_SEPARATOR
-                        + ServerConfiguration.getInstance().getFirstProperty("ServerKey")
+                        + ServerConfiguration.getInstance().getFirstProperty(SERVER_KEY)
                         + LoggingConstants.URL_SEPARATOR;
             }
 
-        } else { // tenant level logging
+        } else {
+            // tenant level logging
             if (isManager()) {
                 if (serverKey != null && serverKey.length() > 0) {
                     serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR
@@ -319,23 +334,23 @@ public class FileLogProvider implements LogFileProvider {
                 serverUrl = syslogServerURL + LoggingConstants.URL_SEPARATOR
                         + CarbonContext.getThreadLocalCarbonContext().getTenantId()
                         + LoggingConstants.URL_SEPARATOR
-                        + ServerConfiguration.getInstance().getFirstProperty("ServerKey")
+                        + ServerConfiguration.getInstance().getFirstProperty(SERVER_KEY)
                         + LoggingConstants.URL_SEPARATOR;
             }
         }
-        serverUrl = serverUrl.replaceAll("\\s", "%20");
-        logFile = logFile.replaceAll("\\s", "%20");
+        serverUrl = serverUrl.replaceAll("\\s", URL_ENCODED_SPACE_CHAR);
+        logFile = logFile.replaceAll("\\s", URL_ENCODED_SPACE_CHAR);
         return serverUrl + logFile;
     }
 
     public boolean isStratosService() throws LogViewerException {
-        String serverKey = ServerConfiguration.getInstance().getFirstProperty("ServerKey");
+        String serverKey = ServerConfiguration.getInstance().getFirstProperty(SERVER_KEY);
         return ServiceConfigManager.isStratosService(serverKey);
     }
 
     public boolean isManager() {
         return LoggingConstants.WSO2_STRATOS_MANAGER.equalsIgnoreCase(ServerConfiguration.getInstance()
-                .getFirstProperty("ServerKey"));
+                .getFirstProperty(SERVER_KEY));
     }
 
     public boolean isSuperTenantUser() {
@@ -345,14 +360,15 @@ public class FileLogProvider implements LogFileProvider {
     }
 
     private String getCurrentServerName() {
-        return ServerConfiguration.getInstance().getFirstProperty("ServerKey");
+        return ServerConfiguration.getInstance().getFirstProperty(SERVER_KEY);
     }
 
     private String getFileSize(File file) {
         long bytes = file.length();
         int unit = 1024;
-        if (bytes < unit)
+        if (bytes < unit) {
             return bytes + " B";
+        }
         int exp = (int) (Math.log(bytes) / Math.log(unit));
         char pre = "KMGTPE".charAt(exp - 1);
         return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
