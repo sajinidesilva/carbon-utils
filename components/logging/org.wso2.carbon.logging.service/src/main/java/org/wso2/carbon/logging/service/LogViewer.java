@@ -53,31 +53,31 @@ public class LogViewer {
         // initiate Log provider instance
         String lpClass = loggingConfig.getLogProviderImplClassName();
         try {
-            if (lpClass != null && !lpClass.equals("")) {
+            if (lpClass != null && !"".equals(lpClass)) {
                 Class logProviderClass = Class.forName(lpClass);
                 Constructor constructor = logProviderClass.getConstructor();
                 logProvider = (LogProvider) constructor.newInstance();
                 logProvider.init(loggingConfig);
             } else {
-                log.error("Log provider is not defined in logging configuration file");
+                log.error("Log provider is not defined in logging configuration file : conf/etc/logging-config.xml");
             }
         } catch (Exception e) {
-            log.error("Error while loading log provider implementation class");
+            log.error("Error while loading log provider implementation class", e);
         }
 
         // initiate log file provider instance
         String lfpClass = loggingConfig.getLogFileProviderImplClassName();
         try {
-            if (lfpClass != null && !lfpClass.equals("")) {
+            if (lfpClass != null && !"".equals(lfpClass)) {
                 Class logFileProviderClass = Class.forName(lfpClass);
                 Constructor constructor = logFileProviderClass.getConstructor();
                 logFileProvider = (LogFileProvider) constructor.newInstance();
                 logFileProvider.init(loggingConfig);
             } else {
-                log.error("Log file provider is not defined in logging configuration file");
+                log.error("Log file provider is not defined in logging configuration file : conf/etc/logging-config.xml");
             }
         } catch (Exception e) {
-            log.error("Error while loading log file provider implementation class");
+            log.error("Error while loading log file provider implementation class", e);
         }
 
     }
@@ -85,19 +85,17 @@ public class LogViewer {
     public PaginatedLogInfo getPaginatedLogInfo(int pageNumber, String tenantDomain,
                                                 String serviceName) throws LogViewerException {
         List<LogInfo> logInfoList = logFileProvider.getLogInfo(tenantDomain, serviceName);
-        if (logInfoList != null && logInfoList.size() > 0) {
-            // Pagination
-            PaginatedLogInfo paginatedLogInfo = new PaginatedLogInfo();
-            DataPaginator.doPaging(pageNumber, logInfoList, paginatedLogInfo);
-            return paginatedLogInfo;
-        } else {
-            return null;
-        }
+        return getPaginatedLogInfo(pageNumber, logInfoList);
     }
 
     public PaginatedLogInfo getLocalLogFiles(int pageNumber, String tenantDomain, String serverKey) throws LogViewerException {
         List<LogInfo> logInfoList = logFileProvider.getLogInfo(tenantDomain, serverKey);
-        if (logInfoList != null && logInfoList.size() > 0) {
+        return getPaginatedLogInfo(pageNumber, logInfoList);
+    }
+
+    private PaginatedLogInfo getPaginatedLogInfo(int pageNumber, List<LogInfo> logInfoList) {
+        if (logInfoList != null && !logInfoList.isEmpty()) {
+            // Pagination
             PaginatedLogInfo paginatedLogInfo = new PaginatedLogInfo();
             DataPaginator.doPaging(pageNumber, logInfoList, paginatedLogInfo);
             return paginatedLogInfo;
@@ -144,23 +142,16 @@ public class LogViewer {
     public boolean isLogEventReciverConfigured() {
         Logger rootLogger = Logger.getRootLogger();
         LogEventAppender logger = (LogEventAppender) rootLogger.getAppender("LOGEVENT");
-        if (logger != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return logger != null;
     }
 
     public boolean isFileAppenderConfiguredForST() {
         Logger rootLogger = Logger.getRootLogger();
         DailyRollingFileAppender logger = (DailyRollingFileAppender) rootLogger
                 .getAppender("CARBON_LOGFILE");
-        if (logger != null
-                && CarbonContext.getCurrentContext().getTenantId() == MultitenantConstants.SUPER_TENANT_ID) {
-            return true;
-        } else {
-            return false;
-        }
+        return  logger != null
+                 && CarbonContext.getCurrentContext()
+                                 .getTenantId() == MultitenantConstants.SUPER_TENANT_ID;
     }
 
     public LogEvent[] getAllSystemLogs() throws LogViewerException {
@@ -172,30 +163,27 @@ public class LogViewer {
             throws LogViewerException {
 
         List<LogEvent> logMsgList = logProvider.getLogs(type, keyword, null, tenantDomain, serverKey);
-        if (logMsgList != null && logMsgList.size() > 0) {
-            PaginatedLogEvent paginatedLogEvent = new PaginatedLogEvent();
-            DataPaginator.doPaging(pageNumber, logMsgList, paginatedLogEvent);
-            return paginatedLogEvent;
-        } else {
-            return null;
-        }
-
-    }
-
-    public int getNoOfLogEvents(String tenantDomain, String serverKey) throws LogViewerException {
-        return logProvider.logsCount(tenantDomain, serverKey);
+        return getPaginatedLogEvent(pageNumber, logMsgList);
     }
 
     public PaginatedLogEvent getPaginatedApplicationLogEvents(int pageNumber, String type,
                                                               String keyword, String applicationName, String tenantDomain, String serverKey) throws Exception {
         List<LogEvent> logMsgList = logProvider.getLogs(type, keyword, applicationName, tenantDomain, serverKey);
-        if (logMsgList != null && logMsgList.size() > 0) {
+        return getPaginatedLogEvent(pageNumber, logMsgList);
+    }
+
+    private PaginatedLogEvent getPaginatedLogEvent(int pageNumber, List<LogEvent> logMsgList) {
+        if (logMsgList != null && !logMsgList.isEmpty()) {
             PaginatedLogEvent paginatedLogEvent = new PaginatedLogEvent();
             DataPaginator.doPaging(pageNumber, logMsgList, paginatedLogEvent);
             return paginatedLogEvent;
         } else {
             return null;
         }
+    }
+
+    public int getNoOfLogEvents(String tenantDomain, String serverKey) throws LogViewerException {
+        return logProvider.logsCount(tenantDomain, serverKey);
     }
 
     public LogEvent[] getLogs(String type, String keyword, String tenantDomain,
