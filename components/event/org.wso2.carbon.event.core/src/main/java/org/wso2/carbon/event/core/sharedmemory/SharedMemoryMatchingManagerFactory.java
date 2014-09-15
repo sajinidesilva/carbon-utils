@@ -24,16 +24,11 @@ import org.apache.axiom.om.OMElement;
 import org.wso2.carbon.event.core.sharedmemory.util.SharedMemoryCacheUtil;
 
 import javax.cache.Cache;
-import javax.cache.CacheConfiguration;
-import javax.cache.CacheManager;
-import javax.cache.Caching;
-import java.util.concurrent.TimeUnit;
 
 public class SharedMemoryMatchingManagerFactory implements MatchingManagerFactory {
 
     private static Cache<Integer, SharedMemoryMatchingManager> getInMemoryMatchingCache() {
         return SharedMemoryCacheUtil.getInMemoryMatchingCache();
-//        return Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager").getCache("inMemoryEventCache");
     }
 
     public MatchingManager getMatchingManager(OMElement config) throws EventBrokerConfigurationException {
@@ -42,7 +37,6 @@ public class SharedMemoryMatchingManagerFactory implements MatchingManagerFactor
         if(getInMemoryMatchingCache().get(1) == null) {
             inMemoryMatchingManager = new SharedMemoryMatchingManager();
             getInMemoryMatchingCache().put(1, inMemoryMatchingManager);
-        } else {
         }
 
         try {

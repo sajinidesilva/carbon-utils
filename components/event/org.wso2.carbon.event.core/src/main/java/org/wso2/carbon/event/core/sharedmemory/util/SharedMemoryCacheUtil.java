@@ -9,22 +9,22 @@ import javax.cache.Caching;
 import java.util.concurrent.TimeUnit;
 
 public class SharedMemoryCacheUtil {
-    private static Cache<Integer, SharedMemoryMatchingManager> cache = null;
-    private static boolean CacheInit = false;
+    private static boolean cacheInit = false;
 
+    private SharedMemoryCacheUtil(){}
+    
     public static Cache<Integer, SharedMemoryMatchingManager> getInMemoryMatchingCache() {
-        if (CacheInit) {
+        if (cacheInit) {
             return Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager").getCache("inMemoryEventCache");
         } else {
             CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager");
             String cacheName = "inMemoryEventCache";
-            CacheInit = true;
+            cacheInit = true;
             return cacheManager.<Integer, SharedMemoryMatchingManager>createCacheBuilder(cacheName).
                     setExpiry(CacheConfiguration.ExpiryType.MODIFIED, new CacheConfiguration.Duration(TimeUnit.SECONDS, 1000 * 24 * 3600)).
                     setExpiry(CacheConfiguration.ExpiryType.ACCESSED, new CacheConfiguration.Duration(TimeUnit.SECONDS, 1000 * 24 * 3600)).
                     setStoreByValue(false).build();
 
         }
-//        return Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager").getCache("inMemoryEventCache");
     }
 }

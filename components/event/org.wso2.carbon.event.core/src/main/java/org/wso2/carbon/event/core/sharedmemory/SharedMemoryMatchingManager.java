@@ -20,13 +20,12 @@ import org.wso2.carbon.event.core.delivery.MatchingManager;
 import org.wso2.carbon.event.core.subscription.Subscription;
 import org.wso2.carbon.event.core.exception.EventBrokerException;
 import org.wso2.carbon.context.CarbonContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import javax.cache.Cache;
 import javax.cache.CacheConfiguration;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,26 +34,24 @@ import java.util.concurrent.TimeUnit;
 /**
  * in memory matching manager which keeps the topic and subscriptions in an hash map
  */
+@SuppressWarnings("serial")
 public class SharedMemoryMatchingManager implements MatchingManager, Serializable {
 
-    private static final Log log = LogFactory.getLog(SharedMemoryMatchingManager.class);
-    private static Cache<Integer, SharedMemorySubscriptionStorage> cache = null;
-    private static boolean CacheInit = false;
+    private static boolean cacheInit = false;
 
     private static Cache<Integer, SharedMemorySubscriptionStorage> getTenantIDInMemorySubscriptionStorageCache() {
-        if (CacheInit) {
+        if (cacheInit) {
             return Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager").getCache("tenantIDInMemorySubscriptionStorageCache");
         } else {
             CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager");
             String cacheName = "tenantIDInMemorySubscriptionStorageCache";
-            CacheInit = true;
+            cacheInit = true;
             return cacheManager.<Integer, SharedMemorySubscriptionStorage>createCacheBuilder(cacheName).
                     setExpiry(CacheConfiguration.ExpiryType.MODIFIED, new CacheConfiguration.Duration(TimeUnit.SECONDS, 1000 * 24 * 3600)).
                     setExpiry(CacheConfiguration.ExpiryType.ACCESSED, new CacheConfiguration.Duration(TimeUnit.SECONDS, 1000 * 24 * 3600)).
                     setStoreByValue(false).build();
 
         }
-//        return Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager").getCache("tenantIDInMemorySubscriptionStorageCache");
     }
 
     public SharedMemoryMatchingManager() {
@@ -92,7 +89,6 @@ public class SharedMemoryMatchingManager implements MatchingManager, Serializabl
         if (getTenantIDInMemorySubscriptionStorageCache().get(CarbonContext.getThreadLocalCarbonContext().getTenantId()) == null){
             getTenantIDInMemorySubscriptionStorageCache().put(
                     CarbonContext.getThreadLocalCarbonContext().getTenantId(), new SharedMemorySubscriptionStorage());
-        } else {
         }
     }
 }

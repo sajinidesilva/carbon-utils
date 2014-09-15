@@ -18,13 +18,10 @@ package org.wso2.carbon.event.core.sharedmemory;
 
 import org.wso2.carbon.event.core.delivery.DeliveryManagerFactory;
 import org.wso2.carbon.event.core.delivery.DeliveryManager;
-import org.wso2.carbon.event.core.delivery.MatchingManagerFactory;
-import org.wso2.carbon.event.core.util.EventBrokerConstants;
 import org.wso2.carbon.event.core.internal.util.JavaUtil;
 import org.wso2.carbon.event.core.exception.EventBrokerConfigurationException;
 import org.apache.axiom.om.OMElement;
 
-import javax.xml.namespace.QName;
 import java.util.concurrent.*;
 
 /**
@@ -54,14 +51,6 @@ public class SharedMemoryDeliveryManagerFactory implements DeliveryManagerFactor
                 keepAliveTime, TimeUnit.NANOSECONDS, queue);
 
         SharedMemoryDeliveryManager delivaryManager = new SharedMemoryDeliveryManager(executor, topicStoragePath);
-
-        // creates the matching manager
-        OMElement matchingManagerElement =
-                config.getFirstChildWithName(new QName(EventBrokerConstants.EB_CONF_NAMESPACE,
-                        EventBrokerConstants.EB_CONF_ELE_MATCHING_MANAGER));
-        MatchingManagerFactory factory =
-                (MatchingManagerFactory) JavaUtil.getObject(matchingManagerElement);
-//        delivaryManager.setMatchingManager(factory.getMatchingManager(matchingManagerElement));
 
         return delivaryManager;
     }

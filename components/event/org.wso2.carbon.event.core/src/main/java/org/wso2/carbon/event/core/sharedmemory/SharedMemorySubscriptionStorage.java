@@ -37,8 +37,6 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("serial")
 public class SharedMemorySubscriptionStorage implements Serializable {
 
-    private static Cache<String, SubscriptionContainer> topicSubscriptioncache = null;
-    private static Cache<String, String> subscriptionIDTopicNamecache = null;
     private static boolean topicSubscriptionCacheInit =false;
     private static boolean tenantIDInMemorySubscriptionStorageCacheInit = false;
     /**
@@ -95,7 +93,6 @@ public class SharedMemorySubscriptionStorage implements Serializable {
     public List<Subscription> getMatchingSubscriptions(String topicName) {
         topicName = getTopicName(topicName);
         List<Subscription> subscriptions = new ArrayList<Subscription>();
-        Iterator<String> keys = getTopicSubscriptionCache().keys();
 
         List<String> matchingTopicNames = getTopicMatchingNames(topicName);
         for (String matchingTopicName : matchingTopicNames){

@@ -46,16 +46,10 @@ public class SharedMemoryDeliveryManager implements DeliveryManager {
     private ExecutorService executor;
     private NotificationManager notificationManager;
     private String topicStoragePath;
-    private EventBroker eventBroker;
-
-//    private long earlierSetTime ;
 
     public SharedMemoryDeliveryManager(ExecutorService executor, String topicStoragePath) {
         this.executor = executor;
         this.topicStoragePath = topicStoragePath;
-
-//        java.util.Date currentDate = new java.util.Date();
-//        earlierSetTime = currentDate.getTime();
     }
 
     public void subscribe(Subscription subscription) throws EventBrokerException {
@@ -149,7 +143,6 @@ public class SharedMemoryDeliveryManager implements DeliveryManager {
 
     private static Cache<Integer, SharedMemoryMatchingManager> getInMemoryMatchingCache() {
         return SharedMemoryCacheUtil.getInMemoryMatchingCache();
-//        return Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager").getCache("inMemoryEventCache");
     }
 
     public synchronized MatchingManager getMatchingManager() throws EventBrokerConfigurationException {
@@ -158,7 +151,6 @@ public class SharedMemoryDeliveryManager implements DeliveryManager {
         if((inMemoryMatchingManager = getInMemoryMatchingCache().get(1)) == null) {
             inMemoryMatchingManager = new SharedMemoryMatchingManager();
             getInMemoryMatchingCache().put(1, inMemoryMatchingManager);
-        } else {
         }
 
         try {
@@ -172,7 +164,6 @@ public class SharedMemoryDeliveryManager implements DeliveryManager {
     }
 
     public void setEventBroker(EventBroker eventbroker) {
-        this.eventBroker = eventbroker;
     }
 
 }
