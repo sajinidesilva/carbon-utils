@@ -76,6 +76,9 @@ public class FileLogProvider implements LogFileProvider {
      */
     @Override
     public void init(LoggingConfig loggingConfig) {
+        if(log.isDebugEnabled()){
+            log.debug("FileLogProvider is initialized.");
+        }
     }
 
     @Override
@@ -300,10 +303,10 @@ public class FileLogProvider implements LogFileProvider {
             }
             return inputStream;
         } catch (Exception e) {
-            // cannot catch a specific exception since getLogDataStream throws an exception
-            throw new LogViewerException("Error getting the file inputstream", e);
+            // cannot catch a specific exception since RegistryManager.getSyslogConfig (which is
+            // used in the call stack of getLogDataStream()) throws an exception 
+            throw new LogViewerException("Error getting the file input stream", e);
         }
-
     }
 
     private InputStream getLocalInputStream(String logFile) throws FileNotFoundException {
