@@ -93,6 +93,13 @@ public class FileLogProvider implements LogFileProvider {
             File folder = new File(folderPath);
             FileFilter fileFilter = new WildcardFileFilter(LoggingConstants.RegexPatterns.LOCAL_CARBON_LOG_PATTERN);
             File[] listOfFiles = folder.listFiles(fileFilter);
+            if (listOfFiles == null) {
+                // folder.listFiles can return a null, in that case return an empty list
+                if (log.isDebugEnabled()) {
+                    log.debug("List of log files of the given pattern is null.");
+                }
+                return new ArrayList<LogInfo>();
+            }
             for (File file : listOfFiles) {
                 String filename = file.getName();
                 String[] fileDates = filename.split(LoggingConstants.RegexPatterns.LOG_FILE_DATE_SEPARATOR);
