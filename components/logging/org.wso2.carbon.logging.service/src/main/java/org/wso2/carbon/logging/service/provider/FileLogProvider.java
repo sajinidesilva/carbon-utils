@@ -79,7 +79,7 @@ public class FileLogProvider implements LogFileProvider {
     }
 
     @Override
-    public List<LogInfo> getLogInfo(String tenantDomain, String serverKey) throws LogViewerException {
+    public List<LogInfo> getPerLogInfoList(String tenantDomain, String serverKey) throws LogViewerException {
         String folderPath = CarbonUtils.getCarbonLogsPath();
         List<LogInfo> logs = new ArrayList<LogInfo>();
         LogInfo logInfo;

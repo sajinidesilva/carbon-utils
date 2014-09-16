@@ -86,12 +86,15 @@ public class LogViewer {
 
     public PaginatedLogInfo getPaginatedLogInfo(int pageNumber, String tenantDomain,
                                                 String serviceName) throws LogViewerException {
-        List<LogInfo> logInfoList = logFileProvider.getLogInfo(tenantDomain, serviceName);
+        List<LogInfo> logInfoList = logFileProvider.getPerLogInfoList(tenantDomain,
+                                                                      serviceName);
         return getPaginatedLogInfo(pageNumber, logInfoList);
     }
 
     public PaginatedLogInfo getLocalLogFiles(int pageNumber, String tenantDomain, String serverKey) throws LogViewerException {
-        List<LogInfo> logInfoList = logFileProvider.getLogInfo(tenantDomain, serverKey);
+
+
+        List<LogInfo> logInfoList = logFileProvider.getPerLogInfoList(tenantDomain, serverKey);
         return getPaginatedLogInfo(pageNumber, logInfoList);
     }
 

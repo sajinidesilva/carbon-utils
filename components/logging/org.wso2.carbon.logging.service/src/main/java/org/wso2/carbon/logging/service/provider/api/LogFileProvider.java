@@ -38,15 +38,20 @@ public interface LogFileProvider {
     public void init(LoggingConfig loggingConfig);
 
     /**
-     * Return array of LogInfo, which is available under given tenant domain and serviceName
+     * Return a list of log information, which is available under given tenant domain and
+     * serviceName
+     *      eg: log name, log date, log size
      *
-     * @param tenantDomain - Tenant domain eg: t1.com
-     * @param serviceName  - Service name or Server key
-     * @return array of LogInfo, which is available under given tenant domain and serviceName,  empty LogInfo array
-     * if there  is no LogInfo available.
+     * @param tenantDomain
+     *         - Tenant domain eg: t1.com
+     * @param serviceName
+     *         - Service name or Server key
+     * @return array of LogInfo, which is available under given tenant domain and serviceName,
+     * empty LogInfo array if there  is no LogInfo available.
      * @throws LogViewerException
      */
-    public List<LogInfo> getLogInfo(String tenantDomain, String serviceName) throws LogViewerException;
+    public List<LogInfo> getPerLogInfoList(String tenantDomain, String serviceName)
+            throws LogViewerException;
 
     /**
      * Download the file
