@@ -107,7 +107,7 @@ public class FileLogProvider implements LogFileProvider {
                 logs.add(logInfo);
             }
         }
-        return getSortedLogInfo(logs);
+        return getSortedPerLogInfoList(logs);
     }
 
     @Override
@@ -199,10 +199,10 @@ public class FileLogProvider implements LogFileProvider {
         } catch (IOException e) {
             throw new LogViewerException("Cannot find the specified file location to the log file", e);
         }
-        return getSortedLogInfo(logs);
+        return getSortedPerLogInfoList(logs);
     }
 
-    private List<LogInfo> getSortedLogInfo(List<LogInfo> logs) {
+    private List<LogInfo> getSortedPerLogInfoList(List<LogInfo> logs) {
         if (logs == null || logs.isEmpty()) {
             return getDefaultLogInfo();
         } else {
@@ -274,7 +274,7 @@ public class FileLogProvider implements LogFileProvider {
                 logs.add(logInfo);
             }
         }
-        return getSortedLogInfo(logs);
+        return getSortedPerLogInfoList(logs);
 
     }
 
@@ -387,6 +387,7 @@ public class FileLogProvider implements LogFileProvider {
             }
             return inputStream;
         } catch (Exception e) {
+            // cannot catch a specific exception since getLogDataStream throws an exception
             throw new LogViewerException("Error getting the file inputstream", e);
         }
 
