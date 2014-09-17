@@ -20,6 +20,7 @@ package org.wso2.carbon.event.core.sharedmemory;
 
 
 import org.wso2.carbon.event.core.subscription.Subscription;
+import org.wso2.carbon.event.core.util.EventBrokerConstants;
 
 import javax.cache.Cache;
 import javax.cache.CacheConfiguration;
@@ -28,26 +29,34 @@ import javax.cache.Caching;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Subscription container is used to keep track of caches related to a given topic name,
+ * across the nodes in the cluster.
+ */
+
 @SuppressWarnings("serial")
 class SubscriptionContainer implements Serializable {
-    private String topicName = null;
+    //variable to store the cache name related to this container (this container's topic name)
+    private String topicCacheName = null;
     private boolean topicCacheInit = false;
 
     public SubscriptionContainer(String topicName) {
-        this.topicName = topicName;
+        this.topicCacheName = topicName.replace("*", EventBrokerConstants.STAR_CHARACTER_FOR_CACHE_NAMES);
     }
 
     public Cache<String, Subscription> getSubscriptionsCache() {
         if (topicCacheInit) {
-            return Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager").getCache(topicName);
+            return Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager").getCache(topicCacheName);
         } else {
             CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager");
-            String cacheName = topicName;
-            topicCacheInit = true;
-            return cacheManager.<String, Subscription>createCacheBuilder(cacheName).
+            String cacheName = topicCacheName;
+            Cache<String, Subscription> newCache = cacheManager.<String, Subscription>createCacheBuilder(cacheName).
                     setExpiry(CacheConfiguration.ExpiryType.MODIFIED, new CacheConfiguration.Duration(TimeUnit.SECONDS, 1000 * 24 * 3600)).
                     setExpiry(CacheConfiguration.ExpiryType.ACCESSED, new CacheConfiguration.Duration(TimeUnit.SECONDS, 1000 * 24 * 3600)).
                     setStoreByValue(false).build();
+            topicCacheInit = true;
+
+            return newCache;
         }
     }
 }

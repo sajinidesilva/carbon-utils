@@ -52,4 +52,6 @@ public interface EventBrokerConstants {
     int EB_NON_PERSISTENT = 1;
     int EB_PERSISTENT = 2;
 
+    public static final String STAR_CHARACTER_FOR_CACHE_NAMES = "<SCFCN>";
+
 }
