@@ -89,8 +89,8 @@
         String tenantDomain = request.getParameter("tenantDomain");
         String serviceName = request.getParameter("serviceName");
         String serviceNames[];
-		LogInfo[] logInfo = null;
-		PaginatedLogInfo paginatedLogInfo = null;
+		LogInfo[] logFileInfo = null;
+		PaginatedLogInfo paginatedLogFileInfo = null;
 		PaginatedLogEvent paginatedLogEvents = null;
 		String parameter = "";
 		String indexParameter = "";
@@ -126,7 +126,7 @@
             if(isValidTenant) {
                 paginatedLogEvents = logViewerClient.getPaginatedLogEvents(pageNumber, type,
                         keyword, tenantDomain, serviceName);
-                paginatedLogInfo = logViewerClient.getLocalLogFiles(pageIndexNumber, tenantDomain, serviceName);
+                paginatedLogFileInfo = logViewerClient.getLocalLogFiles(pageIndexNumber, tenantDomain, serviceName);
             }
 
 			if (paginatedLogEvents != null) {
@@ -134,13 +134,13 @@
 				events = paginatedLogEvents.getLogInfo();
 				numberOfPages = paginatedLogEvents.getNumberOfPages();
 			}
-			if (paginatedLogInfo != null) {
-				logInfo = paginatedLogInfo.getLogInfo();
-				numberOfIndexPages = paginatedLogInfo.getNumberOfPages();
+			if (paginatedLogFileInfo != null) {
+				logFileInfo = paginatedLogFileInfo.getLogInfo();
+				numberOfIndexPages = paginatedLogFileInfo.getNumberOfPages();
 			}
             isManager = logViewerClient.isManager();
             serviceNames = logViewerClient.getServiceNames();
-			showLogFiles = (logInfo != null);
+			showLogFiles = (logFileInfo != null);
             if(isManager) {
                 if(isSuperTenant) {
                     parameter = "type=" + type + "&keyword=" + keyword + "&serviceName=" + serviceName +
@@ -562,7 +562,7 @@
 								</thead>
 								<%
 									int index = -1;
-											for (LogInfo logMessage : logInfo) {
+											for (LogInfo logMessage : logFileInfo) {
 												++index;
 												if (index % 2 != 0) {
 								%>

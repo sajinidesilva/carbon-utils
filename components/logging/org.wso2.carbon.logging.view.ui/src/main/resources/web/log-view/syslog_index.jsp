@@ -61,11 +61,11 @@ private boolean isArchiveFile (String fileName) {
 	LogViewerClient logViewerClient;
 	String action;
 	LogMessage[] logMessages;
-	LogInfo[] logInfo;
+	LogInfo[] logFileInfo;
 	String tenantDomain = "";
 	String serviceName = "WSO2 Stratos Manager";
 	boolean isLogsFromSyslog;
-	PaginatedLogInfo paginatedLogInfo;
+	PaginatedLogInfo paginatedLogFileInfo;
 	boolean isStratosService = false;
 	String pageNumberStr = request.getParameter("pageNumber");
 	boolean isSTSyslog = false;
@@ -100,19 +100,19 @@ private boolean isArchiveFile (String fileName) {
 		showTenantDomain = (isSTSyslog && isLogsFromSyslog && isStratosService);
 		showManager = (isManager && isLogsFromSyslog);
 		if (logViewerClient.isLogsConfigured(tenantDomain)) {
-			paginatedLogInfo = logViewerClient.getPaginatedLogInfo(pageNumber,
+			paginatedLogFileInfo = logViewerClient.getPaginatedLogInfo(pageNumber,
 					tenantDomain, serviceName);
-			if (paginatedLogInfo != null) {
-				logInfo = paginatedLogInfo.getLogInfo();
-				numberOfPages = paginatedLogInfo.getNumberOfPages();
+			if (paginatedLogFileInfo != null) {
+				logFileInfo = paginatedLogFileInfo.getLogInfo();
+				numberOfPages = paginatedLogFileInfo.getNumberOfPages();
 				//logMessages = logViewerClient.getTenentLogs();
 
 				//logMessages = logViewerClient.getLogs(type, keyword);
 
-				for (int i = 0; i < logInfo.length; i++) {
-					String logFile = logInfo[i].getLogName();
-					String logDate = logInfo[i].getLogDate();
-					String logSize = logInfo[i].getLogDate();
+				for (int i = 0; i < logFileInfo.length; i++) {
+					String logFile = logFileInfo[i].getLogName();
+					String logDate = logFileInfo[i].getLogDate();
+					String logSize = logFileInfo[i].getLogDate();
 				}
 			}
 			else {
@@ -291,7 +291,7 @@ private boolean isArchiveFile (String fileName) {
 								</thead>
 								<%
 									int index = -1;
-										for (LogInfo logMessage : logInfo) {
+										for (LogInfo logMessage : logFileInfo) {
 											++index;
 											if (index % 2 != 0) {
 								%>

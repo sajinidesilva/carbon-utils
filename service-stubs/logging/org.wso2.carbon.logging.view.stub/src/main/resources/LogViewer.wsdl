@@ -313,7 +313,7 @@
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://data.service.logging.carbon.wso2.org/xsd">
             <xs:complexType name="PaginatedLogInfo">
                 <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="logInfo" nillable="true" type="ax298:LogInfo"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="logFileInfo" nillable="true" type="ax298:LogInfo"/>
                     <xs:element minOccurs="0" name="numberOfPages" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>
@@ -326,7 +326,7 @@
             </xs:complexType>
             <xs:complexType name="PaginatedLogEvent">
                 <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="logInfo" nillable="true" type="ax298:LogEvent"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="logFileInfo" nillable="true" type="ax298:LogEvent"/>
                     <xs:element minOccurs="0" name="numberOfPages" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>

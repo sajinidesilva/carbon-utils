@@ -23,11 +23,11 @@ import org.wso2.carbon.utils.Pageable;
 import java.util.List;
 
 /**
- * Bean for paginated Login Information
+ * Bean for paginated Logging Information
  */
-public class PaginatedLogInfo implements Pageable {
+public class PaginatedLogFileInfo implements Pageable {
 
-    private LogInfo[] logInfo;
+    private LogFileInfo[] logFileInfo;
     private int numberOfPages;
 
     public int getNumberOfPages() {
@@ -38,16 +38,16 @@ public class PaginatedLogInfo implements Pageable {
         this.numberOfPages = numberOfPages;
     }
 
-    public LogInfo[] getLogInfo() {
-        return logInfo;
+    public LogFileInfo[] getLogFileInfo() {
+        return logFileInfo;
     }
 
-    public void setLogInfo(LogInfo[] logInfo) {
-        this.logInfo = logInfo;
+    public void setLogFileInfo(LogFileInfo[] logFileInfo) {
+        this.logFileInfo = logFileInfo;
     }
 
     public <T> void set(List<T> items) {
-        this.logInfo = items.toArray(new LogInfo[items.size()]);
+        this.logFileInfo = items.toArray(new LogFileInfo[items.size()]);
     }
 
 }

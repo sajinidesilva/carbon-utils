@@ -25,10 +25,10 @@ import org.wso2.carbon.logging.service.appender.LogEventAppender;
 import org.wso2.carbon.logging.service.config.LoggingConfigManager;
 import org.wso2.carbon.logging.service.config.ServiceConfigManager;
 import org.wso2.carbon.logging.service.data.LogEvent;
-import org.wso2.carbon.logging.service.data.LogInfo;
+import org.wso2.carbon.logging.service.data.LogFileInfo;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
 import org.wso2.carbon.logging.service.data.PaginatedLogEvent;
-import org.wso2.carbon.logging.service.data.PaginatedLogInfo;
+import org.wso2.carbon.logging.service.data.PaginatedLogFileInfo;
 import org.wso2.carbon.logging.service.provider.api.LogFileProvider;
 import org.wso2.carbon.logging.service.provider.api.LogProvider;
 import org.wso2.carbon.logging.service.util.LoggingUtil;
@@ -84,26 +84,26 @@ public class LogViewer {
 
     }
 
-    public PaginatedLogInfo getPaginatedLogInfo(int pageNumber, String tenantDomain,
+    public PaginatedLogFileInfo getPaginatedLogInfo(int pageNumber, String tenantDomain,
                                                 String serviceName) throws LogViewerException {
-        List<LogInfo> logInfoList = logFileProvider.getPerLogInfoList(tenantDomain,
-                                                                      serviceName);
-        return getPaginatedLogInfo(pageNumber, logInfoList);
+        List<LogFileInfo> logFileInfoList = logFileProvider.getLogFileInfoList(tenantDomain,
+                                                                       serviceName);
+        return getPaginatedLogInfo(pageNumber, logFileInfoList);
     }
 
-    public PaginatedLogInfo getLocalLogFiles(int pageNumber, String tenantDomain, String serverKey) throws LogViewerException {
+    public PaginatedLogFileInfo getLocalLogFiles(int pageNumber, String tenantDomain, String serverKey) throws LogViewerException {
 
 
-        List<LogInfo> logInfoList = logFileProvider.getPerLogInfoList(tenantDomain, serverKey);
-        return getPaginatedLogInfo(pageNumber, logInfoList);
+        List<LogFileInfo> logFileInfoList = logFileProvider.getLogFileInfoList(tenantDomain, serverKey);
+        return getPaginatedLogInfo(pageNumber, logFileInfoList);
     }
 
-    private PaginatedLogInfo getPaginatedLogInfo(int pageNumber, List<LogInfo> logInfoList) {
-        if (logInfoList != null && !logInfoList.isEmpty()) {
+    private PaginatedLogFileInfo getPaginatedLogInfo(int pageNumber, List<LogFileInfo> logFileInfoList) {
+        if (logFileInfoList != null && !logFileInfoList.isEmpty()) {
             // Pagination
-            PaginatedLogInfo paginatedLogInfo = new PaginatedLogInfo();
-            DataPaginator.doPaging(pageNumber, logInfoList, paginatedLogInfo);
-            return paginatedLogInfo;
+            PaginatedLogFileInfo paginatedLogFileInfo = new PaginatedLogFileInfo();
+            DataPaginator.doPaging(pageNumber, logFileInfoList, paginatedLogFileInfo);
+            return paginatedLogFileInfo;
         } else {
             return null;
         }

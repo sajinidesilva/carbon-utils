@@ -18,7 +18,7 @@
 package org.wso2.carbon.logging.service.provider.api;
 
 import org.wso2.carbon.logging.service.LogViewerException;
-import org.wso2.carbon.logging.service.data.LogInfo;
+import org.wso2.carbon.logging.service.data.LogFileInfo;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
 
 import javax.activation.DataHandler;
@@ -46,11 +46,11 @@ public interface LogFileProvider {
      *         - Tenant domain eg: t1.com
      * @param serviceName
      *         - Service name or Server key
-     * @return array of LogInfo, which is available under given tenant domain and serviceName,
-     * empty LogInfo array if there  is no LogInfo available.
+     * @return array of LogFileInfo, which is available under given tenant domain and serviceName,
+     * empty LogFileInfo array if there  is no LogFileInfo available.
      * @throws LogViewerException
      */
-    public List<LogInfo> getPerLogInfoList(String tenantDomain, String serviceName)
+    public List<LogFileInfo> getLogFileInfoList(String tenantDomain, String serviceName)
             throws LogViewerException;
 
     /**

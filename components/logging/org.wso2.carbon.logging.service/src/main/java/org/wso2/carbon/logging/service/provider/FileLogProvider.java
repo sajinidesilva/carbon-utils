@@ -30,7 +30,7 @@ import org.wso2.carbon.logging.service.LogViewerException;
 import org.wso2.carbon.logging.service.config.ServiceConfigManager;
 import org.wso2.carbon.logging.service.config.SyslogConfigManager;
 import org.wso2.carbon.logging.service.config.SyslogConfiguration;
-import org.wso2.carbon.logging.service.data.LogInfo;
+import org.wso2.carbon.logging.service.data.LogFileInfo;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
 import org.wso2.carbon.logging.service.data.SyslogData;
 import org.wso2.carbon.logging.service.provider.api.LogFileProvider;
@@ -75,10 +75,10 @@ public class FileLogProvider implements LogFileProvider {
     }
 
     @Override
-    public List<LogInfo> getPerLogInfoList(String tenantDomain, String serverKey) throws LogViewerException {
+    public List<LogFileInfo> getLogFileInfoList(String tenantDomain, String serverKey) throws LogViewerException {
         String folderPath = CarbonUtils.getCarbonLogsPath();
-        List<LogInfo> logs = new ArrayList<LogInfo>();
-        LogInfo logInfo;
+        List<LogFileInfo> logs = new ArrayList<LogFileInfo>();
+        LogFileInfo logFileInfo;
         String currentServerName = getCurrentServerName();
         if ((((tenantDomain == null || "".equals(tenantDomain)) && isSuperTenantUser()) ||
              (tenantDomain != null && MultitenantConstants.SUPER_TENANT_DOMAIN_NAME
@@ -104,12 +104,12 @@ public class FileLogProvider implements LogFileProvider {
                 String filePath = CarbonUtils.getCarbonLogsPath() + LoggingConstants.URL_SEPARATOR + filename;
                 File logfile = new File(filePath);
                 if (fileDates.length == 2) {
-                    logInfo = new LogInfo(filename, fileDates[1], getFileSize(logfile));
+                    logFileInfo = new LogFileInfo(filename, fileDates[1], getFileSize(logfile));
                 } else {
-                    logInfo = new LogInfo(filename, LoggingConstants.RegexPatterns.CURRENT_LOG,
+                    logFileInfo = new LogFileInfo(filename, LoggingConstants.RegexPatterns.CURRENT_LOG,
                             getFileSize(logfile));
                 }
-                logs.add(logInfo);
+                logs.add(logFileInfo);
             }
         }
         return getSortedPerLogInfoList(logs);
@@ -148,14 +148,14 @@ public class FileLogProvider implements LogFileProvider {
     }
 
 
-    private List<LogInfo> getSortedPerLogInfoList(List<LogInfo> logs) {
+    private List<LogFileInfo> getSortedPerLogInfoList(List<LogFileInfo> logs) {
         if (logs == null || logs.isEmpty()) {
             return getDefaultLogInfoList();
         } else {
             Collections.sort(logs, new Comparator<Object>() {
                 public int compare(Object o1, Object o2) {
-                    LogInfo log1 = (LogInfo) o1;
-                    LogInfo log2 = (LogInfo) o2;
+                    LogFileInfo log1 = (LogFileInfo) o1;
+                    LogFileInfo log2 = (LogFileInfo) o2;
                     return log1.getLogName().compareToIgnoreCase(log2.getLogName());
                 }
 
@@ -312,11 +312,11 @@ public class FileLogProvider implements LogFileProvider {
     }
 
 
-    private List<LogInfo> getDefaultLogInfoList() {
-        List<LogInfo> defaultLogInfoList = new ArrayList<LogInfo>();
-        defaultLogInfoList.add(new LogInfo("NO_LOG_FILES",
+    private List<LogFileInfo> getDefaultLogInfoList() {
+        List<LogFileInfo> defaultLogFileInfoList = new ArrayList<LogFileInfo>();
+        defaultLogFileInfoList.add(new LogFileInfo("NO_LOG_FILES",
                                            "---", "---"));
-        return defaultLogInfoList;
+        return defaultLogFileInfoList;
     }
 
 }
