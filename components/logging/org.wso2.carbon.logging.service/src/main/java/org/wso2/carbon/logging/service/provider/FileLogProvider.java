@@ -252,17 +252,17 @@ public class FileLogProvider implements LogFileProvider {
                 + LoggingConstants.URL_SEPARATOR + serverKey + LoggingConstants.URL_SEPARATOR;
     }
 
-    public boolean isStratosService() throws LogViewerException {
+    private boolean isStratosService() throws LogViewerException {
         String serverKey = ServerConfiguration.getInstance().getFirstProperty(SERVER_KEY);
         return ServiceConfigManager.isStratosService(serverKey);
     }
 
-    public boolean isManager() {
+    private boolean isManager() {
         return LoggingConstants.WSO2_STRATOS_MANAGER.equalsIgnoreCase(ServerConfiguration.getInstance()
                 .getFirstProperty(SERVER_KEY));
     }
 
-    public boolean isSuperTenantUser() {
+    private boolean isSuperTenantUser() {
         CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();
         int tenantId = carbonContext.getTenantId();
         return tenantId == MultitenantConstants.SUPER_TENANT_ID;
