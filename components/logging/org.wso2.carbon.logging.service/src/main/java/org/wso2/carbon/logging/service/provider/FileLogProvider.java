@@ -96,12 +96,14 @@ public class FileLogProvider implements LogFileProvider {
             File folder = new File(folderPath);
             FileFilter fileFilter = new WildcardFileFilter(LoggingConstants.RegexPatterns.LOCAL_CARBON_LOG_PATTERN);
             File[] listOfFiles = folder.listFiles(fileFilter);
+            // folder.listFiles consumes lot of  memory when there are many files in the folder
+            // (> 10 000), can be fixed with streaming nio support in Java7
             if (listOfFiles == null) {
-                // folder.listFiles can return a null, in that case return an empty list
+                // folder.listFiles can return a null, in that case return a default log info
                 if (log.isDebugEnabled()) {
                     log.debug("List of log files of the given pattern is null.");
                 }
-                return new ArrayList<LogInfo>();
+                return getDefaultLogInfoList();
             }
             for (File file : listOfFiles) {
                 String filename = file.getName();
@@ -155,7 +157,7 @@ public class FileLogProvider implements LogFileProvider {
 
     private List<LogInfo> getSortedPerLogInfoList(List<LogInfo> logs) {
         if (logs == null || logs.isEmpty()) {
-            return getDefaultLogInfo();
+            return getDefaultLogInfoList();
         } else {
             Collections.sort(logs, new Comparator<Object>() {
                 public int compare(Object o1, Object o2) {
@@ -317,11 +319,11 @@ public class FileLogProvider implements LogFileProvider {
     }
 
 
-    private List<LogInfo> getDefaultLogInfo() {
-        List<LogInfo> defaultLoginfoList = new ArrayList<LogInfo>();
-        defaultLoginfoList.add(new LogInfo("NO_LOG_FILES",
-                "---", "---"));
-        return defaultLoginfoList;
+    private List<LogInfo> getDefaultLogInfoList() {
+        List<LogInfo> defaultLogInfoList = new ArrayList<LogInfo>();
+        defaultLogInfoList.add(new LogInfo("NO_LOG_FILES",
+                                           "---", "---"));
+        return defaultLogInfoList;
     }
 
 }
