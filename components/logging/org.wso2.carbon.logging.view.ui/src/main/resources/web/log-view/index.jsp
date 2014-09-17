@@ -21,14 +21,14 @@
 <%@ page import="org.wso2.carbon.logging.view.ui.LogViewerClient"%>
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
-<%@ page import="org.wso2.carbon.logging.view.stub.types.carbon.LogInfo"%>
+<%@ page import="org.wso2.carbon.logging.view.stub.types.carbon.LogFileInfo"%>
 <%-- <%@ page --%>
 <!-- 	import="org.wso2.carbon.logging.view.stub.types.carbon.LogEvent"%> -->
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@ page import="org.wso2.carbon.logging.view.stub.types.carbon.PaginatedLogInfo"%>
+<%@ page import="org.wso2.carbon.logging.view.stub.types.carbon.PaginatedLogFileInfo"%>
 <%@ page import="org.wso2.carbon.logging.view.stub.types.carbon.PaginatedLogEvent"%>
 
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
@@ -40,6 +40,7 @@
 <%@ page import="java.util.Calendar" %>
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.TimeZone" %>
+<%@ page import="org.wso2.carbon.logging.view.stub.types.carbon.LogFileInfo" %>
 <script type="text/javascript" src="js/logviewer.js"></script>
 <script type="text/javascript" src="../admin/dialog/js/dialog.js"></script>
 
@@ -89,8 +90,8 @@
         String tenantDomain = request.getParameter("tenantDomain");
         String serviceName = request.getParameter("serviceName");
         String serviceNames[];
-		LogInfo[] logFileInfo = null;
-		PaginatedLogInfo paginatedLogFileInfo = null;
+		LogFileInfo[] logFileInfo = null;
+		PaginatedLogFileInfo paginatedLogFileInfo = null;
 		PaginatedLogEvent paginatedLogEvents = null;
 		String parameter = "";
 		String indexParameter = "";
@@ -135,7 +136,7 @@
 				numberOfPages = paginatedLogEvents.getNumberOfPages();
 			}
 			if (paginatedLogFileInfo != null) {
-				logFileInfo = paginatedLogFileInfo.getLogInfo();
+				logFileInfo = paginatedLogFileInfo.getLogFileInfo();
 				numberOfIndexPages = paginatedLogFileInfo.getNumberOfPages();
 			}
             isManager = logViewerClient.isManager();
@@ -562,7 +563,7 @@
 								</thead>
 								<%
 									int index = -1;
-											for (LogInfo logMessage : logFileInfo) {
+											for (LogFileInfo logMessage : logFileInfo) {
 												++index;
 												if (index % 2 != 0) {
 								%>

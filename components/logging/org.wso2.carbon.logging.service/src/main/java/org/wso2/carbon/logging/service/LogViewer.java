@@ -84,21 +84,22 @@ public class LogViewer {
 
     }
 
-    public PaginatedLogFileInfo getPaginatedLogInfo(int pageNumber, String tenantDomain,
-                                                String serviceName) throws LogViewerException {
+    public PaginatedLogFileInfo getPaginatedLogFileInfo(int pageNumber, String tenantDomain,
+                                                        String serviceName) throws LogViewerException {
         List<LogFileInfo> logFileInfoList = logFileProvider.getLogFileInfoList(tenantDomain,
                                                                        serviceName);
-        return getPaginatedLogInfo(pageNumber, logFileInfoList);
+        return getPaginatedLogFileInfo(pageNumber, logFileInfoList);
     }
 
     public PaginatedLogFileInfo getLocalLogFiles(int pageNumber, String tenantDomain, String serverKey) throws LogViewerException {
 
 
         List<LogFileInfo> logFileInfoList = logFileProvider.getLogFileInfoList(tenantDomain, serverKey);
-        return getPaginatedLogInfo(pageNumber, logFileInfoList);
+        return getPaginatedLogFileInfo(pageNumber, logFileInfoList);
     }
 
-    private PaginatedLogFileInfo getPaginatedLogInfo(int pageNumber, List<LogFileInfo> logFileInfoList) {
+    private PaginatedLogFileInfo getPaginatedLogFileInfo(int pageNumber,
+                                                         List<LogFileInfo> logFileInfoList) {
         if (logFileInfoList != null && !logFileInfoList.isEmpty()) {
             // Pagination
             PaginatedLogFileInfo paginatedLogFileInfo = new PaginatedLogFileInfo();

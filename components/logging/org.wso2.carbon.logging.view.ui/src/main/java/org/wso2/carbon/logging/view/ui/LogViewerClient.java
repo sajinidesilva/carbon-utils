@@ -25,7 +25,7 @@ import org.wso2.carbon.logging.view.stub.LogViewerLogViewerException;
 import org.wso2.carbon.logging.view.stub.LogViewerStub;
 import org.wso2.carbon.logging.view.stub.types.carbon.LogEvent;
 import org.wso2.carbon.logging.view.stub.types.carbon.PaginatedLogEvent;
-import org.wso2.carbon.logging.view.stub.types.carbon.PaginatedLogInfo;
+import org.wso2.carbon.logging.view.stub.types.carbon.PaginatedLogFileInfo;
 
 import javax.activation.DataHandler;
 import javax.servlet.ServletOutputStream;
@@ -87,10 +87,10 @@ public class LogViewerClient {
         }
     }
 
-    public PaginatedLogInfo getPaginatedLogInfo(int pageNumber, String tenantDomain,
-                                                String serviceName) throws Exception {
+    public PaginatedLogFileInfo getPaginatedLogFileInfo(int pageNumber, String tenantDomain,
+                                                        String serviceName) throws Exception {
         try {
-            return stub.getPaginatedLogInfo(pageNumber, tenantDomain, serviceName);
+            return stub.getPaginatedLogFileInfo(pageNumber, tenantDomain, serviceName);
         } catch (RemoteException e) {
             String msg = "Error occurred while getting logger data. Backend service may be unavailable";
             log.error(msg, e);
@@ -211,7 +211,7 @@ public class LogViewerClient {
         }
     }
 
-    public PaginatedLogInfo getLocalLogFiles(int pageNo, String tenantDomain, String serverKey) throws Exception {
+    public PaginatedLogFileInfo getLocalLogFiles(int pageNo, String tenantDomain, String serverKey) throws Exception {
 
         try {
             return stub.getLocalLogFiles(pageNo, tenantDomain, serverKey);
