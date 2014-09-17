@@ -18,7 +18,6 @@
 package org.wso2.carbon.logging.service.provider;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -43,26 +42,20 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class FileLogProvider implements LogFileProvider {
-
-
     private static final String APPLICATION_TYPE_ZIP = "application/zip";
     private static final String SERVER_KEY = "ServerKey";
     private static final String URL_ENCODED_SPACE_CHAR = "%20";
@@ -97,7 +90,7 @@ public class FileLogProvider implements LogFileProvider {
             FileFilter fileFilter = new WildcardFileFilter(LoggingConstants.RegexPatterns.LOCAL_CARBON_LOG_PATTERN);
             File[] listOfFiles = folder.listFiles(fileFilter);
             // folder.listFiles consumes lot of  memory when there are many files in the folder
-            // (> 10 000), can be fixed with streaming nio support in Java7
+            // (> 10 000), can be fixed with nio support in Java7
             if (listOfFiles == null) {
                 // folder.listFiles can return a null, in that case return a default log info
                 if (log.isDebugEnabled()) {
