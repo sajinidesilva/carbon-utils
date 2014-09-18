@@ -31,14 +31,14 @@ public interface LogFileProvider {
 
     /**
      * Initialize the file log provider by reading the property comes with logging configuration file
-     * This will be called immediate after create new instance of ILogFileProvider
+     * This will be called immediately after creating a new instance of LogFileProvider.
      *
      * @param loggingConfig - logging configuration
      */
     public void init(LoggingConfig loggingConfig);
 
     /**
-     * Return a list of log information, which is available under given tenant domain and
+     * Return a list of information about the log files, which is available under given tenant domain and
      * serviceName
      *      eg: log name, log date, log size
      *

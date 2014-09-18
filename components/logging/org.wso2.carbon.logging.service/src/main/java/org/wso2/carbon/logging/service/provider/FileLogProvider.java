@@ -166,7 +166,8 @@ public class FileLogProvider implements LogFileProvider {
 
     private InputStream getLogDataStream(String logFile, int tenantId, String productName)
             throws Exception {
-        SyslogData syslogData = getSyslogData();
+        SyslogData syslogData = getSyslogData();    //throws an Exception, so cannot throw a
+                                                    // specific exception from getLogDataStream()
         String url;
         // manager can view all the products tenant log information
         url = getLogsServerURLforTenantService(syslogData.getUrl(), logFile, tenantId, productName);
