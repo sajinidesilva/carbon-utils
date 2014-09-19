@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.logging.appender;
+package org.wso2.carbon.logging.service.appender;
 
 public class StreamData {
     private String streamId;

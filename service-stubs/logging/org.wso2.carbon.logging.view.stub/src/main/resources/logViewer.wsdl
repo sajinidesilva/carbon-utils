@@ -26,7 +26,7 @@
             <xs:element name="isValidTenant">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="domain" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -126,7 +126,7 @@
                         <xs:element minOccurs="0" name="pageNumber" type="xs:int"/>
                         <xs:element minOccurs="0" name="type" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="keyword" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="domain" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="serverKey" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -145,7 +145,7 @@
                         <xs:element minOccurs="0" name="type" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="keyword" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="applicationName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="domain" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="serverKey" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -160,7 +160,7 @@
             <xs:element name="getNoOfLogEvents">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="domain" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="serverKey" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -177,7 +177,7 @@
                     <xs:sequence>
                         <xs:element minOccurs="0" name="type" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="keyword" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="domain" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="serverKey" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -210,7 +210,7 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="pageNumber" type="xs:int"/>
-                        <xs:element minOccurs="0" name="domain" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="serverKey" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -239,7 +239,7 @@
             <xs:element name="getApplicationNames">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="domain" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="serverKey" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -257,7 +257,7 @@
                         <xs:element minOccurs="0" name="type" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="keyword" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="appName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="domain" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="serverKey" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -285,7 +285,7 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="logFile" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="domain" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="serverKey" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -313,7 +313,7 @@
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://data.service.logging.carbon.wso2.org/xsd">
             <xs:complexType name="PaginatedLogInfo">
                 <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="logInfo" nillable="true" type="ax2211:LogInfo"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="logFileInfo" nillable="true" type="ax2211:LogInfo"/>
                     <xs:element minOccurs="0" name="numberOfPages" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>
@@ -326,7 +326,7 @@
             </xs:complexType>
             <xs:complexType name="PaginatedLogEvent">
                 <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="logInfo" nillable="true" type="ax2211:LogEvent"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="logFileInfo" nillable="true" type="ax2211:LogEvent"/>
                     <xs:element minOccurs="0" name="numberOfPages" type="xs:int"/>
                 </xs:sequence>
             </xs:complexType>

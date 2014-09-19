@@ -16,18 +16,13 @@
  */
 package org.wso2.carbon.tracer.module.handler;
 
-import org.apache.axiom.om.OMElement;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.description.AxisService;
-import org.apache.axis2.handlers.AbstractHandler;
-import org.apache.axis2.wsdl.WSDLConstants;
 import org.wso2.carbon.core.util.SystemFilter;
 import org.wso2.carbon.tracer.TracerConstants;
 import org.wso2.carbon.tracer.module.TraceFilter;
-import org.wso2.carbon.tracer.module.TracePersister;
-import org.wso2.carbon.tracer.service.MessageInfo;
 import org.wso2.carbon.utils.logging.CircularBuffer;
 
 import java.util.Date;

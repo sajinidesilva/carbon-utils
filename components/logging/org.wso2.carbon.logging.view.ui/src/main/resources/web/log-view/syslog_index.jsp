@@ -25,11 +25,10 @@
 	import="org.wso2.carbon.logging.view.stub.types.carbon.LogMessage"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.logging.view.stub.types.carbon.PaginatedLogInfo"%>
+<%@ page import="org.wso2.carbon.logging.view.stub.types.carbon.PaginatedLogFileInfo"%>
 <%@ page import="org.wso2.carbon.logging.view.stub.types.carbon.LogEvent"%>
-<%@ page import="org.wso2.carbon.logging.view.stub.types.carbon.LogInfo"%>
+<%@ page import="org.wso2.carbon.logging.view.stub.types.carbon.LogFileInfo"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page import="java.util.regex.Matcher"%>
 <%@ page import="java.util.regex.Pattern"%>
 <script type="text/javascript" src="js/logviewer.js"></script>
@@ -61,11 +60,11 @@ private boolean isArchiveFile (String fileName) {
 	LogViewerClient logViewerClient;
 	String action;
 	LogMessage[] logMessages;
-	LogInfo[] logInfo;
+	LogFileInfo[] logFileInfo;
 	String tenantDomain = "";
 	String serviceName = "WSO2 Stratos Manager";
 	boolean isLogsFromSyslog;
-	PaginatedLogInfo paginatedLogInfo;
+	PaginatedLogFileInfo paginatedLogFileInfo;
 	boolean isStratosService = false;
 	String pageNumberStr = request.getParameter("pageNumber");
 	boolean isSTSyslog = false;
@@ -100,24 +99,25 @@ private boolean isArchiveFile (String fileName) {
 		showTenantDomain = (isSTSyslog && isLogsFromSyslog && isStratosService);
 		showManager = (isManager && isLogsFromSyslog);
 		if (logViewerClient.isLogsConfigured(tenantDomain)) {
-			paginatedLogInfo = logViewerClient.getPaginatedLogInfo(pageNumber,
-					tenantDomain, serviceName);
-			if (paginatedLogInfo != null) {
-				logInfo = paginatedLogInfo.getLogInfo();
-				numberOfPages = paginatedLogInfo.getNumberOfPages();
+			paginatedLogFileInfo = logViewerClient.getPaginatedLogFileInfo(pageNumber,
+                                                                           tenantDomain,
+                                                                           serviceName);
+			if (paginatedLogFileInfo != null) {
+				logFileInfo = paginatedLogFileInfo.getLogInfo();
+				numberOfPages = paginatedLogFileInfo.getNumberOfPages();
 				//logMessages = logViewerClient.getTenentLogs();
 
 				//logMessages = logViewerClient.getLogs(type, keyword);
 
-				for (int i = 0; i < logInfo.length; i++) {
-					String logFile = logInfo[i].getLogName();
-					String logDate = logInfo[i].getLogDate();
-					String logSize = logInfo[i].getLogDate();
+				for (int i = 0; i < logFileInfo.length; i++) {
+					String logFile = logFileInfo[i].getLogName();
+					String logDate = logFileInfo[i].getLogDate();
+					String logSize = logFileInfo[i].getLogDate();
 				}
 			}
 			else {
-					logViewerClient.getPaginatedLogInfo(pageNumber,
-							tenantDomain, serviceName);
+					logViewerClient.getPaginatedLogFileInfo(pageNumber,
+                                                            tenantDomain, serviceName);
 					CarbonUIMessage.sendCarbonUIMessage(
 							"Please configure syslog in order to view tenant specific logs.",
 							CarbonUIMessage.ERROR, request);
@@ -130,8 +130,8 @@ private boolean isArchiveFile (String fileName) {
 				}
 			
 		} else {
-			logViewerClient.getPaginatedLogInfo(pageNumber,
-					tenantDomain, serviceName);
+			logViewerClient.getPaginatedLogFileInfo(pageNumber,
+                                                    tenantDomain, serviceName);
 			CarbonUIMessage.sendCarbonUIMessage(
 					"Please configure syslog in order to view tenant specific logs.",
 					CarbonUIMessage.ERROR, request);
@@ -291,7 +291,7 @@ private boolean isArchiveFile (String fileName) {
 								</thead>
 								<%
 									int index = -1;
-										for (LogInfo logMessage : logInfo) {
+										for (LogInfo logMessage : logFileInfo) {
 											++index;
 											if (index % 2 != 0) {
 								%>

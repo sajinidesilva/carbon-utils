@@ -14,74 +14,70 @@
  * limitations under the License.
  */
 package org.wso2.carbon.logging.service.data;
+
 /*
  * This class is used to store information regarding the syslog server.
  */
 public class SyslogData {
 
-	private String url;
-	
-	String port;
-	
-	String realm;
-	
-	String userName;
-	
-	String password;
+    String port;
+    String realm;
+    String userName;
+    String password;
+    private String url;
 
-	public SyslogData() {
-	}
-	
-	public SyslogData(String url, String port, String realm, String userName,
-			String password) {
-		this.url = url;
-		this.port = port;
-		this.realm = realm;
-		this.userName = userName;
-		this.password = password;
-	}
+    public SyslogData() {
+    }
+
+    public SyslogData(String url, String port, String realm, String userName,
+                      String password) {
+        this.url = url;
+        this.port = port;
+        this.realm = realm;
+        this.userName = userName;
+        this.password = password;
+    }
 
 
-	public String getUrl() {
-		return url;
-	}
+    public String getUrl() {
+        return url;
+    }
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-	public String getPort() {
-		return port;
-	}
+    public String getPort() {
+        return port;
+    }
 
-	public void setPort(String port) {
-		this.port = port;
-	}
+    public void setPort(String port) {
+        this.port = port;
+    }
 
-	public String getRealm() {
-		return realm;
-	}
+    public String getRealm() {
+        return realm;
+    }
 
-	public void setRealm(String realm) {
-		this.realm = realm;
-	}
+    public void setRealm(String realm) {
+        this.realm = realm;
+    }
 
-	public String getUserName() {
-		return userName;
-	}
+    public String getUserName() {
+        return userName;
+    }
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	
-	
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
 
 }

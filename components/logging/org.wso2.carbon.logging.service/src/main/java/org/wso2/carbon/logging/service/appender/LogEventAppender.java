@@ -13,7 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.logging.appender;
+package org.wso2.carbon.logging.service.appender;
+
+import org.apache.log4j.Appender;
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggingEvent;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.bootstrap.logging.LoggingBridge;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.databridge.agent.thrift.DataPublisher;
+import org.wso2.carbon.databridge.agent.thrift.exception.AgentException;
+import org.wso2.carbon.databridge.commons.Event;
+import org.wso2.carbon.databridge.commons.exception.AuthenticationException;
+import org.wso2.carbon.databridge.commons.exception.DifferentStreamDefinitionAlreadyDefinedException;
+import org.wso2.carbon.databridge.commons.exception.MalformedStreamDefinitionException;
+import org.wso2.carbon.databridge.commons.exception.StreamDefinitionException;
+import org.wso2.carbon.databridge.commons.exception.TransportException;
+import org.wso2.carbon.utils.logging.LoggingUtils;
+import org.wso2.carbon.logging.service.internal.LoggingServiceComponent;
+import org.wso2.carbon.logging.service.util.LoggingConstants;
+import org.wso2.carbon.logging.service.internal.LoggingServiceComponent;
+import org.wso2.carbon.logging.service.util.LoggingConstants;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.tenant.TenantManager;
+import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.logging.LoggingUtils;
+import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
+import org.wso2.carbon.utils.logging.TenantAwarePatternLayout;
+import org.wso2.carbon.utils.logging.handler.TenantDomainSetter;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -24,44 +53,12 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.LogRecord;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import org.apache.log4j.Appender;
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
-import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.bootstrap.logging.LoggingBridge;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.databridge.agent.thrift.Agent;
-import org.wso2.carbon.databridge.agent.thrift.DataPublisher;
-import org.wso2.carbon.databridge.agent.thrift.conf.AgentConfiguration;
-import org.wso2.carbon.databridge.agent.thrift.exception.AgentException;
-import org.wso2.carbon.databridge.commons.Event;
-import org.wso2.carbon.databridge.commons.exception.AuthenticationException;
-import org.wso2.carbon.databridge.commons.exception.DifferentStreamDefinitionAlreadyDefinedException;
-import org.wso2.carbon.databridge.commons.exception.MalformedStreamDefinitionException;
-import org.wso2.carbon.databridge.commons.exception.StreamDefinitionException;
-import org.wso2.carbon.databridge.commons.exception.TransportException;
-import org.wso2.carbon.utils.logging.LoggingUtils;
-import org.wso2.carbon.logging.internal.LoggingServiceComponent;
-import org.wso2.carbon.logging.util.LoggingConstants;
-import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.core.tenant.TenantManager;
-import org.wso2.carbon.utils.CarbonUtils;
-import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
-import org.wso2.carbon.utils.logging.TenantAwarePatternLayout;
-import org.wso2.carbon.utils.logging.handler.TenantDomainSetter;
 
 /**
  * BAMLogEventAppender - appends logs to BAM
@@ -243,7 +240,7 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
                 System.err.println("FATAL: LogEventAppender Cannot publish log events");
                 t.printStackTrace();
                 numOfConsecutiveFailures++;
-                if(numOfConsecutiveFailures >= getMaxTolerableConsecutiveFailure()){
+                if (numOfConsecutiveFailures >= getMaxTolerableConsecutiveFailure()) {
                     System.err.println("WARN: Number of consecutive log publishing failures reached the threshold of " +
                             getMaxTolerableConsecutiveFailure() + ". Purging log event array. Some logs will be lost.");
                     loggingEvents.clear();
@@ -268,27 +265,27 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
             String serverKey = getCurrentServerName();
             String currDateStr = getCurrentDate();
             if (dataPublisher == null) {
-            	 dataPublisher = new DataPublisher(url, userName, password);
+                dataPublisher = new DataPublisher(url, userName, password);
             }
             StreamData data = StreamDefinitionCache.getStream(tenantId);
             if (currDateStr.equals(data.getDate())) {
-            	streamId = data.getStreamId();
+                streamId = data.getStreamId();
             } else {
-            	  streamId = dataPublisher.defineStream("{" + "'name':'log" + "." + tenantId + "."
-                          + serverKey + "." + currDateStr + "'," + "  'version':'1.0.0',"
-                          + "  'nickName': 'Logs'," + "  'description': 'Logging Event',"
-                          + "  'metaData':[" + "          {'name':'clientType','type':'STRING'}" + "  ],"
-                          + "  'payloadData':[" + "          {'name':'tenantID','type':'STRING'},"
-                          + "          {'name':'serverName','type':'STRING'},"
-                          + "          {'name':'appName','type':'STRING'},"
-                          + "          {'name':'logTime','type':'LONG'},"
-                          + "          {'name':'priority','type':'STRING'},"
-                          + "          {'name':'message','type':'STRING'},"
-                          + "          {'name':'logger','type':'STRING'},"
-                          + "          {'name':'ip','type':'STRING'},"
-                          + "          {'name':'instance','type':'STRING'},"
-                          + "          {'name':'stacktrace','type':'STRING'}" + "  ]" + "}");
-            	  StreamDefinitionCache.putStream(tenantId, streamId, currDateStr);
+                streamId = dataPublisher.defineStream("{" + "'name':'log" + "." + tenantId + "."
+                        + serverKey + "." + currDateStr + "'," + "  'version':'1.0.0',"
+                        + "  'nickName': 'Logs'," + "  'description': 'Logging Event',"
+                        + "  'metaData':[" + "          {'name':'clientType','type':'STRING'}" + "  ],"
+                        + "  'payloadData':[" + "          {'name':'tenantID','type':'STRING'},"
+                        + "          {'name':'serverName','type':'STRING'},"
+                        + "          {'name':'appName','type':'STRING'},"
+                        + "          {'name':'logTime','type':'LONG'},"
+                        + "          {'name':'priority','type':'STRING'},"
+                        + "          {'name':'message','type':'STRING'},"
+                        + "          {'name':'logger','type':'STRING'},"
+                        + "          {'name':'ip','type':'STRING'},"
+                        + "          {'name':'instance','type':'STRING'},"
+                        + "          {'name':'stacktrace','type':'STRING'}" + "  ]" + "}");
+                StreamDefinitionCache.putStream(tenantId, streamId, currDateStr);
             }
             List<String> patterns = Arrays.asList(columnList.split(","));
             String tenantID = "";
@@ -310,6 +307,10 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
                 }
                 if (currEle.equals("%S")) {
                     serverName = patternLayout.format(event);
+                    continue;
+                }
+                if (currEle.equals("%H")) {
+                    ip = patternLayout.format(event);
                     continue;
                 }
                 if (currEle.equals("%A")) {

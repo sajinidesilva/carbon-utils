@@ -10,125 +10,78 @@
 	under the License. -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<parent>
-		<groupId>org.wso2.carbon</groupId>
-		<artifactId>logging</artifactId>
-		<version>4.3.0-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
-	</parent>
+    <parent>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>logging</artifactId>
+        <version>4.3.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>org.wso2.carbon.logging.service</artifactId>
-	<packaging>bundle</packaging>
-	<version>4.3.0-SNAPSHOT</version>
-	<name>WSO2 Carbon - Logging Services</name>
-	<url>http://wso2.org</url>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.wso2.carbon.logging.service</artifactId>
+    <packaging>bundle</packaging>
+    <version>4.3.0-SNAPSHOT</version>
+    <name>WSO2 Carbon - Logging Services</name>
+    <url>http://wso2.org</url>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-scr-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>1.4.0</version>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Bundle-Name>${project.artifactId}</Bundle-Name>
-						<Private-Package>org.wso2.carbon.logging.internal</Private-Package>
-						<Export-Package>
-							org.wso2.carbon.logging.registry,
-							org.wso2.carbon.logging.service.*,
-							org.wso2.carbon.logging.config.*,
-							org.wso2.carbon.logging.appender.*,
-							org.wso2.carbon.logging.session.*,
-							org.wso2.carbon.logging.sort.*,
-							org.wso2.carbon.logging.util
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>1.4.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Private-Package>org.wso2.carbon.logging.service.internal</Private-Package>
+                        <Export-Package>
+                            org.wso2.carbon.logging.service.*;version="4.3.0",
                         </Export-Package>
-						<Import-Package>
-							!org.wso2.carbon.logging.registry,
-							!org.wso2.carbon.logging.service.*,
-							!org.wso2.carbon.logging.config.*,
-							!org.wso2.carbon.logging.appender.*,
-							!org.wso2.carbon.logging.session.*,
-							!org.wso2.carbon.logging.sort.*,
-							!org.wso2.carbon.logging.util,
-							org.apache.axis2.*; version="${axis2.osgi.version.range}",
-							org.springframework.*;version="3.1.0.wso2v1",
-							org.wso2.carbon.utils; version="0.0.0",
-							org.wso2.carbon.registry.core.*,
-							org.apache.commons.logging,
-							org.apache.log4j; version="0.0.0",
-							org.apache.log4j.net;
-							version="0.0.0",
-							org.apache.log4j.spi; version="0.0.0",
-							*;resolution:=optional,
+                        <Import-Package>
+                            !org.wso2.carbon.logging.service.*;version="4.3.0",
+                            org.apache.axis2.*; version="${axis2.osgi.version.range}",
+                            org.wso2.carbon.registry.core.*;version="1.0.1",
+                            org.apache.commons.logging,
+                            org.apache.log4j; version="0.0.0",
+                            org.apache.log4j.net;
+                            version="0.0.0",
+                            org.apache.log4j.spi; version="0.0.0",
+                            *;resolution:=optional,
                         </Import-Package>
-						<DynamicImport-Package>*</DynamicImport-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+                        <DynamicImport-Package>*</DynamicImport-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.axis2.wso2</groupId>
-			<artifactId>axis2</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.wso2.carbon</groupId>
-			<artifactId>org.wso2.carbon.utils</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.wso2.carbon</groupId>
-			<artifactId>org.wso2.carbon.core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.wso2.carbon</groupId>
-			<artifactId>org.wso2.carbon.logging</artifactId>
-		</dependency>
-
-		<!--Agent -->
-		<dependency>
-			<groupId>org.wso2.carbon</groupId>
-			<artifactId>org.wso2.carbon.databridge.agent.thrift</artifactId>
-		</dependency>
-
-		<!--Hector -->
-		<dependency>
-			<groupId>org.hectorclient.wso2</groupId>
-			<artifactId>hector-core</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.wso2.carbon</groupId>
-			<artifactId>org.wso2.carbon.core.common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>commons-pool.wso2</groupId>
-			<artifactId>commons-pool</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.ws.wso2</groupId>
-			<artifactId>spring.framework</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-core</artifactId>
-		</dependency>
-		<dependency>
-            	      <groupId>com.google.guava</groupId>
-                      <artifactId>guava</artifactId>
-                </dependency>
-	</dependencies>
-
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.axis2.wso2</groupId>
+            <artifactId>axis2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
+        </dependency>
+        <!--Agent -->
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.databridge.agent.thrift</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava.wso2</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+    </dependencies>
 
 
 </project>

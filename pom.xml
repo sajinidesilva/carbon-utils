@@ -1043,7 +1043,6 @@
                 <artifactId>hector-core</artifactId>
                 <version>${hector.wso2.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework.ws.wso2</groupId>
                 <artifactId>spring.framework</artifactId>

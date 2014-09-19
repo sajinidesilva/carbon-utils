@@ -16,130 +16,130 @@
 package org.wso2.carbon.logging.service.data;
 
 public class LogEvent {
-	private String key;
-	private String tenantId;
-	private String serverName;
-	private String appName;
-	private String logTime;
-	private String logger;
-	private String priority;
-	private String message;
-	private String ip;
-	private String stacktrace;
-	private String instance;
+    private String key;
+    private String tenantId;
+    private String serverName;
+    private String appName;
+    private String logTime;
+    private String logger;
+    private String priority;
+    private String message;
+    private String ip;
+    private String stacktrace;
+    private String instance;
 
-	public LogEvent() {
-	}
-
-	
-	public LogEvent( String tenantId, String serverName, String appName, String logTime,
-			String logger, String priority, String message, String ip, String stacktrace,
-			String instance) {
-		super();
-		this.tenantId = tenantId;
-		this.serverName = serverName;
-		this.appName = appName;
-		this.logTime = logTime;
-		this.logger = logger;
-		this.priority = priority;
-		this.message = message;
-		this.ip = ip;
-		this.stacktrace = stacktrace;
-		this.instance = instance;
-	}
+    public LogEvent() {
+    }
 
 
-	public LogEvent (String message, String priority) {
-		this.message = message;
-		this.priority = priority;
-	}
-	
-	public String getKey() {
-		return key;
-	}
+    public LogEvent(String tenantId, String serverName, String appName, String logTime,
+                    String logger, String priority, String message, String ip, String stacktrace,
+                    String instance) {
+        super();
+        this.tenantId = tenantId;
+        this.serverName = serverName;
+        this.appName = appName;
+        this.logTime = logTime;
+        this.logger = logger;
+        this.priority = priority;
+        this.message = message;
+        this.ip = ip;
+        this.stacktrace = stacktrace;
+        this.instance = instance;
+    }
 
-	public void setKey(String key) {
-		this.key = key;
-	}
 
-	public String getTenantId() {
-		return tenantId;
-	}
+    public LogEvent(String message, String priority) {
+        this.message = message;
+        this.priority = priority;
+    }
 
-	public void setTenantId(String tenantId) {
-		this.tenantId = tenantId;
-	}
+    public String getKey() {
+        return key;
+    }
 
-	public String getServerName() {
-		return serverName;
-	}
+    public void setKey(String key) {
+        this.key = key;
+    }
 
-	public void setServerName(String serverName) {
-		this.serverName = serverName;
-	}
+    public String getTenantId() {
+        return tenantId;
+    }
 
-	public String getAppName() {
-		return appName;
-	}
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
 
-	public void setAppName(String appName) {
-		this.appName = appName;
-	}
+    public String getServerName() {
+        return serverName;
+    }
 
-	public String getLogTime() {
-		return logTime;
-	}
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
 
-	public void setLogTime(String logTime) {
-		this.logTime = logTime;
-	}
+    public String getAppName() {
+        return appName;
+    }
 
-	public String getLogger() {
-		return logger;
-	}
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
 
-	public void setLogger(String logger) {
-		this.logger = logger;
-	}
+    public String getLogTime() {
+        return logTime;
+    }
 
-	public String getPriority() {
-		return priority;
-	}
+    public void setLogTime(String logTime) {
+        this.logTime = logTime;
+    }
 
-	public void setPriority(String priority) {
-		this.priority = priority;
-	}
+    public String getLogger() {
+        return logger;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    public void setLogger(String logger) {
+        this.logger = logger;
+    }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    public String getPriority() {
+        return priority;
+    }
 
-	public String getIp() {
-		return ip;
-	}
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
 
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
+    public String getMessage() {
+        return message;
+    }
 
-	public String getStacktrace() {
-		return stacktrace;
-	}
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-	public void setStacktrace(String stacktrace) {
-		this.stacktrace = stacktrace;
-	}
+    public String getIp() {
+        return ip;
+    }
 
-	public String getInstance() {
-		return instance;
-	}
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
 
-	public void setInstance(String instance) {
-		this.instance = instance;
-	}
+    public String getStacktrace() {
+        return stacktrace;
+    }
+
+    public void setStacktrace(String stacktrace) {
+        this.stacktrace = stacktrace;
+    }
+
+    public String getInstance() {
+        return instance;
+    }
+
+    public void setInstance(String instance) {
+        this.instance = instance;
+    }
 
 }
