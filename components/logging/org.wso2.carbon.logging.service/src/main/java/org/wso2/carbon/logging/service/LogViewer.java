@@ -156,7 +156,7 @@ public class LogViewer {
         DailyRollingFileAppender logger = (DailyRollingFileAppender) rootLogger
                 .getAppender("CARBON_LOGFILE");
         return  logger != null
-                 && CarbonContext.getCurrentContext()
+                 && CarbonContext.getThreadLocalCarbonContext()
                                  .getTenantId() == MultitenantConstants.SUPER_TENANT_ID;
     }
 
