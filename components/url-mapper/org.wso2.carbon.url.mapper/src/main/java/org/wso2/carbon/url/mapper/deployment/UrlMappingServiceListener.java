@@ -37,8 +37,7 @@ public class UrlMappingServiceListener extends AbstractAxis2ConfigurationContext
                 return;
             } else {
                 if (((String)mapping.getValue()).equalsIgnoreCase("true")) {
-                    tenantId = PrivilegedCarbonContext.
-                            getCurrentContext(configCtx).getTenantId();
+                    tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
                     HostUtil.removeUrlMappingFromMap(tenantId, entry.getValue().getName());
                     log.info("removing service mapping" + entry.getValue().getName() );
 

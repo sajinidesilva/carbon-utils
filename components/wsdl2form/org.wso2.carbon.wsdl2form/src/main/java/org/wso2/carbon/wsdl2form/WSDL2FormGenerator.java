@@ -168,10 +168,11 @@ public class WSDL2FormGenerator {
                          multitenantPrefix = contextRoot + "t/" + tenantDomain + "/";
                     }
 
-                    paramMap.put("js-global-params", multitenantPrefix + "carbon/global-params.js");
+                    String proxyContextPath = CarbonUtils.getProxyContextPath(false);
+                    paramMap.put("js-global-params", proxyContextPath + multitenantPrefix + "carbon/global-params.js");
                     paramMap.put("proxyAddress",
-                            contextRoot + "carbon/admin/jsp/WSRequestXSSproxy_ajaxprocessor.jsp");
-                    paramMap.put("js-service-stub", url.getPath() + "?stub");
+                            proxyContextPath + contextRoot + "carbon/admin/jsp/WSRequestXSSproxy_ajaxprocessor.jsp");
+                    paramMap.put("js-service-stub", proxyContextPath + url.getPath() + "?stub");
                     paramMap.put("services-path", serviceContextRoot);
 
                     Util.generateTryit(xmlSource, result, paramMap);

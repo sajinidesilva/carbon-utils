@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.wso2.carbon.logging.appender;
+package org.wso2.carbon.logging.service.appender;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
@@ -22,12 +24,12 @@ import org.wso2.carbon.bootstrap.logging.LoggingBridge;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.logging.CircularBuffer;
 import org.wso2.carbon.utils.logging.LoggingUtils;
-import org.wso2.carbon.logging.internal.LoggingServiceComponent;
+import org.wso2.carbon.logging.service.internal.LoggingServiceComponent;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.logging.handler.TenantDomainSetter;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.logging.LogRecord;
 
@@ -36,11 +38,19 @@ import java.util.logging.LogRecord;
  * requested via the logging web service. This maintains a circular buffer, of
  * some fixed amount (say 100).
  */
-    public class CarbonMemoryAppender extends AppenderSkeleton  implements LoggingBridge {
+public class CarbonMemoryAppender extends AppenderSkeleton implements LoggingBridge {
 
-    private CircularBuffer circularBuffer;
+    private static final Log log = LogFactory.getLog(CarbonMemoryAppender.class);
+    private CircularBuffer<TenantAwareLoggingEvent> circularBuffer;
     private int bufferSize = -1;
     private String columnList;
+
+    public CarbonMemoryAppender() {
+    }
+
+    public CarbonMemoryAppender(CircularBuffer<TenantAwareLoggingEvent> circularBuffer) {
+        this.circularBuffer = circularBuffer;
+    }
 
     public String getColumnList() {
         return columnList;
@@ -48,13 +58,6 @@ import java.util.logging.LogRecord;
 
     public void setColumnList(String columnList) {
         this.columnList = columnList;
-    }
-
-    public CarbonMemoryAppender() {
-    }
-
-    public CarbonMemoryAppender(CircularBuffer circularBuffer) {
-        this.circularBuffer = circularBuffer;
     }
 
     protected synchronized void append(LoggingEvent loggingEvent) {
@@ -66,10 +69,8 @@ import java.util.logging.LogRecord;
                 try {
                     tenantId = getTenantIdForDomain(tenantDomain);
                 } catch (UserStoreException e) {
-                    System.err.println("Cannot find tenant id for the given tenant domain.");
-                    e.printStackTrace();
+                    log.warn("Cannot find tenant id for the given tenant domain.", e);
                     //Ignore this exception.
-                    //log.error("Cannot find tenant id for the given tenant domain.", e);
                 }
             }
         }
@@ -120,17 +121,17 @@ import java.util.logging.LogRecord;
         return circularBuffer;
     }
 
-    public void setCircularBuffer(CircularBuffer circularBuffer) {
+    public void setCircularBuffer(CircularBuffer<TenantAwareLoggingEvent> circularBuffer) {
         this.circularBuffer = circularBuffer;
     }
 
     public void activateOptions() {
         if (bufferSize < 0) {
             if (circularBuffer == null) {
-                this.circularBuffer = new CircularBuffer();
+                this.circularBuffer = new CircularBuffer<TenantAwareLoggingEvent>();
             }
         } else {
-            this.circularBuffer = new CircularBuffer(bufferSize);
+            this.circularBuffer = new CircularBuffer<TenantAwareLoggingEvent>(bufferSize);
         }
     }
 

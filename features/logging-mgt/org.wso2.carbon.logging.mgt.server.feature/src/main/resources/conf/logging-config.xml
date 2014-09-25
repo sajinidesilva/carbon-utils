@@ -21,18 +21,41 @@
 -->
 
 <loggingConfig xmlns="http://wso2.org/projects/carbon/carbon.xml">
-    <isDataFromCassandra>false</isDataFromCassandra>
-    <!--Set the BAM Event publisher host url which specifies the log location where the logs are hosted-->
-    <cassandraHost>localhost:9160</cassandraHost>
-    <cassandraConsistencyLevel>ONE</cassandraConsistencyLevel>
-    <cassandraAutoDiscovery enable="false" delay="1000"/>
-    <retryDownedHosts enable="true" queueSize="10"/>
-    <userName>admin</userName>
-    <password>admin</password>
-    <archivedHost>http://127.0.0.1/logs/stratos/0/WSO2%20Stratos%20Manager/</archivedHost>
-     <archivedHDFSPath>/stratos/logs</archivedHDFSPath>
-    <archivedUser>admin</archivedUser>
-    <archivedPassword>admin</archivedPassword>
-    <archivedPort>80</archivedPort>
-    <archivedRealm>Stratos</archivedRealm>
+
+    <!-- Default log provider -->
+    <logProviderConfig class="org.wso2.carbon.logging.service.provider.InMemoryLogProvider">
+        <properties/>
+    </logProviderConfig>
+
+
+    <!--Uncomment this block to use CassandraLogProvider-->
+    <!--<logProviderConfig xmlns="http://wso2.org/projects/carbon/carbon.xml" class="org.wso2.carbon.logging.service.provider.CassandraLogProvider">
+        <properties>
+            <property name="userName" value="admin"/>
+            <property name="password" value="admin"/>
+            <property name="archivedHost" value="http://127.0.0.1/logs/stratos/0/WSO2%20Stratos%20Manager/"/>
+            <property name="archivedHDFSPath" value="/stratos/logs"/>
+            <property name="archivedUser" value="admin"/>
+            <property name="archivedPassword" value="admin"/>
+            <property name="archivedPort" value="80"/>
+            <property name="archivedRealm" value="Stratos"/>
+            <property name="cassandraHost" value="localhost:9160"/>
+            <property name="isDataFromCassandra" value="false"/>
+            <property name="cassandraConsistencyLevel" value="ONE"/>
+            <property name="cassandraAutoDiscovery.enable" value="false"/>
+            <property name="cassandraAutoDiscovery.delay" value="1000"/>
+            <property name="retryDownedHosts.enable" value="true"/>
+            <property name="retryDownedHosts.queueSize" value="10"/>
+            <property name="columnFamily" value="log"/>
+            <property name="cluster" value="admin"/>
+            <property name="keyspace" value="EVENT_KS"/>
+        </properties>
+    </logProviderConfig>-->
+
+
+    <!-- Default log file provider -->
+    <logFileProviderConfig class="org.wso2.carbon.logging.service.provider.FileLogProvider">
+        <properties/>
+    </logFileProviderConfig>
+
 </loggingConfig>

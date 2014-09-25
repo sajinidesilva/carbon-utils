@@ -32,6 +32,7 @@ import org.wso2.carbon.utils.logging.CircularBuffer;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -45,8 +46,8 @@ public class TracerAdmin extends AbstractAdmin {
 
         ConfigurationContext configContext = getConfigContext();
         AxisConfiguration axisConfiguration = configContext.getAxisConfiguration();
-        CircularBuffer msgSeqBuff = getMessageSequenceBuffer();
-        Object[] messageObjs;
+        CircularBuffer<MessageInfo> msgSeqBuff = getMessageSequenceBuffer();
+        List<MessageInfo> messageObjs;
         TracerServiceInfo tracerServiceInfo = new TracerServiceInfo();
         AxisModule axisModule = axisConfiguration.getModule(TracerConstants.WSO2_TRACER);
 
@@ -70,9 +71,9 @@ public class TracerAdmin extends AbstractAdmin {
             tracerServiceInfo.setEmpty(true);
             return tracerServiceInfo;
         } else {
-            messageObjs = msgSeqBuff.getObjects(numberOfMessages);
+            messageObjs = msgSeqBuff.get(numberOfMessages);
 
-            if (messageObjs.length == 0) {
+            if (messageObjs.isEmpty()) {
                 tracerServiceInfo.setEmpty(true);
                 return tracerServiceInfo;
 
@@ -81,8 +82,7 @@ public class TracerAdmin extends AbstractAdmin {
                 boolean filterProvided = (filter != null && (filter = filter.trim()).length() != 0);
                 tracerServiceInfo.setFilter(filterProvided);
 
-                for (Object messageObj : messageObjs) {
-                    MessageInfo mi = (MessageInfo) messageObj;
+                for (MessageInfo mi : messageObjs) {
                     if (filterProvided) {
                         MessagePayload miPayload = getMessage(mi.getServiceId(),
                                                               mi.getOperationName(),
@@ -95,8 +95,8 @@ public class TracerAdmin extends AbstractAdmin {
                         if (resp == null) {
                             resp = "";
                         }
-                        if (req.toUpperCase().indexOf(filter.toUpperCase()) > -1
-                            || resp.toUpperCase().indexOf(filter.toUpperCase()) > -1) {
+                        if (req.toUpperCase().contains(filter.toUpperCase())
+                            || resp.toUpperCase().contains(filter.toUpperCase())) {
                             msgInfoList.add(mi);
                         }
                     } else {
@@ -202,14 +202,20 @@ public class TracerAdmin extends AbstractAdmin {
     }
 
     public void clearAllSoapMessages(){
-        CircularBuffer msgSeqBuff = getMessageSequenceBuffer();
+        CircularBuffer<MessageInfo> msgSeqBuff = getMessageSequenceBuffer();
         if (msgSeqBuff != null) {
             msgSeqBuff.clear();
         }
     }
 
-    private CircularBuffer getMessageSequenceBuffer() {
-        return (CircularBuffer) getConfigContext().getProperty(TracerConstants.MSG_SEQ_BUFFER);
+    private CircularBuffer<MessageInfo> getMessageSequenceBuffer() {
+        Object bufferProp = getConfigContext().getProperty(TracerConstants.MSG_SEQ_BUFFER);
+        if (bufferProp instanceof CircularBuffer) {
+            return (CircularBuffer<MessageInfo>) bufferProp;
+        }
+        else {
+            return null;
+        }
     }
 
     private TracePersister getTracePersister(Parameter tracePersisterParam) throws AxisFault {

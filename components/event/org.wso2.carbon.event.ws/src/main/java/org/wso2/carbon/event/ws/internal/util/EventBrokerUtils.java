@@ -42,7 +42,7 @@ public class EventBrokerUtils {
                                                       int tenantId) throws EventBrokerException {
         MessageContext mc = new MessageContext();
         mc.setConfigurationContext(new ConfigurationContext(new AxisConfiguration()));
-        PrivilegedCarbonContext.getCurrentContext(mc).setTenantId(tenantId);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
         SOAPFactory soapFactory = new SOAP12Factory();
         SOAPEnvelope envelope = soapFactory.getDefaultEnvelope();
         envelope.getBody().addChild(payload);

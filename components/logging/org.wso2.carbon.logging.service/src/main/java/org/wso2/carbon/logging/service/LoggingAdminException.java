@@ -18,12 +18,12 @@ package org.wso2.carbon.logging.service;
 
 public class LoggingAdminException extends Exception {
 
-	public LoggingAdminException(String s) {
-		super(s);
-	}
+    public LoggingAdminException(String s) {
+        super(s);
+    }
 
-	public LoggingAdminException(String s, Throwable e) {
-		super(s, e);
-	}
+    public LoggingAdminException(String s, Throwable e) {
+        super(s, e);
+    }
 
 }
