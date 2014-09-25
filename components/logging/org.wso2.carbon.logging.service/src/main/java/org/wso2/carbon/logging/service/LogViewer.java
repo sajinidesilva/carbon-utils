@@ -54,34 +54,45 @@ public class LogViewer {
         String lpClass = loggingConfig.getLogProviderImplClassName();
         try {
             if (lpClass != null && !"".equals(lpClass)) {
-                Class logProviderClass = Class.forName(lpClass);
-                Constructor constructor = logProviderClass.getConstructor();
+                Class<?> logProviderClass = Class.forName(lpClass);
+                Constructor<?> constructor = logProviderClass.getConstructor();
                 logProvider = (LogProvider) constructor.newInstance();
                 logProvider.init(loggingConfig);
             } else {
-                log.error(
-                        "Log provider is not defined in logging configuration file : conf/etc/logging-config.xml");
+                String msg = "Log provider is not defined in logging configuration file : " +
+                           "conf/etc/logging-config.xml";
+                throw new Exception(msg);
             }
         } catch (Exception e) {
-            log.error("Error while loading log provider implementation class", e);
+            String msg = "Error while loading log provider implementation class";
+            log.error(msg, e);
+            // A RuntimeException is thrown here since an Exception cannot be thrown from the static
+            // block. An Exception occurs when the class could not be loaded. We cannot proceed
+            // further in that case, therefore we throw a RuntimeException.
+            throw new RuntimeException(msg, e);
         }
 
         // initiate log file provider instance
         String lfpClass = loggingConfig.getLogFileProviderImplClassName();
         try {
             if (lfpClass != null && !"".equals(lfpClass)) {
-                Class logFileProviderClass = Class.forName(lfpClass);
-                Constructor constructor = logFileProviderClass.getConstructor();
+                Class<?> logFileProviderClass = Class.forName(lfpClass);
+                Constructor<?> constructor = logFileProviderClass.getConstructor();
                 logFileProvider = (LogFileProvider) constructor.newInstance();
                 logFileProvider.init(loggingConfig);
             } else {
-                log.error(
-                        "Log file provider is not defined in logging configuration file : conf/etc/logging-config.xml");
+                String msg = "Log file provider is not defined in logging configuration file : " +
+                           "conf/etc/logging-config.xml";
+                throw new Exception(msg);
             }
         } catch (Exception e) {
-            log.error("Error while loading log file provider implementation class", e);
+            String msg = "Error while loading log file provider implementation class";
+            log.error(msg, e);
+            // A RuntimeException is thrown here since an Exception cannot be thrown from the static
+            // block. An Exception occurs when the class could not be loaded. We cannot proceed
+            // further in that case, therefore we throw a RuntimeException.
+            throw new RuntimeException(msg, e);
         }
-
     }
 
     public PaginatedLogFileInfo getPaginatedLogFileInfo(int pageNumber, String tenantDomain,
