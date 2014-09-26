@@ -280,8 +280,17 @@ public class RemoteTaskManager implements TaskManager {
         return this.getTaskState(taskName) != TaskState.NONE;
     }
 
+    private boolean isMyTaskTypeRegistered() {
+        return TasksDSComponent.getTaskService().getRegisteredTaskTypes().contains(this.getTaskType());
+    }
+    
     public void runTask(String taskName) throws TaskException {
-        TasksDSComponent.executeTask(new TaskExecution(taskName));
+        if (this.isMyTaskTypeRegistered()) {
+            TasksDSComponent.executeTask(new TaskExecution(taskName));
+        } else {
+            throw new TaskException("Task type: '" + this.getTaskType() + 
+                    "' is not registered in the current task node", Code.TASK_NODE_NOT_AVAILABLE);
+        }
     }
 
     public static void addRunningTask(String runningTaskId) {

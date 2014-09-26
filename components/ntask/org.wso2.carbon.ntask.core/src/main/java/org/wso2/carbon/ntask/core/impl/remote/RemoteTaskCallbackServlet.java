@@ -18,6 +18,8 @@ package org.wso2.carbon.ntask.core.impl.remote;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.ntask.common.TaskException;
+import org.wso2.carbon.ntask.common.TaskException.Code;
 import org.wso2.carbon.ntask.core.TaskManager;
 import org.wso2.carbon.ntask.core.internal.TasksDSComponent;
 
@@ -47,6 +49,7 @@ public class RemoteTaskCallbackServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) {
+        String taskType = null, taskName;
         try {
             String remoteTaskId = req.getHeader(REMOTE_SYSTEM_TASK_HEADER_ID);
             if (remoteTaskId == null) {
@@ -64,8 +67,8 @@ public class RemoteTaskCallbackServlet extends HttpServlet {
             }
             Object[] taskInfo = RemoteTaskUtils.lookupRemoteTask(remoteTaskId);
             int tenantId = (Integer) taskInfo[0];
-            String taskType = (String) taskInfo[1];
-            String taskName = (String) taskInfo[2];
+            taskType = (String) taskInfo[1];
+            taskName = (String) taskInfo[2];
             try {
                 PrivilegedCarbonContext.startTenantFlow();
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
@@ -79,9 +82,16 @@ public class RemoteTaskCallbackServlet extends HttpServlet {
             } finally {
                 PrivilegedCarbonContext.endTenantFlow();
             }
-        } catch (Exception e) {
-            log.error("Error in executing remote task request: " + e.getMessage(), e);
-        }
+        } catch (TaskException e) {
+            if (e.getCode().equals(Code.TASK_NODE_NOT_AVAILABLE)) {
+                log.debug("Remote task request dispatched to an unsupported task node with task type: " + taskType +
+                        " returning a SC_NOT_FOUND error code");
+                /* this is so, a load balancer will send the request to a different task node */
+                res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            } else {
+                log.error("Error in executing remote task request: " + e.getMessage(), e);
+            }
+        } 
     }
 
 }
