@@ -168,7 +168,10 @@ public class TaskInfo implements Serializable {
 
     @Override
     public boolean equals(Object rhs) {
-        return this.hashCode() == rhs.hashCode();
+        if (!(rhs instanceof TaskInfo)) {
+        	return false;
+        }
+        return ((TaskInfo) rhs).getName().equals(this.getName());
     }
 
     /**

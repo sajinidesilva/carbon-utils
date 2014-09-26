@@ -19,15 +19,7 @@ import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.common.TaskException.Code;
 import org.wso2.carbon.ntask.core.*;
 import org.wso2.carbon.ntask.core.impl.AbstractQuartzTaskManager;
-import org.wso2.carbon.ntask.core.impl.clustered.rpc.DeleteTaskCall;
-import org.wso2.carbon.ntask.core.impl.clustered.rpc.PauseTaskCall;
-import org.wso2.carbon.ntask.core.impl.clustered.rpc.RescheduleTaskCall;
-import org.wso2.carbon.ntask.core.impl.clustered.rpc.ResumeTaskCall;
-import org.wso2.carbon.ntask.core.impl.clustered.rpc.RunningTasksInServerCall;
-import org.wso2.carbon.ntask.core.impl.clustered.rpc.ScheduleTaskCall;
-import org.wso2.carbon.ntask.core.impl.clustered.rpc.TaskCall;
-import org.wso2.carbon.ntask.core.impl.clustered.rpc.TaskStateCall;
-import org.wso2.carbon.ntask.core.internal.TasksDSComponent;
+import org.wso2.carbon.ntask.core.impl.clustered.rpc.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,7 +52,7 @@ public class ClusteredTaskManager extends AbstractQuartzTaskManager {
 
     public void initStartupTasks() throws TaskException {
         if (this.isLeader()) {
-            this.scheduleAllTasks();
+            this.scheduleMissingTasks();
         }
     }
 
@@ -91,42 +83,15 @@ public class ClusteredTaskManager extends AbstractQuartzTaskManager {
     }
 
     public void scheduleTask(String taskName) throws TaskException {
-        if (!TasksDSComponent.getTaskService().isServerInit()) {
-            return;
-        }
-        try {
-            String memberId = this.getMemberIdFromTaskName(taskName, true);
-            this.setServerLocationOfTask(taskName, memberId);
-            this.scheduleTask(memberId, taskName);
-        } catch (Exception e) {
-            throw new TaskException("Error in scheduling task: " + taskName + " : "
-                    + e.getMessage(), Code.UNKNOWN, e);
-        }
+        String memberId = this.getMemberIdFromTaskName(taskName, true);
+        this.setServerLocationOfTask(taskName, memberId);
+        this.scheduleTask(memberId, taskName);
     }
 
     public void rescheduleTask(String taskName) throws TaskException {
-        if (!TasksDSComponent.getTaskService().isServerInit()) {
-            return;
-        }
-        try {
-            String memberId = this.getMemberIdFromTaskName(taskName, true);
-            this.setServerLocationOfTask(taskName, memberId);
-            this.rescheduleTask(memberId, taskName);
-        } catch (Exception e) {
-            throw new TaskException("Error in rescheduling task: " + taskName + " : "
-                    + e.getMessage(), Code.UNKNOWN, e);
-        }
-    }
-
-    public List<TaskInfo> getRunningTasksInServer(int location) throws TaskException {
-        try {
-            List<String> ids = this.getMemberIds();
-            String memberId = ids.get(location % ids.size());
-            return this.getRunningTasksInServer(memberId);
-        } catch (Exception e) {
-            throw new TaskException("Error in getting tasks in server: " + location + " : "
-                    + e.getMessage(), Code.UNKNOWN, e);
-        }
+        String memberId = this.getMemberIdFromTaskName(taskName, true);
+        this.setServerLocationOfTask(taskName, memberId);
+        this.rescheduleTask(memberId, taskName); 
     }
 
     public Map<String, TaskState> getAllTaskStates() throws TaskException {
@@ -148,7 +113,7 @@ public class ClusteredTaskManager extends AbstractQuartzTaskManager {
             String memberId = this.getMemberIdFromTaskName(taskName, false);
             return this.getTaskState(memberId, taskName);
         } catch (TaskException e) {
-            if (e.getCode() == Code.NO_TASK_EXISTS) {
+            if (e.getCode().equals(Code.NO_TASK_EXISTS)) {
                 return TaskState.NONE;
             } else {
                 throw e;
@@ -168,8 +133,7 @@ public class ClusteredTaskManager extends AbstractQuartzTaskManager {
             /* if the task is not scheduled anywhere, we can ignore this delete request to the
              * remote server */
             if (!Code.NO_TASK_EXISTS.equals(e.getCode())) {
-                throw new TaskException("Error in getting member from task name: " + e.getMessage(), 
-                        Code.UNKNOWN, e);
+                throw e;
             }
         }
         try {
@@ -188,25 +152,15 @@ public class ClusteredTaskManager extends AbstractQuartzTaskManager {
     }
 
     public void pauseTask(String taskName) throws TaskException {
-        try {
-            String memberId = this.getMemberIdFromTaskName(taskName, false);
-            this.pauseTask(memberId, taskName);
-            TaskUtils.setTaskPaused(this.getTaskRepository(), taskName, true);
-        } catch (Exception e) {
-            throw new TaskException("Error in pausing task: " + taskName + " : " + e.getMessage(),
-                    Code.UNKNOWN, e);
-        }
+        String memberId = this.getMemberIdFromTaskName(taskName, false);
+        this.pauseTask(memberId, taskName);
+        TaskUtils.setTaskPaused(this.getTaskRepository(), taskName, true);
     }
 
     public void resumeTask(String taskName) throws TaskException {
-        try {
-            String memberId = this.getMemberIdFromTaskName(taskName, false);
-            this.resumeTask(memberId, taskName);
-            TaskUtils.setTaskPaused(this.getTaskRepository(), taskName, true);
-        } catch (Exception e) {
-            throw new TaskException("Error in resuming task: " + taskName + " : " + e.getMessage(),
-                    Code.UNKNOWN, e);
-        }
+        String memberId = this.getMemberIdFromTaskName(taskName, false);
+        this.resumeTask(memberId, taskName);
+        TaskUtils.setTaskPaused(this.getTaskRepository(), taskName, true);
     }
 
     @Override
@@ -265,14 +219,19 @@ public class ClusteredTaskManager extends AbstractQuartzTaskManager {
         } catch (Exception e) {
             throw new TaskException(e.getMessage(), Code.UNKNOWN, e);
         }
-        return locationResolver.getLocation(this.getTaskServiceContext(), taskInfo);
+        TaskServiceContext ctx = this.getTaskServiceContext();
+        if (ctx.getServerCount() == 0) {
+            throw new TaskException("No available task nodes for resolving a task location", 
+                    Code.TASK_NODE_NOT_AVAILABLE);
+        }
+        return locationResolver.getLocation(ctx, taskInfo);
     }
 
     public List<List<TaskInfo>> getAllRunningTasksInServers() throws TaskException {
         List<List<TaskInfo>> result = new ArrayList<List<TaskInfo>>();
         List<String> ids = this.getMemberIds();
-        for (int i = 0; i < ids.size(); i++) {
-            result.add(this.getRunningTasksInServer(i));
+        for (String id : ids) {
+            result.add(this.getRunningTasksInServer(id));
         }
         return result;
     }
@@ -283,7 +242,7 @@ public class ClusteredTaskManager extends AbstractQuartzTaskManager {
     }
 
     public <V> V sendReceive(String memberId, TaskCall<V> taskCall)
-            throws Exception {
+            throws TaskException {
         /* the tenant domain and task type are populated here, instead of giving them in
          * the constructor of each TaskClusterCall classes */
         taskCall.setTenantId(this.getTenantId());
@@ -317,7 +276,7 @@ public class ClusteredTaskManager extends AbstractQuartzTaskManager {
         return location;
     }
 
-    public List<TaskInfo> getRunningTasksInServer(String memberId) throws Exception {
+    public List<TaskInfo> getRunningTasksInServer(String memberId) throws TaskException {
         return this.sendReceive(memberId, new RunningTasksInServerCall());
     }
 
@@ -333,7 +292,7 @@ public class ClusteredTaskManager extends AbstractQuartzTaskManager {
         return getLocalTaskState(taskName);
     }
 
-    public void scheduleTask(String memberId, String taskName) throws Exception {
+    public void scheduleTask(String memberId, String taskName) throws TaskException {
         this.sendReceive(memberId, new ScheduleTaskCall(taskName));
     }
 
@@ -341,7 +300,7 @@ public class ClusteredTaskManager extends AbstractQuartzTaskManager {
         this.scheduleLocalTask(taskName);        
     }
 
-    public void rescheduleTask(String memberId, String taskName) throws Exception {
+    public void rescheduleTask(String memberId, String taskName) throws TaskException {
         this.sendReceive(memberId, new RescheduleTaskCall(taskName));
     }
 
@@ -357,7 +316,7 @@ public class ClusteredTaskManager extends AbstractQuartzTaskManager {
         return deleteLocalTask(taskName, false);
     }
 
-    public void pauseTask(String memberId, String taskName) throws Exception {
+    public void pauseTask(String memberId, String taskName) throws TaskException {
         this.sendReceive(memberId, new PauseTaskCall(taskName));
     }
 
@@ -365,7 +324,7 @@ public class ClusteredTaskManager extends AbstractQuartzTaskManager {
         pauseLocalTask(taskName);
     }
 
-    public void resumeTask(String memberId, String taskName) throws Exception {
+    public void resumeTask(String memberId, String taskName) throws TaskException {
         this.sendReceive(memberId, new ResumeTaskCall(taskName));
     }
 
