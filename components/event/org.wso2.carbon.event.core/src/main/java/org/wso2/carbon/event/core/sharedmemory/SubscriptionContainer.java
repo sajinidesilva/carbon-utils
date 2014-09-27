@@ -46,9 +46,9 @@ class SubscriptionContainer implements Serializable {
 
     public Cache<String, Subscription> getSubscriptionsCache() {
         if (topicCacheInit) {
-            return Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager").getCache(topicCacheName);
+            return Caching.getCacheManagerFactory().getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME).getCache(topicCacheName);
         } else {
-            CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager");
+            CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME);
             String cacheName = topicCacheName;
             Cache<String, Subscription> newCache = cacheManager.<String, Subscription>createCacheBuilder(cacheName).
                     setExpiry(CacheConfiguration.ExpiryType.MODIFIED, new CacheConfiguration.Duration(TimeUnit.SECONDS, 1000 * 24 * 3600)).

@@ -20,6 +20,7 @@ package org.wso2.carbon.event.core.sharedmemory;
 
 import org.wso2.carbon.event.core.subscription.Subscription;
 import org.wso2.carbon.event.core.exception.EventBrokerException;
+import org.wso2.carbon.event.core.util.EventBrokerConstants;
 
 import javax.cache.Cache;
 import javax.cache.CacheConfiguration;
@@ -49,14 +50,14 @@ public class SharedMemorySubscriptionStorage implements Serializable {
      */
     public static Cache<String, SubscriptionContainer> getTopicSubscriptionCache() {
         if (topicSubscriptionCacheInit) {
-            return Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager").getCache("topicSubscriptionCache");
+            return Caching.getCacheManagerFactory().getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME).getCache("topicSubscriptionCache");
         } else {
-            CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager");
+            CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME);
             String cacheName = "topicSubscriptionCache";
             topicSubscriptionCacheInit = true;
             return cacheManager.<String, SubscriptionContainer>createCacheBuilder(cacheName).
-                setExpiry(CacheConfiguration.ExpiryType.MODIFIED, new CacheConfiguration.Duration(TimeUnit.SECONDS, 1000 * 24 * 3600)).
-                setExpiry(CacheConfiguration.ExpiryType.ACCESSED, new CacheConfiguration.Duration(TimeUnit.SECONDS, 1000 * 24 * 3600)).
+                setExpiry(CacheConfiguration.ExpiryType.MODIFIED, new CacheConfiguration.Duration(TimeUnit.SECONDS, EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
+                setExpiry(CacheConfiguration.ExpiryType.ACCESSED, new CacheConfiguration.Duration(TimeUnit.SECONDS, EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
                 setStoreByValue(false).build();
 
         }
@@ -64,14 +65,14 @@ public class SharedMemorySubscriptionStorage implements Serializable {
 
     public static Cache<String, String> getSubscriptionIDTopicNameCache() {
         if (tenantIDInMemorySubscriptionStorageCacheInit) {
-            return Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager").getCache("subscriptionIDTopicNameCache");
+            return Caching.getCacheManagerFactory().getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME).getCache("subscriptionIDTopicNameCache");
         } else {
-            CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager");
+            CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME);
             String cacheName = "subscriptionIDTopicNameCache";
             tenantIDInMemorySubscriptionStorageCacheInit = true;
             return cacheManager.<String, String>createCacheBuilder(cacheName).
-                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED, new CacheConfiguration.Duration(TimeUnit.SECONDS, 1000 * 24 * 3600)).
-                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED, new CacheConfiguration.Duration(TimeUnit.SECONDS, 1000 * 24 * 3600)).
+                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED, new CacheConfiguration.Duration(TimeUnit.SECONDS, EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
+                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED, new CacheConfiguration.Duration(TimeUnit.SECONDS, EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
                     setStoreByValue(false).build();
 
         }

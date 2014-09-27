@@ -53,5 +53,7 @@ public interface EventBrokerConstants {
     int EB_PERSISTENT = 2;
 
     public static final String STAR_CHARACTER_FOR_CACHE_NAMES = "<SCFCN>";
+    public static final String SHARED_MEMORY_CACHE_MANAGER_NAME = "inMemoryEventCacheManager";
+    public static final int SHARED_MEMORY_CACHE_INVALIDATION_TIME = 1000 * 24 * 3600;
 
 }

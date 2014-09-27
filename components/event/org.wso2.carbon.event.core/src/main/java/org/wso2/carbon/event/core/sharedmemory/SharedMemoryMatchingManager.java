@@ -22,6 +22,7 @@ import org.wso2.carbon.event.core.delivery.MatchingManager;
 import org.wso2.carbon.event.core.subscription.Subscription;
 import org.wso2.carbon.event.core.exception.EventBrokerException;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.event.core.util.EventBrokerConstants;
 
 import javax.cache.Cache;
 import javax.cache.CacheConfiguration;
@@ -43,14 +44,14 @@ public class SharedMemoryMatchingManager implements MatchingManager, Serializabl
 
     private static Cache<Integer, SharedMemorySubscriptionStorage> getTenantIDInMemorySubscriptionStorageCache() {
         if (cacheInit) {
-            return Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager").getCache("tenantIDInMemorySubscriptionStorageCache");
+            return Caching.getCacheManagerFactory().getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME).getCache("tenantIDInMemorySubscriptionStorageCache");
         } else {
-            CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("inMemoryEventCacheManager");
+            CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME);
             String cacheName = "tenantIDInMemorySubscriptionStorageCache";
             cacheInit = true;
             return cacheManager.<Integer, SharedMemorySubscriptionStorage>createCacheBuilder(cacheName).
-                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED, new CacheConfiguration.Duration(TimeUnit.SECONDS, 1000 * 24 * 3600)).
-                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED, new CacheConfiguration.Duration(TimeUnit.SECONDS, 1000 * 24 * 3600)).
+                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED, new CacheConfiguration.Duration(TimeUnit.SECONDS, EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
+                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED, new CacheConfiguration.Duration(TimeUnit.SECONDS, EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
                     setStoreByValue(false).build();
 
         }
