@@ -50,14 +50,21 @@ public class SharedMemorySubscriptionStorage implements Serializable {
      */
     public static Cache<String, SubscriptionContainer> getTopicSubscriptionCache() {
         if (topicSubscriptionCacheInit) {
-            return Caching.getCacheManagerFactory().getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME).getCache("topicSubscriptionCache");
+            return Caching.getCacheManagerFactory()
+                    .getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME)
+                    .getCache("topicSubscriptionCache");
         } else {
-            CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME);
+            CacheManager cacheManager = Caching.getCacheManagerFactory()
+                    .getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME);
             String cacheName = "topicSubscriptionCache";
             topicSubscriptionCacheInit = true;
             return cacheManager.<String, SubscriptionContainer>createCacheBuilder(cacheName).
-                setExpiry(CacheConfiguration.ExpiryType.MODIFIED, new CacheConfiguration.Duration(TimeUnit.SECONDS, EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
-                setExpiry(CacheConfiguration.ExpiryType.ACCESSED, new CacheConfiguration.Duration(TimeUnit.SECONDS, EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
+                setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                        new CacheConfiguration.Duration(TimeUnit.SECONDS,
+                                EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
+                setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
+                        new CacheConfiguration.Duration(TimeUnit.SECONDS,
+                                EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
                 setStoreByValue(false).build();
 
         }
@@ -65,14 +72,21 @@ public class SharedMemorySubscriptionStorage implements Serializable {
 
     public static Cache<String, String> getSubscriptionIDTopicNameCache() {
         if (tenantIDInMemorySubscriptionStorageCacheInit) {
-            return Caching.getCacheManagerFactory().getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME).getCache("subscriptionIDTopicNameCache");
+            return Caching.getCacheManagerFactory()
+                    .getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME)
+                    .getCache("subscriptionIDTopicNameCache");
         } else {
-            CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME);
+            CacheManager cacheManager = Caching.getCacheManagerFactory()
+                    .getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME);
             String cacheName = "subscriptionIDTopicNameCache";
             tenantIDInMemorySubscriptionStorageCacheInit = true;
             return cacheManager.<String, String>createCacheBuilder(cacheName).
-                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED, new CacheConfiguration.Duration(TimeUnit.SECONDS, EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
-                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED, new CacheConfiguration.Duration(TimeUnit.SECONDS, EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
+                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                            new CacheConfiguration.Duration(TimeUnit.SECONDS,
+                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
+                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
+                            new CacheConfiguration.Duration(TimeUnit.SECONDS,
+                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
                     setStoreByValue(false).build();
 
         }

@@ -34,14 +34,21 @@ public class SharedMemoryCacheUtil {
     
     public static Cache<Integer, SharedMemoryMatchingManager> getInMemoryMatchingCache() {
         if (cacheInit) {
-            return Caching.getCacheManagerFactory().getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME).getCache("inMemoryEventCache");
+            return Caching.getCacheManagerFactory()
+                    .getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME)
+                    .getCache("inMemoryEventCache");
         } else {
-            CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME);
+            CacheManager cacheManager = Caching.getCacheManagerFactory()
+                    .getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME);
             String cacheName = "inMemoryEventCache";
             cacheInit = true;
             return cacheManager.<Integer, SharedMemoryMatchingManager>createCacheBuilder(cacheName).
-                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED, new CacheConfiguration.Duration(TimeUnit.SECONDS, EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
-                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED, new CacheConfiguration.Duration(TimeUnit.SECONDS, EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
+                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                            new CacheConfiguration.Duration(TimeUnit.SECONDS,
+                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
+                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
+                            new CacheConfiguration.Duration(TimeUnit.SECONDS,
+                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
                     setStoreByValue(false).build();
 
         }
