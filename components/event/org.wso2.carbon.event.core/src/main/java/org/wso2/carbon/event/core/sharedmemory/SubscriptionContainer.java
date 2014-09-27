@@ -53,14 +53,14 @@ class SubscriptionContainer implements Serializable {
             CacheManager cacheManager = Caching.getCacheManagerFactory()
                     .getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME);
             String cacheName = topicCacheName;
-            Cache<String, Subscription> newCache = cacheManager.<String, Subscription>createCacheBuilder(cacheName).
-                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+            Cache<String, Subscription> newCache = cacheManager.<String, Subscription>createCacheBuilder(cacheName)
+                    .setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
                             new CacheConfiguration.Duration(TimeUnit.SECONDS,
-                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
-                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
+                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME))
+                    .setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
                             new CacheConfiguration.Duration(TimeUnit.SECONDS,
-                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
-                    setStoreByValue(false).build();
+                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME))
+                    .setStoreByValue(false).build();
             topicCacheInit = true;
 
             return newCache;

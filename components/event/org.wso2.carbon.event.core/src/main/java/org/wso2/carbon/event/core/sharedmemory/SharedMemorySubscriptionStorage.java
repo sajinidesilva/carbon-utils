@@ -58,14 +58,14 @@ public class SharedMemorySubscriptionStorage implements Serializable {
                     .getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME);
             String cacheName = "topicSubscriptionCache";
             topicSubscriptionCacheInit = true;
-            return cacheManager.<String, SubscriptionContainer>createCacheBuilder(cacheName).
-                setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+            return cacheManager.<String, SubscriptionContainer>createCacheBuilder(cacheName)
+                    .setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
                         new CacheConfiguration.Duration(TimeUnit.SECONDS,
-                                EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
-                setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
+                                EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME))
+                    .setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
                         new CacheConfiguration.Duration(TimeUnit.SECONDS,
-                                EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
-                setStoreByValue(false).build();
+                                EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME))
+                    .setStoreByValue(false).build();
 
         }
     }
@@ -80,14 +80,14 @@ public class SharedMemorySubscriptionStorage implements Serializable {
                     .getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME);
             String cacheName = "subscriptionIDTopicNameCache";
             tenantIDInMemorySubscriptionStorageCacheInit = true;
-            return cacheManager.<String, String>createCacheBuilder(cacheName).
-                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+            return cacheManager.<String, String>createCacheBuilder(cacheName)
+                    .setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
                             new CacheConfiguration.Duration(TimeUnit.SECONDS,
-                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
-                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
+                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME))
+                    .setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
                             new CacheConfiguration.Duration(TimeUnit.SECONDS,
-                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
-                    setStoreByValue(false).build();
+                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME))
+                    .setStoreByValue(false).build();
 
         }
     }

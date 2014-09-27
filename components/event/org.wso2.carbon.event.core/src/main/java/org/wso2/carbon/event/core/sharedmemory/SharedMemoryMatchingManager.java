@@ -52,14 +52,14 @@ public class SharedMemoryMatchingManager implements MatchingManager, Serializabl
                     .getCacheManager(EventBrokerConstants.SHARED_MEMORY_CACHE_MANAGER_NAME);
             String cacheName = "tenantIDInMemorySubscriptionStorageCache";
             cacheInit = true;
-            return cacheManager.<Integer, SharedMemorySubscriptionStorage>createCacheBuilder(cacheName).
-                    setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+            return cacheManager.<Integer, SharedMemorySubscriptionStorage>createCacheBuilder(cacheName)
+                    .setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
                             new CacheConfiguration.Duration(TimeUnit.SECONDS,
-                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
-                    setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
+                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME))
+                    .setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
                             new CacheConfiguration.Duration(TimeUnit.SECONDS,
-                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME)).
-                    setStoreByValue(false).build();
+                                    EventBrokerConstants.SHARED_MEMORY_CACHE_INVALIDATION_TIME))
+                    .setStoreByValue(false).build();
 
         }
     }
