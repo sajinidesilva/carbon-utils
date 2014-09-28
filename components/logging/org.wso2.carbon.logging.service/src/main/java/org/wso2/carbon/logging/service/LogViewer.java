@@ -50,9 +50,9 @@ public class LogViewer {
     private static LogProvider logProvider;
 
     static {
-        // initiate Log provider instance
-        String lpClass = loggingConfig.getLogProviderImplClassName();
         try {
+            // initiate Log provider instance
+            String lpClass = loggingConfig.getLogProviderImplClassName();
             if (lpClass != null && !"".equals(lpClass)) {
                 Class<?> logProviderClass = Class.forName(lpClass);
                 Constructor<?> constructor = logProviderClass.getConstructor();
@@ -72,9 +72,9 @@ public class LogViewer {
             throw new RuntimeException(msg, e);
         }
 
-        // initiate log file provider instance
-        String lfpClass = loggingConfig.getLogFileProviderImplClassName();
         try {
+            // initiate log file provider instance
+            String lfpClass = loggingConfig.getLogFileProviderImplClassName();
             if (lfpClass != null && !"".equals(lfpClass)) {
                 Class<?> logFileProviderClass = Class.forName(lfpClass);
                 Constructor<?> constructor = logFileProviderClass.getConstructor();
@@ -121,7 +121,10 @@ public class LogViewer {
         }
     }
 
-    public DataHandler downloadArchivedLogFiles(String logFile, String tenantDomain, String serverKey) throws Exception {
+    public DataHandler downloadArchivedLogFiles(String logFile, String tenantDomain,
+                                                String serverKey)
+
+            throws LogViewerException {
         return logFileProvider.downloadLogFile(logFile, tenantDomain, serverKey);
     }
 

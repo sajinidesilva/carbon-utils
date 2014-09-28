@@ -69,29 +69,31 @@ public class LoggingConfigManager {
         }
 
         // gets the configuration file name from the cassandra-config.xml.
-        String cassandraConfigFileName = CarbonUtils.getCarbonConfigDirPath()
+        String configFileNameWithPath = CarbonUtils.getCarbonConfigDirPath()
                 + RegistryConstants.PATH_SEPARATOR
                 + LoggingConstants.ETC_DIR
                 + RegistryConstants.PATH_SEPARATOR
                 + LoggingConstants.LOGGING_CONF_FILE;
-        loggingConfig = loadLoggingConfiguration(cassandraConfigFileName);
+        loggingConfig = loadLoggingConfiguration(configFileNameWithPath);
         return loggingConfig;
     }
 
     /**
      * Loads the given Syslog Configuration file.
      *
-     * @param configFilename Name of the configuration file
-     * @return the syslog configuration data. null will be return if there any issue while loading configurations
+     * @param configFilenameWithPath Name of the configuration file
+     * @return the syslog configuration data. An empty configuration will be returned,
+     * if there any issue while loading configurations.
      */
-    private static LoggingConfig loadLoggingConfiguration(String configFilename) {
+    private static LoggingConfig loadLoggingConfiguration(String configFilenameWithPath) {
         InputStream inputStream = null;
+        LoggingConfig config = new LoggingConfig();
+        String errorWhileLoadingConfigFile = "Error in loading configurations file: "
+                                             + configFilenameWithPath;
         try {
-            inputStream = new LoggingConfigManager()
-                    .getInputStream(configFilename);
-        } catch (IOException e1) {
-            log.error("Could not close the Configuration File "
-                    + configFilename);
+            inputStream = new LoggingConfigManager().getInputStream(configFilenameWithPath);
+        } catch (IOException e) {
+            log.error(errorWhileLoadingConfigFile, e);
         }
         if (inputStream != null) {
             try {
@@ -99,8 +101,6 @@ public class LoggingConfigManager {
                         .createXMLStreamReader(inputStream);
                 StAXOMBuilder builder = new StAXOMBuilder(parser);
                 OMElement documentElement = builder.getDocumentElement();
-                LoggingConfig config = new LoggingConfig();
-                @SuppressWarnings("rawtypes")
                 OMElement logProviderConfig = documentElement.getFirstChildWithName(
                         getQName(LoggingConstants.LogConfigProperties.LOG_PROVIDER_CONFIG));
                 loadLogProviderProperties(config, logProviderConfig);
@@ -110,25 +110,23 @@ public class LoggingConfigManager {
                 loadLogFileProviderProperties(config, logFileProviderConfig);
                 return config;
             } catch (Exception e) {
-                String msg = "Error in loading Stratos Configurations File: "
-                        + configFilename + ". Default Settings will be used.";
-                log.error(msg, e);
-                return null;
+                log.error(errorWhileLoadingConfigFile, e);
+                return config;
             } finally {
                 if (inputStream != null) {
                     try {
                         inputStream.close();
                     } catch (IOException e) {
                         log.error("Could not close the Configuration File "
-                                + configFilename);
+                                + configFilenameWithPath, e);
                     }
                 }
             }
         }
-        log.error("Unable to locate the stratos configurations file. "
-                + "Default Settings will be used.");
-        return null;
-        // if the file not found.
+        // if the file is not found, an empty config will be sent.
+        // log that information here.
+        log.error(errorWhileLoadingConfigFile);
+        return config;
     }
 
     private static void loadLogFileProviderProperties(LoggingConfig config, OMElement logFileProviderConfig) {
@@ -217,18 +215,18 @@ public class LoggingConfigManager {
 
     private InputStream getInputStream(String configFilename)
             throws IOException {
-        InputStream inStream = null;
+        InputStream inputStream = null;
         File configFile = new File(configFilename);
         if (configFile.exists()) {
-            inStream = new FileInputStream(configFile);
+            inputStream = new FileInputStream(configFile);
         }
-        String warningMessage = "";
-        if (inStream == null) {
+        String warningMessage;
+        if (inputStream == null) {
             URL url;
             if (bundleContext != null) {
                 if ((url = bundleContext.getBundle().getResource(
                         LoggingConstants.LOGGING_CONF_FILE)) != null) {
-                    inStream = url.openStream();
+                    inputStream = url.openStream();
                 } else {
                     warningMessage = "Bundle context could not find resource "
                             + LoggingConstants.LOGGING_CONF_FILE
@@ -239,7 +237,7 @@ public class LoggingConfigManager {
             } else {
                 if ((url = this.getClass().getClassLoader()
                         .getResource(LoggingConstants.LOGGING_CONF_FILE)) != null) {
-                    inStream = url.openStream();
+                    inputStream = url.openStream();
                 } else {
                     warningMessage = "Could not find resource "
                             + LoggingConstants.LOGGING_CONF_FILE
@@ -248,6 +246,6 @@ public class LoggingConfigManager {
                 }
             }
         }
-        return inStream;
+        return inputStream;
     }
 }

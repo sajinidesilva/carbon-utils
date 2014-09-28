@@ -49,7 +49,7 @@ public class LogViewerClient {
     }
 
 
-    public void cleaLogs() throws Exception {
+    public void clearLogs() throws Exception {
         stub.clearLogs();
     }
 
