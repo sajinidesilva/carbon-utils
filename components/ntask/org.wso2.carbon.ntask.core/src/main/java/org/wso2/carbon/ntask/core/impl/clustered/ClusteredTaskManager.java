@@ -224,6 +224,11 @@ public class ClusteredTaskManager extends AbstractQuartzTaskManager {
             throw new TaskException("No available task nodes for resolving a task location", 
                     Code.TASK_NODE_NOT_AVAILABLE);
         }
+        Map<String, String> props = taskInfo.getLocationResolverProperties();
+        if (props == null) {
+        	props = new HashMap<String, String>();
+        }
+        locationResolver.init(props);
         return locationResolver.getLocation(ctx, taskInfo);
     }
 

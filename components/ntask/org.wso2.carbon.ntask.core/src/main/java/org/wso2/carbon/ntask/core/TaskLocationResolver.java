@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.ntask.core;
 
+import java.util.Map;
+
 import org.wso2.carbon.ntask.common.TaskException;
 
 /**
@@ -23,6 +25,13 @@ import org.wso2.carbon.ntask.common.TaskException;
  */
 public interface TaskLocationResolver {
 
+	/**
+	 * Initializes the task location resolver with the given properties.
+	 * @param properties The property map
+	 * @throws TaskException
+	 */
+	public void init(Map<String, String> properties) throws TaskException;
+	
     /**
      * Returns the location the given task should be scheduled in.
      * 
