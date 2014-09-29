@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.event.core.sharedmemory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.event.core.EventBroker;
 import org.wso2.carbon.event.core.Message;
 import org.wso2.carbon.event.core.exception.EventBrokerConfigurationException;
@@ -45,6 +47,8 @@ import java.util.concurrent.ExecutorService;
  * in memory implementation of the delivary manager.
  */
 public class SharedMemoryDeliveryManager implements DeliveryManager {
+
+    private static final Log log = LogFactory.getLog(SharedMemoryDeliveryManager.class);
 
     private ExecutorService executor;
     private NotificationManager notificationManager;
@@ -161,7 +165,9 @@ public class SharedMemoryDeliveryManager implements DeliveryManager {
             //call initialize tenant for super tenant
             inMemoryMatchingManager.initializeTenant();
         } catch (EventBrokerException e) {
-            throw new EventBrokerConfigurationException("Can not initialize the in memory mathing manager");
+            String message = "Can not initialize the in memory matching manager : " + e.getMessage();
+            log.error(message, e);
+            throw new EventBrokerConfigurationException(message);
         }
 
         return inMemoryMatchingManager;
