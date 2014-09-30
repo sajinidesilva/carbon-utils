@@ -31,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class ServiceConfigManager {
 
@@ -38,8 +39,9 @@ public class ServiceConfigManager {
 
     public static String[] getServiceNames() throws LogViewerException {
         String configFileName = CarbonUtils.getCarbonConfigDirPath() + File.separator +
-                LoggingConstants.MULTITENANCY_CONFIG_FOLDER + File.separator + LoggingConstants.CONFIG_FILENAME;
-        ArrayList<String> serviceNames = new ArrayList<String>();
+                                LoggingConstants.MULTITENANCY_CONFIG_FOLDER + File.separator +
+                                LoggingConstants.CONFIG_FILENAME;
+        List<String> serviceNames = new ArrayList<String>();
         File configFile = new File(configFileName);
         if (configFile.exists()) {
             FileInputStream inputStream = null;
@@ -63,15 +65,14 @@ public class ServiceConfigManager {
                     }
                 }
             } catch (Exception e) {
-                String msg = "Error in loading Stratos Configurations File: " + configFileName
-                        + ".";
+                String msg = "Error in loading Stratos Configurations File: " + configFileName;
                 throw new LogViewerException(msg, e);
             } finally {
                 if (inputStream != null) {
                     try {
                         inputStream.close();
                     } catch (IOException e) {
-                        log.error("Could not close the Configuration File " + configFileName);
+                        log.error("Could not close the Configuration File " + configFileName, e);
                     }
                 }
             }
