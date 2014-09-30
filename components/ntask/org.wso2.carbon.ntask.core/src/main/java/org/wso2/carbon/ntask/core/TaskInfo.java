@@ -15,14 +15,13 @@
  */
 package org.wso2.carbon.ntask.core;
 
-import org.wso2.carbon.ntask.common.TaskConstants;
 import org.wso2.carbon.ntask.common.TaskConstants.TaskMisfirePolicy;
-import org.wso2.carbon.ntask.core.impl.FixedLocationResolver;
 import org.wso2.carbon.ntask.core.internal.TasksDSComponent;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,6 +42,8 @@ public class TaskInfo implements Serializable {
     private String taskClass;
 
     private Map<String, String> properties;
+    
+    private Map<String, String> locationResolverProperties;
 
     private String locationResolverClass;
 
@@ -50,15 +51,15 @@ public class TaskInfo implements Serializable {
 
     @Deprecated
     public TaskInfo() {
-        this.locationResolverClass = TasksDSComponent.getTaskService()
-                .getServerConfiguration().getLocationResolverClass();
-        this.properties = new HashMap<String, String>();
+    	this.setProperties(null);
+    	this.setLocationResolverClass(TasksDSComponent.getTaskService()
+                .getServerConfiguration().getLocationResolverClass());
+        this.setLocationResolverProperties(TasksDSComponent.getTaskService()
+                .getServerConfiguration().getLocationResolverProperties());
     }
 
     /**
-     * TaskInfo constructor, uses the RandomTaskLocationResolver class to
-     * resolve the task location, which is simply picking a random server for
-     * the task.
+     * TaskInfo constructor.
      * 
      * @param name The name of the task
      * @param taskClass The task implementation class
@@ -67,52 +68,42 @@ public class TaskInfo implements Serializable {
      */
     public TaskInfo(String name, String taskClass, Map<String, String> properties,
             TriggerInfo triggerInfo) {
-        this(name, taskClass, properties, TasksDSComponent.getTaskService()
-                .getServerConfiguration().getLocationResolverClass(), triggerInfo);
-    }
-
-    /**
-     * TaskInfo constructor with explicit location value.
-     * 
-     * @param name The name of the task
-     * @param taskClass The task implementation class
-     * @param properties The properties that will be passed into the task implementation at runtime
-     * @param location
-     *            The server location, the task will be run on. The location is
-     *            a 0 based index, where the final location of the server will
-     *            be calculated by getting the modulus of the total server
-     *            count, so the location value can grow arbitrary.
-     * @param triggerInfo Task trigger information
-     */
-    public TaskInfo(String name, String taskClass, Map<String, String> properties, int location,
-            TriggerInfo triggerInfo) {
-        this(name, taskClass, properties, FixedLocationResolver.class.getName(), triggerInfo);
-        this.getProperties().put(TaskConstants.FIXED_LOCATION_RESOLVER_PARAM,
-                String.valueOf(location));
+    	this.name = name;
+        this.taskClass = taskClass;
+        this.setProperties(properties);
+        this.triggerInfo = triggerInfo;
+        if (this.getTriggerInfo() == null) {
+            throw new IllegalArgumentException("Trigger information cannot be null");
+        }
+        this.setLocationResolverClass(TasksDSComponent.getTaskService()
+                .getServerConfiguration().getLocationResolverClass());
+        this.setLocationResolverProperties(TasksDSComponent.getTaskService()
+                .getServerConfiguration().getLocationResolverProperties());
     }
 
     /**
      * TaskInfo constructor with custom TaskLocationResolver.
-     * 
      * @param name The name of the task
      * @param taskClass The task implementation class
      * @param properties The properties that will be passed into the task implementation at runtime
      * @param locationResolverClass The TaskLocationResolver implementation, which is used to
      *            resolve the server location of the task at schedule time.
      * @param triggerInfo Task trigger information
+     * @deprecated use setters to set location resolver related properties, if set explicitly,
+     * users must have a way of changing this, i.e. using the UI, or else, the global tasks configuration
+     * based settings must be used
      */
+    @Deprecated
     public TaskInfo(String name, String taskClass, Map<String, String> properties,
             String locationResolverClass, TriggerInfo triggerInfo) {
         this.name = name;
         this.taskClass = taskClass;
-        this.properties = new HashMap<String, String>();
-        if (properties != null) {
-            this.properties.putAll(properties);
-        }
-        this.locationResolverClass = locationResolverClass;
+        this.setProperties(properties);
+        this.setLocationResolverClass(TasksDSComponent.getTaskService()
+                .getServerConfiguration().getLocationResolverClass());
         this.triggerInfo = triggerInfo;
         if (this.getTriggerInfo() == null) {
-            throw new NullPointerException("Trigger information cannot be null");
+            throw new IllegalArgumentException("Trigger information cannot be null");
         }
     }
 
@@ -125,7 +116,10 @@ public class TaskInfo implements Serializable {
     }
 
     public void setProperties(Map<String, String> properties) {
-        this.properties = properties;
+    	this.properties = new HashMap<String, String>();
+    	if (properties != null) {
+            this.properties.putAll(properties);
+    	}
     }
 
     public void setTriggerInfo(TriggerInfo triggerInfo) {
@@ -155,6 +149,18 @@ public class TaskInfo implements Serializable {
     public void setLocationResolverClass(String locationResolverClass) {
         this.locationResolverClass = locationResolverClass;
     }
+    
+    @XmlElementWrapper(name = "locationResolverProperties", required = false, nillable = true)
+    public Map<String, String> getLocationResolverProperties() {
+        return locationResolverProperties;
+    }
+
+    public void setLocationResolverProperties(Map<String, String> locationResolverProperties) {
+    	this.locationResolverProperties = new HashMap<String, String>();
+    	if (locationResolverProperties != null) {
+            this.locationResolverProperties.putAll(locationResolverProperties);
+    	}
+    }
 
     @XmlElementWrapper(name = "properties")
     public Map<String, String> getProperties() {
@@ -168,7 +174,10 @@ public class TaskInfo implements Serializable {
 
     @Override
     public boolean equals(Object rhs) {
-        return this.hashCode() == rhs.hashCode();
+        if (!(rhs instanceof TaskInfo)) {
+        	return false;
+        }
+        return ((TaskInfo) rhs).getName().equals(this.getName());
     }
 
     /**

@@ -15,7 +15,10 @@
  */
 package org.wso2.carbon.ntask.core.impl;
 
+import java.util.Map;
+
 import com.hazelcast.core.HazelcastInstance;
+
 import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.core.TaskInfo;
 import org.wso2.carbon.ntask.core.TaskLocationResolver;
@@ -30,6 +33,10 @@ public class RoundRobinTaskLocationResolver implements TaskLocationResolver {
 
     private static final String ROUND_ROBIN_TASK_RESOLVER_ID = "__ROUND_ROBIN_TASK_RESOLVER_ID__";
 
+    @Override
+	public void init(Map<String, String> properties) throws TaskException {		
+	}
+    
     @Override
     public int getLocation(TaskServiceContext ctx, TaskInfo taskInfo) throws TaskException {
         HazelcastInstance hz = TasksDSComponent.getHazelcastInstance();

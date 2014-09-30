@@ -16,10 +16,12 @@
 package org.wso2.carbon.ntask.core.impl.standalone;
 
 import org.wso2.carbon.ntask.common.TaskException;
+import org.wso2.carbon.ntask.common.TaskException.Code;
 import org.wso2.carbon.ntask.core.TaskInfo;
 import org.wso2.carbon.ntask.core.TaskRepository;
 import org.wso2.carbon.ntask.core.TaskUtils;
 import org.wso2.carbon.ntask.core.impl.AbstractQuartzTaskManager;
+import org.wso2.carbon.ntask.core.internal.TasksDSComponent;
 
 import java.util.List;
 
@@ -38,9 +40,18 @@ public class StandaloneTaskManager extends AbstractQuartzTaskManager {
         this.scheduleAllTasks();
     }
 
+    private boolean isMyTaskTypeRegistered() {
+        return TasksDSComponent.getTaskService().getRegisteredTaskTypes().contains(this.getTaskType());
+    }
+    
     @Override
     public void scheduleTask(String taskName) throws TaskException {
-        this.scheduleLocalTask(taskName);
+        if (this.isMyTaskTypeRegistered()) {
+            this.scheduleLocalTask(taskName);
+        } else {
+            throw new TaskException("Task type: '" + this.getTaskType() + 
+                    "' is not registered in the current task node", Code.TASK_NODE_NOT_AVAILABLE);
+        }
     }
 
     @Override
@@ -76,7 +87,12 @@ public class StandaloneTaskManager extends AbstractQuartzTaskManager {
 
     @Override
     public void rescheduleTask(String taskName) throws TaskException {
-        this.rescheduleLocalTask(taskName);
+        if (this.isMyTaskTypeRegistered()) {
+            this.rescheduleLocalTask(taskName);
+        } else {
+            throw new TaskException("Task type: '" + this.getTaskType() + 
+                    "' is not registered in the current task node", Code.TASK_NODE_NOT_AVAILABLE);
+        }
     }
 
     @Override

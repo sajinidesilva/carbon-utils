@@ -42,7 +42,8 @@ public class TaskException extends Exception {
 		NO_TASK_EXISTS,
 		TASK_ALREADY_STARTED,
 		UNKNOWN,
-		CONFIG_ERROR
+		CONFIG_ERROR,
+		TASK_NODE_NOT_AVAILABLE
 	}
 	
 }

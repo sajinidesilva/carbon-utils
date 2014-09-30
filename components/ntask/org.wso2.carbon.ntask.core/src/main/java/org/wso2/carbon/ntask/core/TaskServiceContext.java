@@ -63,7 +63,7 @@ public class TaskServiceContext {
         if (member == null) {
             return null;
         }
-        return member.getInetSocketAddress();
+        return member.getSocketAddress();
     }
 
 }
