@@ -20,7 +20,7 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.logging.service.LogViewerException;
+import org.wso2.carbon.logging.service.LoggingConfigReaderException;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
 import org.wso2.carbon.logging.service.util.LoggingConstants;
 
@@ -35,6 +35,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Iterator;
 
+/***
+ * This class is used to read the logging configurations from the configuration file.
+ * eg file: <CARBON_SERVER>/repository/conf/etc/logging-config.xml
+ */
 public class LoggingConfigManager {
 
     private static final Log log = LogFactory.getLog(LoggingConfigManager.class);
@@ -53,7 +57,7 @@ public class LoggingConfigManager {
      * issue while loading configurations.
      */
     public static LoggingConfig loadLoggingConfiguration(String configFilenameWithPath)
-            throws IOException, XMLStreamException, LogViewerException {
+            throws IOException, XMLStreamException, LoggingConfigReaderException {
         InputStream inputStream;
         LoggingConfig config = new LoggingConfig();
         inputStream = new LoggingConfigManager().getInputStream(configFilenameWithPath);
@@ -93,12 +97,12 @@ public class LoggingConfigManager {
      * @param logFileProviderConfig
      *         - OM Element containing from the xml file
      * @return - logging config with injected LogFileProvider data
-     * @throws LogViewerException
+     * @throws LoggingConfigReaderException
      *         - if an error occured while parsing the xml file.
      */
     private static LoggingConfig loadLogFileProviderProperties(LoggingConfig config,
                                                                OMElement logFileProviderConfig)
-            throws LogViewerException {
+            throws LoggingConfigReaderException {
         String implClass = logFileProviderConfig.getAttributeValue(
                 new QName("", LoggingConstants.LogConfigProperties.CLASS_ATTRIBUTE));
         if (implClass != null) {
@@ -124,12 +128,12 @@ public class LoggingConfigManager {
             } else {
                 String msg = "Error loading log file provider properties for " + implClass +
                              " Check the logging configuration file";
-                throw new LogViewerException(msg);
+                throw new LoggingConfigReaderException(msg);
             }
         } else {
             String msg = "LogFileProvider implementation class name is null, " +
                          "check the logging configuration file";
-            throw new LogViewerException(msg);
+            throw new LoggingConfigReaderException(msg);
         }
         return config;
     }
@@ -142,12 +146,12 @@ public class LoggingConfigManager {
      * @param logProviderConfig
      *         - OM Element containing from the xml file
      * @return - logging config with injected LogProvider data
-     * @throws LogViewerException
+     * @throws LoggingConfigReaderException
      *         - if an error occured while parsing the xml file.
      */
     private static LoggingConfig loadLogProviderProperties(LoggingConfig config,
                                                            OMElement logProviderConfig)
-            throws LogViewerException {
+            throws LoggingConfigReaderException {
         String implClass = logProviderConfig.getAttributeValue(
                 new QName("", LoggingConstants.LogConfigProperties.CLASS_ATTRIBUTE));
         if (implClass != null) {
@@ -174,12 +178,12 @@ public class LoggingConfigManager {
             } else {
                 String msg = "Error loading log provider properties for " + implClass +
                              " Check the logging configuration file ";
-                throw new LogViewerException(msg);
+                throw new LoggingConfigReaderException(msg);
             }
         } else {
             String msg = "LogProvider implementation class name is null, " +
                          "Check the loggging configuration file";
-            throw new LogViewerException(msg);
+            throw new LoggingConfigReaderException(msg);
         }
         return config;
     }
@@ -190,7 +194,7 @@ public class LoggingConfigManager {
     }
 
     /**
-     * Get an input stream after loading the logging-config file.
+     * Get an input stream to read the file after loading the logging-config file.
      *
      * @param configFilename
      *         - configuration file name
