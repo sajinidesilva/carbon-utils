@@ -48,6 +48,35 @@ public class LoggingConfigManagerTest {
                      "Unexpected LogFileProvider implementation class name was returned.");
     }
 
+
+    @Test(groups = {"org.wso2.carbon.logging.service.config"},
+          description = "Test loading a configuration that contains some properties from the " +
+                        "config file")
+    public void testLoadLoggingConfigurationWithProperties()
+            throws XMLStreamException, IOException, LoggingConfigReaderException {
+        String configFileNameWithPath = "." + File.separator + "src" + File.separator + "test" +
+                                        File.separator + "resources" + File.separator +
+                                        "logging-config-with-properties.xml";
+        LoggingConfig loggingConfig = LoggingConfigManager
+                .loadLoggingConfiguration(configFileNameWithPath);
+        assertEquals(loggingConfig.getLogProviderImplClassName(),
+                     "org.wso2.carbon.logging.service.provider.CassandraLogProvider",
+                     "Unexpected LogProvider implementation class name was returned.");
+        assertEquals(loggingConfig.getLogProviderProperty("userName"), "admin",
+                     "Invalid property was returned.");
+        assertEquals(loggingConfig.getLogProviderProperty("cassandraHost"), "localhost:9160",
+                     "Invalid property was returned.");
+        assertEquals(loggingConfig.getLogProviderProperty("cassandraAutoDiscovery.enable"), "false",
+                     "Invalid property was returned.");
+        assertEquals(loggingConfig.getLogProviderProperty("retryDownedHosts.enable"), "true",
+                     "Invalid property was returned.");
+        assertEquals(loggingConfig.getLogProviderProperty("keyspace"), "EVENT_KS",
+                     "Invalid property was returned.");
+        assertEquals(loggingConfig.getLogFileProviderImplClassName(),
+                     "org.wso2.carbon.logging.service.provider.FileLogProvider",
+                     "Unexpected LogFileProvider implementation class name was returned.");
+    }
+
     @Test(groups = {"org.wso2.carbon.logging.service.config"},
           description = "Test loading an invalid configuration, should throw an exception",
           expectedExceptions = org.apache.axiom.om.OMException.class)
@@ -63,7 +92,7 @@ public class LoggingConfigManagerTest {
     }
 
     @Test(groups = {"org.wso2.carbon.logging.service.config"},
-          description = "Test loading an empty configuration, should not throw an error, " +
+          description = "Test loading a non-existing configuration, should not throw an error, " +
                         "instead should load an empty config")
     public void testLoadNoConfiguration()
             throws IOException, XMLStreamException, LoggingConfigReaderException {
