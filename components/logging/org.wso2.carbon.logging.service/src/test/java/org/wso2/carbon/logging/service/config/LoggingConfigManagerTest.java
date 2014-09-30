@@ -16,21 +16,25 @@
 package org.wso2.carbon.logging.service.config;
 
 import org.testng.annotations.Test;
+import org.wso2.carbon.logging.service.LoggingConfigReaderException;
 import org.wso2.carbon.logging.service.data.LoggingConfig;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.File;
+import java.io.IOException;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
 /**
- * Test loading the configuration file names from the config file.
+ * Unit Tests for loading the configuration file names from the config file.
  */
 public class LoggingConfigManagerTest {
 
     @Test(groups = {"org.wso2.carbon.logging.service.config"},
           description = "Test loading a configuration from the config file")
-    public void testLoadLoggingConfiguration() throws Exception {
+    public void testLoadLoggingConfiguration()
+            throws XMLStreamException, IOException, LoggingConfigReaderException {
         String configFileNameWithPath = "." + File.separator + "src" + File.separator + "test" +
                                         File.separator + "resources" + File.separator +
                                         "logging-config.xml";
@@ -47,10 +51,23 @@ public class LoggingConfigManagerTest {
     @Test(groups = {"org.wso2.carbon.logging.service.config"},
           description = "Test loading an invalid configuration, should throw an exception",
           expectedExceptions = org.apache.axiom.om.OMException.class)
-    public void testLoadInvalidConfiguration() {
+    public void testLoadInvalidConfiguration()
+            throws IOException, XMLStreamException, LoggingConfigReaderException {
         String configFileNameWithPath = "." + File.separator + "src" + File.separator + "test" +
                                         File.separator + "resources" + File.separator +
                                         "invalid-config.xml";
+        LoggingConfig loggingConfig = LoggingConfigManager
+                .loadLoggingConfiguration(configFileNameWithPath);
+        // Even in failure, an empty configuration should be returned, instead of a null.
+        assertNotNull(loggingConfig, "Logging config was null.");
+    }
+
+    @Test(groups = {"org.wso2.carbon.logging.service.config"},
+          description = "Test loading an empty configuration, should not throw an error, " +
+                        "instead should load an empty config")
+    public void testLoadNoConfiguration()
+            throws IOException, XMLStreamException, LoggingConfigReaderException {
+        String configFileNameWithPath = "invalid-config";
         LoggingConfig loggingConfig = LoggingConfigManager
                 .loadLoggingConfiguration(configFileNameWithPath);
         // Even in failure, an empty configuration should be returned, instead of a null.
