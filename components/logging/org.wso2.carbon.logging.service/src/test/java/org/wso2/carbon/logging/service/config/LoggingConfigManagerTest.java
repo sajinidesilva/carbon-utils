@@ -50,9 +50,9 @@ public class LoggingConfigManagerTest {
 
 
     @Test(groups = {"org.wso2.carbon.logging.service.config"},
-          description = "Test loading a configuration that contains some properties from the " +
-                        "config file")
-    public void testLoadLoggingConfigurationWithProperties()
+          description = "Test loading a LogFileProvider configuration that contains some properties " +
+                        "from the config file")
+    public void testLoadLogProviderConfigurationWithProperties()
             throws XMLStreamException, IOException, LoggingConfigReaderException {
         String configFileNameWithPath = "." + File.separator + "src" + File.separator + "test" +
                                         File.separator + "resources" + File.separator +
@@ -60,21 +60,59 @@ public class LoggingConfigManagerTest {
         LoggingConfig loggingConfig = LoggingConfigManager
                 .loadLoggingConfiguration(configFileNameWithPath);
         assertEquals(loggingConfig.getLogProviderImplClassName(),
-                     "org.wso2.carbon.logging.service.provider.CassandraLogProvider",
+                     "org.wso2.carbon.logging.service.provider.DummyCassandraLogProvider",
                      "Unexpected LogProvider implementation class name was returned.");
-        assertEquals(loggingConfig.getLogProviderProperty("userName"), "admin",
-                     "Invalid property was returned.");
-        assertEquals(loggingConfig.getLogProviderProperty("cassandraHost"), "localhost:9160",
-                     "Invalid property was returned.");
-        assertEquals(loggingConfig.getLogProviderProperty("cassandraAutoDiscovery.enable"), "false",
-                     "Invalid property was returned.");
-        assertEquals(loggingConfig.getLogProviderProperty("retryDownedHosts.enable"), "true",
-                     "Invalid property was returned.");
-        assertEquals(loggingConfig.getLogProviderProperty("keyspace"), "EVENT_KS",
-                     "Invalid property was returned.");
+
+        String userName = "userName";
+        assertEquals(loggingConfig.getLogProviderProperty(userName), "admin",
+                     "Invalid property for: " + userName + " was returned.");
+
+        String cassandraHost = "cassandraHost";
+        assertEquals(loggingConfig.getLogProviderProperty(cassandraHost), "localhost:9160",
+                     "Invalid property for: " + cassandraHost + " was returned.");
+
+        String keyspace = "keyspace";
+        assertEquals(loggingConfig.getLogProviderProperty(keyspace), "EVENT_KS",
+                     "Invalid property for: " + keyspace + " was returned.");
+
         assertEquals(loggingConfig.getLogFileProviderImplClassName(),
-                     "org.wso2.carbon.logging.service.provider.FileLogProvider",
+                     "org.wso2.carbon.logging.service.provider.DummyFileLogProvider",
                      "Unexpected LogFileProvider implementation class name was returned.");
+    }
+
+    @Test(groups = {"org.wso2.carbon.logging.service.config"},
+          description = "Test loading a LogFileProvider configuration that contains some properties " +
+                        "from the config file")
+    public void testLoadLogFileProviderConfigurationWithProperties()
+            throws XMLStreamException, IOException, LoggingConfigReaderException {
+        String configFileNameWithPath = "." + File.separator + "src" + File.separator + "test" +
+                                        File.separator + "resources" + File.separator +
+                                        "logging-config-with-properties.xml";
+        LoggingConfig loggingConfig = LoggingConfigManager
+                .loadLoggingConfiguration(configFileNameWithPath);
+        assertEquals(loggingConfig.getLogFileProviderImplClassName(),
+                     "org.wso2.carbon.logging.service.provider.DummyFileLogProvider",
+                     "Unexpected LogFileProvider implementation class name was returned.");
+
+        String userName = "userName";
+        assertEquals(loggingConfig.getLogFileProviderProperty(userName), "admin",
+                     "Invalid property for: " + userName + " was returned.");
+
+        String password = "password";
+        assertEquals(loggingConfig.getLogFileProviderProperty(password), "admin",
+                     "Invalid property for: " + password + " was returned.");
+
+        String port = "port";
+        assertEquals(loggingConfig.getLogFileProviderProperty(port), "8080",
+                     "Invalid property for: " + port + " was returned.");
+
+        String domain = "domain";
+        assertEquals(loggingConfig.getLogFileProviderProperty(domain), "carbon.super",
+                     "Invalid property for: " + domain + " was returned.");
+
+        assertEquals(loggingConfig.getLogProviderImplClassName(),
+                     "org.wso2.carbon.logging.service.provider.DummyCassandraLogProvider",
+                     "Unexpected LogProvider implementation class name was returned.");
     }
 
     @Test(groups = {"org.wso2.carbon.logging.service.config"},
