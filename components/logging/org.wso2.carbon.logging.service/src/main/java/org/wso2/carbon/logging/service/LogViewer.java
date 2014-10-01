@@ -44,8 +44,10 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 
 /**
- * This is the Log Viewer service used for obtaining Log messages from locally and from a remote
- * configured syslog server.
+ * This is the Log Viewer service used for obtaining Log messages from pluggable LogProvider and
+ * LogFileProvider implementation as configured in the
+ * <CARBON_HOME>/repository/conf/etc/logging-config.xml file.
+ *
  */
 public class LogViewer {
 
