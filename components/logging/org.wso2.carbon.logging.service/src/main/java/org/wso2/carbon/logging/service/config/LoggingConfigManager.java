@@ -107,21 +107,22 @@ public class LoggingConfigManager {
                 new QName("", LoggingConstants.LogConfigProperties.CLASS_ATTRIBUTE));
         if (implClass != null) {
             config.setLogFileProviderImplClassName(implClass);
-            OMElement propElement = logFileProviderConfig.getFirstChildWithName(
+            OMElement propertiesElement = logFileProviderConfig.getFirstChildWithName(
                     getQName(LoggingConstants.LogConfigProperties.PROPERTIES));
-            Object ntEle;
-            OMElement propEle;
-            if (propElement != null) {
-                Iterator it = propElement
-                        .getChildrenWithLocalName(LoggingConstants.LogConfigProperties.PROPERTY);
-                while (it.hasNext()) {
-                    ntEle = it.next();
-                    if (ntEle instanceof OMElement) {
-                        propEle = (OMElement) ntEle;
+            if (propertiesElement != null) {
+                Object nextElement;
+                OMElement propertyElement;
+                // iterate through each property element in the xml file and add (name, value)
+                // to the map within the LoggingConfig object for LogProvider properties.
+                for (Iterator it = propertiesElement.getChildrenWithLocalName(
+                        LoggingConstants.LogConfigProperties.PROPERTY); it.hasNext(); ) {
+                    nextElement = it.next();
+                    if (nextElement instanceof OMElement) {
+                        propertyElement = (OMElement) nextElement;
                         config.setLogFileProviderProperty(
-                                propEle.getAttributeValue(new QName(
+                                propertyElement.getAttributeValue(new QName(
                                         LoggingConstants.LogConfigProperties.PROPERTY_NAME)),
-                                propEle.getAttributeValue(new QName(
+                                propertyElement.getAttributeValue(new QName(
                                         LoggingConstants.LogConfigProperties.PROPERTY_VALUE)));
                     }
                 }
@@ -157,21 +158,22 @@ public class LoggingConfigManager {
         if (implClass != null) {
             config.setLogProviderImplClassName(implClass);
             // load log provider configuration
-            OMElement propElement = logProviderConfig.getFirstChildWithName(
+            OMElement propertiesElement = logProviderConfig.getFirstChildWithName(
                     getQName(LoggingConstants.LogConfigProperties.PROPERTIES));
-            if (propElement != null) {
-                Iterator it = propElement
-                        .getChildrenWithLocalName(LoggingConstants.LogConfigProperties.PROPERTY);
-                OMElement propEle;
-                Object ntEle;
-                while (it.hasNext()) {
-                    ntEle = it.next();
-                    if (ntEle instanceof OMElement) {
-                        propEle = (OMElement) ntEle;
+            if (propertiesElement != null) {
+                OMElement propertyElement;
+                Object nextElement;
+                // iterate through each property element in the xml file and add (name, value)
+                // to the map within the LoggingConfig object for LogFileProvider properties.
+                for (Iterator it = propertiesElement.getChildrenWithLocalName(
+                        LoggingConstants.LogConfigProperties.PROPERTY); it.hasNext(); ) {
+                    nextElement = it.next();
+                    if (nextElement instanceof OMElement) {
+                        propertyElement = (OMElement) nextElement;
                         config.setLogProviderProperty(
-                                propEle.getAttributeValue(new QName(
+                                propertyElement.getAttributeValue(new QName(
                                         LoggingConstants.LogConfigProperties.PROPERTY_NAME)),
-                                propEle.getAttributeValue(new QName(
+                                propertyElement.getAttributeValue(new QName(
                                         LoggingConstants.LogConfigProperties.PROPERTY_VALUE)));
                     }
                 }
