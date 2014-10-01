@@ -63,30 +63,23 @@ public class LogViewer {
     // inside this static block.
     static {
         // load the configuration from the config file.
-        try {
-            loggingConfig = LoggingConfigManager.loadLoggingConfiguration(
-                    LOGGING_CONFIG_FILE_WITH_PATH);
-        } catch (IOException e) {
-            String msg = "Error while reading the configuration file";
-            log.error(msg, e);
-            // We cannot proceed further without reading the logging config properly.
-            // Therefore throw a runtime exception
-            throw new RuntimeException(msg, e);
-        } catch (XMLStreamException e) {
-            String msg = "Error while parsing the configuration file";
-            log.error(msg, e);
-            // We cannot proceed further without reading the logging config properly.
-            // Therefore throw a runtime exception
-            throw new RuntimeException(msg, e);
-        } catch (LoggingConfigReaderException e) {
-            String msg = "Error while reading the configuration file";
-            log.error(msg, e);
-            // We cannot proceed further without reading the logging config properly.
-            // Therefore throw a runtime exception
-            throw new RuntimeException(msg, e);
-        }
+        loggingConfig = loadLoggingConfiguration();
 
         String lpClass = loggingConfig.getLogProviderImplClassName();
+        loadLogProviderClass(lpClass);
+
+        String lfpClass = loggingConfig.getLogFileProviderImplClassName();
+        loadLogFileProviderClass(lfpClass);
+    }
+
+    /**
+     * Load the LogProvider implementation as mentioned in the config file. This method is called
+     * when this class is loaded. (Called within the static block)
+     *
+     * @param lpClass
+     *         - Log Provider implementation class name
+     */
+    private static void loadLogProviderClass(String lpClass) {
         try {
             // initiate Log provider instance
             if (lpClass != null && !"".equals(lpClass)) {
@@ -107,8 +100,16 @@ public class LogViewer {
             // further in that case, therefore we throw a RuntimeException.
             throw new RuntimeException(msg, e);
         }
+    }
 
-        String lfpClass = loggingConfig.getLogFileProviderImplClassName();
+    /**
+     * Load the LogFileProvider implementation as mentioned in the config file. This method is
+     * called when this class is loaded. (Called within the static block)
+     *
+     * @param lfpClass
+     *         - Log File Provider implementation class name
+     */
+    private static void loadLogFileProviderClass(String lfpClass) {
         try {
             // initiate log file provider instance
             if (lfpClass != null && !"".equals(lfpClass)) {
@@ -122,11 +123,42 @@ public class LogViewer {
                 throw new LoggingConfigReaderException(msg);
             }
         } catch (Exception e) {
-            String msg = "Error while loading log file provider implementation class: " + lpClass;
+            String msg = "Error while loading log file provider implementation class: " + lfpClass;
             log.error(msg, e);
             // A RuntimeException is thrown here since an Exception cannot be thrown from the static
             // block. An Exception occurs when the class could not be loaded. We cannot proceed
             // further in that case, therefore we throw a RuntimeException.
+            throw new RuntimeException(msg, e);
+        }
+    }
+
+    /**
+     * Load logging configuration from the logging-config file. This method is called when this
+     * class is loaded. (Called within the static block)
+     *
+     * @return - a LoggingConfig
+     */
+    private static LoggingConfig loadLoggingConfiguration() {
+        try {
+            return LoggingConfigManager.loadLoggingConfiguration(
+                    LOGGING_CONFIG_FILE_WITH_PATH);
+        } catch (IOException e) {
+            String msg = "Error while reading the configuration file";
+            log.error(msg, e);
+            // We cannot proceed further without reading the logging config properly.
+            // Therefore throw a runtime exception
+            throw new RuntimeException(msg, e);
+        } catch (XMLStreamException e) {
+            String msg = "Error while parsing the configuration file";
+            log.error(msg, e);
+            // We cannot proceed further without reading the logging config properly.
+            // Therefore throw a runtime exception
+            throw new RuntimeException(msg, e);
+        } catch (LoggingConfigReaderException e) {
+            String msg = "Error while reading the configuration file";
+            log.error(msg, e);
+            // We cannot proceed further without reading the logging config properly.
+            // Therefore throw a runtime exception
             throw new RuntimeException(msg, e);
         }
     }
