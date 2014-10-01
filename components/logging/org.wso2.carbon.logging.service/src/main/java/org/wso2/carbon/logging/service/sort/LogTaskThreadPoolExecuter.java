@@ -15,14 +15,17 @@
 
 package org.wso2.carbon.logging.service.sort;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class LogTaskThreadPoolExecuter {
-
+    private static final Log log = LogFactory.getLog(LogTaskThreadPoolExecuter.class);
     private final ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(5);
-    ThreadPoolExecutor threadPool = null;
+    private ThreadPoolExecutor threadPool = null;
     private int poolSize = 5;
     private int maxPoolSize = 5;
     private long keepAliveTime = 10;
@@ -34,6 +37,6 @@ public class LogTaskThreadPoolExecuter {
 
     public void runTask(Runnable task) {
         threadPool.execute(task);
-        System.out.println("Task Count : " + queue.size());
+        log.info("Task Count : " + queue.size());
     }
 }
