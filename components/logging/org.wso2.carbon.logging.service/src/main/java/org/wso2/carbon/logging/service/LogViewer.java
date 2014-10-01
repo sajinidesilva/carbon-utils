@@ -59,7 +59,8 @@ public class LogViewer {
     private static LogFileProvider logFileProvider;
     private static LogProvider logProvider;
 
-    // configuration classes are loaded during LogViewer class load tim inside this static block.
+    // configured classes are loaded during LogViewer class load time
+    // inside this static block.
     static {
         // load the configuration from the config file.
         try {
