@@ -71,6 +71,7 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
     private String columnList;
     private int maxTolerableConsecutiveFailure;
     private int processingLimit;
+    private String streamDef;
 
     public LogEventAppender() {
         init();
@@ -210,6 +211,14 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
         return maxTolerableConsecutiveFailure;
     }
 
+    public String getStreamDef() {
+        return streamDef;
+    }
+
+    public void setStreamDef(String streamDef) {
+        this.streamDef = streamDef;
+    }
+
     public void setMaxTolerableConsecutiveFailure(int maxTolerableConsecutiveFailure) {
         this.maxTolerableConsecutiveFailure = maxTolerableConsecutiveFailure;
     }
@@ -271,8 +280,15 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
             if (currDateStr.equals(data.getDate())) {
                 streamId = data.getStreamId();
             } else {
-                streamId = dataPublisher.defineStream("{" + "'name':'log" + "." + tenantId + "."
-                        + serverKey + "." + currDateStr + "'," + "  'version':'1.0.0',"
+	            String streamName;
+	            if ((streamDef == null)
+	                || streamDef.equals("$tenantId_$serverkey_$date")) {
+		            streamName = "log" + "." + tenantId + "." + serverKey + "."
+		                         + currDateStr;
+	            } else {
+		            streamName = streamDef;
+	            }
+	            streamId = dataPublisher.defineStream("{" + "'name':'" + streamName + "'," + "  'version':'1.0.0',"
                         + "  'nickName': 'Logs'," + "  'description': 'Logging Event',"
                         + "  'metaData':[" + "          {'name':'clientType','type':'STRING'}" + "  ],"
                         + "  'payloadData':[" + "          {'name':'tenantID','type':'STRING'},"
