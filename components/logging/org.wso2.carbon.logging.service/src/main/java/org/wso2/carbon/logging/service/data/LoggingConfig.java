@@ -43,7 +43,7 @@ public class LoggingConfig {
     }
 
     public String getLogFileProviderProperty(String key) {
-        return this.logProviderPropMap.get(key);
+        return this.logFileProviderPropMap.get(key);
     }
 
     public String getLogProviderImplClassName() {

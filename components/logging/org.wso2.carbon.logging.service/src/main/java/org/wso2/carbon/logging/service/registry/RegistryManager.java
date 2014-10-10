@@ -204,6 +204,7 @@ public class RegistryManager {
         } catch (RegistryException e) {
             registry.rollbackTransaction();
             log.error("Cannot add syslog properties ", e);
+            throw e;
         }
     }
 
@@ -298,6 +299,7 @@ public class RegistryManager {
         } catch (Exception e) {
             registry.rollbackTransaction();
             log.error("Cannot add appender", e);
+            throw e;
         }
     }
 
@@ -332,8 +334,6 @@ public class RegistryManager {
                     log.error("Unable to update the appender", e);
                     throw e;
                 }
-            } else {
-
             }
         } catch (RegistryException e) {
             log.error("Unable to update the appender", e);
