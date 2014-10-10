@@ -46,7 +46,7 @@
         keyword = request.getParameter("keyword");
         action = request.getParameter("action");
         if (action != null && action.equals("clear-logs")) {
-            logViewerClient.cleaLogs();
+            logViewerClient.clearLogs();
         }
         logMessages = logViewerClient.getLogs(type, keyword);
 

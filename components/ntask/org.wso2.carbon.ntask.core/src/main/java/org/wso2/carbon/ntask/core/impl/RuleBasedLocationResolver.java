@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.ntask.common.TaskException;
 import org.wso2.carbon.ntask.common.TaskException.Code;
 import org.wso2.carbon.ntask.core.TaskInfo;
@@ -43,6 +45,8 @@ import com.hazelcast.core.HazelcastInstance;
 public class RuleBasedLocationResolver implements TaskLocationResolver {
 
 	private static final String RULE_BASED_TASK_RESOLVER_ID = "__RULE_BASED_TASK_RESOLVER_ID__";
+	
+	private static final Log log = LogFactory.getLog(RuleBasedLocationResolver.class);
 	
 	private List<Rule> rules = new ArrayList<RuleBasedLocationResolver.Rule>();
 	
@@ -73,6 +77,7 @@ public class RuleBasedLocationResolver implements TaskLocationResolver {
 			try {
 			    locations = rule.evaluate(ctx, taskInfo);
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new TaskException("Error in rule evaluation in RuleBasedLocationResolver: " + 
 			            e.getMessage(), Code.UNKNOWN);
 			}
@@ -153,20 +158,24 @@ public class RuleBasedLocationResolver implements TaskLocationResolver {
 					String ip = null, host1, host2 = null;
 					for (int i = 0; i < count; i++) {
 						sockAddr = ctx.getServerAddress(i);
-						host1 = sockAddr.getHostName();
-						inetAddr = sockAddr.getAddress();
-						if (inetAddr != null) {
-							ip = inetAddr.getHostAddress();
-							host2 = inetAddr.getCanonicalHostName();
-						}
-						if (host1.matches(this.getAddressPattern())) {
-							result.add(i);
-						} else if (ip != null && ip.matches(this.getAddressPattern())) {
-							result.add(i);
-						} else if (!host1.equals(host2) && host2 != null && host2.matches(this.getAddressPattern())) {
-							result.add(i);
-						}
-					}
+						if (sockAddr != null) {
+						    host1 = sockAddr.getHostName();
+						    inetAddr = sockAddr.getAddress();
+						    if (inetAddr != null) {
+							    ip = inetAddr.getHostAddress();
+							    host2 = inetAddr.getCanonicalHostName();
+						    }
+						    if (host1.matches(this.getAddressPattern())) {
+							    result.add(i);
+						    } else if (ip != null && ip.matches(this.getAddressPattern())) {
+							    result.add(i);
+						    } else if (!host1.equals(host2) && host2 != null && host2.matches(this.getAddressPattern())) {
+							    result.add(i);
+						    }
+						} else {
+							log.warn("RuleBasedLocationResolver: cannot find the host address for node: " + i);
+						}					
+					} 
 				}
 			}
 			return result;
@@ -175,3 +184,4 @@ public class RuleBasedLocationResolver implements TaskLocationResolver {
 	}
 
 }
+
