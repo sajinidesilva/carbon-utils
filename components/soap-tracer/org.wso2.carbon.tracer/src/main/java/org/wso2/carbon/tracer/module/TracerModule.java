@@ -27,11 +27,13 @@ import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 import org.wso2.carbon.tracer.TracerConstants;
 import org.wso2.carbon.utils.logging.CircularBuffer;
+import org.wso2.carbon.tracer.service.MessageInfo;
 
 /**
  * 
  */
-public class TracerModule implements Module {
+public class
+        TracerModule implements Module {
     public void init(ConfigurationContext configContext,
                      AxisModule axisModule) throws AxisFault {
 
@@ -87,7 +89,7 @@ public class TracerModule implements Module {
             }
         }
 
-        CircularBuffer msgSeqBuff = new CircularBuffer(TracerConstants.MSG_BUFFER_SZ);
+        CircularBuffer<MessageInfo> msgSeqBuff = new CircularBuffer<MessageInfo>(TracerConstants.MSG_BUFFER_SZ);
         configContext.setProperty(TracerConstants.MSG_SEQ_BUFFER, msgSeqBuff);
     }
 

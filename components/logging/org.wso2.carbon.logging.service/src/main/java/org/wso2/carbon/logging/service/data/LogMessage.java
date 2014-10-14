@@ -19,7 +19,7 @@ public class LogMessage {
     private String logMessage;
     private String type;
 
-    public LogMessage(String logMessage, String type){
+    public LogMessage(String logMessage, String type) {
         this.logMessage = logMessage;
         this.type = type;
     }

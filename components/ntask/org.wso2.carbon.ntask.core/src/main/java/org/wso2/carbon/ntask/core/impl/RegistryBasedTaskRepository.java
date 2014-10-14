@@ -33,12 +33,15 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Registry based task repository implementation.
@@ -106,7 +109,8 @@ public class RegistryBasedTaskRepository implements TaskRepository {
 
     @Override
     public List<TaskInfo> getAllTasks() throws TaskException {
-        List<TaskInfo> result = new ArrayList<TaskInfo>();
+    	/* a set is used here to exclude any possible duplicates */
+        Set<TaskInfo> result = new HashSet<TaskInfo>();
         String tasksPath = this.getMyTasksPath();
         try {
             PrivilegedCarbonContext.startTenantFlow();
@@ -123,9 +127,9 @@ public class RegistryBasedTaskRepository implements TaskRepository {
                     result.add(taskInfo);
                 }
             }
-            return result;
+            return new ArrayList<TaskInfo>(result);
         } catch (Exception e) {
-            throw new TaskException("Error in getting all tasks from repository",
+            throw new TaskException("Error in getting all tasks from repository: " + e.getMessage(),
                     Code.CONFIG_ERROR, e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
@@ -149,7 +153,7 @@ public class RegistryBasedTaskRepository implements TaskRepository {
         } catch (TaskException e) {
             throw e;
         } catch (Exception e) {
-            throw new TaskException("Error in loading task '" + taskName + "' from registry",
+            throw new TaskException("Error in loading task '" + taskName + "' from registry: " + e.getMessage(),
                     Code.CONFIG_ERROR, e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();

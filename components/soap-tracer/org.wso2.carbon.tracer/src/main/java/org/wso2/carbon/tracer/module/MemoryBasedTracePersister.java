@@ -23,6 +23,7 @@ import org.wso2.carbon.tracer.TracerUtils;
 import org.wso2.carbon.utils.logging.CircularBuffer;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,7 +34,7 @@ public class MemoryBasedTracePersister implements TracePersister {
     private static final String TRACING_MAP    = "local_wso2tracer.map";
     private static final String REQUEST_NUMBER = "local_wso2tracer.request.number";
 
-    private CircularBuffer msgBuffer = new CircularBuffer(TracerConstants.MSG_BUFFER_SZ);
+    private CircularBuffer<MessagePair> msgBuffer = new CircularBuffer<MessagePair>(TracerConstants.MSG_BUFFER_SZ);
     private String tracingStatus;
 
     private static class MessagePair {
@@ -97,10 +98,9 @@ public class MemoryBasedTracePersister implements TracePersister {
         long msgSequence = getMessageSequence(serviceName, operationName, msgContext,
                                               msgSequenceNumber);
         MessagePair tmp = new MessagePair(serviceName, operationName, msgSequence);
-        Object[] objects = msgBuffer.getObjects(TracerConstants.MSG_BUFFER_SZ);
+        List<MessagePair> msgPairList = msgBuffer.get(TracerConstants.MSG_BUFFER_SZ);
         boolean msgPairFound = false;
-        for (Object object : objects) {
-            MessagePair msgPair = (MessagePair) object;
+        for (MessagePair msgPair : msgPairList) {
             if (msgPair.equals(tmp)) {
                 msgPairFound = true;
                 TraceMessage msg = new TraceMessage(serviceName, operationName,
@@ -146,22 +146,21 @@ public class MemoryBasedTracePersister implements TracePersister {
                                              long messageSequence,
                                              MessageContext msgContext) {
         String[] responses = new String[2];
-        Object[] objects = msgBuffer.getObjects(TracerConstants.MSG_BUFFER_SZ);
+        List<MessagePair> messagePairList = msgBuffer.get(TracerConstants.MSG_BUFFER_SZ);
         MessagePair tmp = new MessagePair(serviceName, operationName, messageSequence);
-        for (Object object : objects) {
-            MessagePair msgPair = (MessagePair) object;
+        for (MessagePair msgPair : messagePairList) {
             if (msgPair.equals(tmp)) {
                 TraceMessage inMessage = msgPair.getInMessage();
                 if (inMessage != null && inMessage.getSoapEnvelope() != null) {
                     responses[0] = TracerUtils.getPrettyString(inMessage.getSoapEnvelope(),
-                                                               msgContext);
+                            msgContext);
                 } else {
                     responses[0] = "No request found";
                 }
                 TraceMessage outMessage = msgPair.getOutMessage();
                 if (outMessage != null && outMessage.getSoapEnvelope() != null) {
                     responses[1] = TracerUtils.getPrettyString(outMessage.getSoapEnvelope(),
-                                                               msgContext);
+                            msgContext);
                 } else {
                     responses[1] = "No response found";
                 }
@@ -204,9 +203,9 @@ public class MemoryBasedTracePersister implements TracePersister {
                     msgSequence = ((Long) counterInt).intValue() + 1;
                 }
 
-                monitoringHandlerMap.put(key, new Long(msgSequence));
+                monitoringHandlerMap.put(key, msgSequence);
                 if (operationContext != null) {
-                    operationContext.setProperty(REQUEST_NUMBER, new Long(msgSequence));
+                    operationContext.setProperty(REQUEST_NUMBER, msgSequence);
                 }
             }
         }

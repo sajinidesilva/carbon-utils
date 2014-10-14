@@ -31,13 +31,18 @@ import org.wso2.carbon.ntask.core.impl.remote.RemoteTaskManager;
 import org.wso2.carbon.ntask.core.impl.remote.RemoteTaskManagerFactory;
 import org.wso2.carbon.ntask.core.impl.standalone.StandaloneTaskManagerFactory;
 import org.wso2.carbon.ntask.core.service.TaskService;
+import org.wso2.carbon.ntask.core.service.impl.TaskServiceXMLConfiguration.DefaultLocationResolver;
+import org.wso2.carbon.ntask.core.service.impl.TaskServiceXMLConfiguration.DefaultLocationResolver.Property;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -196,6 +201,8 @@ public class TaskServiceImpl implements TaskService {
         private String remoteServerPassword;
 
         private String locationResolverClass;
+        
+        private Map<String, String> locationResolverProperties;
 
         public TaskServiceConfigurationImpl(TaskServiceXMLConfiguration taskXMLConfig) {
             this.processXMLConfig(taskXMLConfig);
@@ -212,7 +219,20 @@ public class TaskServiceImpl implements TaskService {
             this.remoteServerPassword = taskXMLConfig.getRemoteServerPassword();
             this.taskServerMode = taskXMLConfig.getTaskServerMode();
             this.taskServerCount = taskXMLConfig.getTaskServerCount();
-            this.locationResolverClass = taskXMLConfig.getLocationResolverClass();
+            DefaultLocationResolver locationResolver = taskXMLConfig.getDefaultLocationResolver();
+            this.locationResolverClass = locationResolver.getLocationResolverClass();
+            this.locationResolverProperties = this.extractLocationResolverProperties(locationResolver);
+        }
+        
+        private Map<String, String> extractLocationResolverProperties(DefaultLocationResolver locationResolver) {
+        	Map<String, String> result = new HashMap<String, String>();
+        	Property[] props = locationResolver.getProperties();
+        	if (props != null) {
+        		for (Property prop : props) {
+        			result.put(prop.getName(), prop.getValue());
+        		}
+        	}
+        	return result;
         }
 
         private void processSystemProps() {
@@ -285,6 +305,11 @@ public class TaskServiceImpl implements TaskService {
             }
             return locationResolverClass;
         }
+
+		@Override
+		public Map<String, String> getLocationResolverProperties() {
+			return locationResolverProperties;
+		}
 
     }
 

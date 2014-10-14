@@ -65,8 +65,7 @@ public class UrlMappingDeploymentInterceptor implements AxisObserver {
 
     public void serviceUpdate(AxisEvent axisEvent, AxisService axisService) {
         Parameter mapping = axisService.getParameter("custom-mapping");
-        int tenantId = PrivilegedCarbonContext.getCurrentContext(
-                axisService.getAxisConfiguration()).getTenantId();
+        int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
         if(mapping == null) {
             return;
         } else {
@@ -76,8 +75,7 @@ public class UrlMappingDeploymentInterceptor implements AxisObserver {
                         HostUtil.addServiceUrlMapping(tenantId, axisService.getName());
                     }
                 } else if(axisEvent.getEventType() == 0 || axisEvent.getEventType() == 2) {
-                    tenantId = PrivilegedCarbonContext.
-                            getCurrentContext(axisService.getAxisConfiguration()).getTenantId();
+                    tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
                     HostUtil.removeUrlMappingFromMap(tenantId, axisService.getName());
                 }
             }

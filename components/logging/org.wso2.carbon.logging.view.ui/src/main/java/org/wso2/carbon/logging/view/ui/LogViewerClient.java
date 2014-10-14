@@ -15,25 +15,25 @@
  */
 package org.wso2.carbon.logging.view.ui;
 
-import java.io.InputStream;
-import java.rmi.RemoteException;
-
-import javax.activation.DataHandler;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.Constants;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.logging.view.stub.LogViewerException;
 import org.wso2.carbon.logging.view.stub.LogViewerLogViewerException;
 import org.wso2.carbon.logging.view.stub.LogViewerStub;
 import org.wso2.carbon.logging.view.stub.types.carbon.LogEvent;
-import org.wso2.carbon.logging.view.stub.types.carbon.PaginatedLogInfo;
 import org.wso2.carbon.logging.view.stub.types.carbon.PaginatedLogEvent;
+import org.wso2.carbon.logging.view.stub.types.carbon.PaginatedLogFileInfo;
+
+import javax.activation.DataHandler;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.rmi.RemoteException;
 
 public class LogViewerClient {
     private static final Log log = LogFactory.getLog(LogViewerClient.class);
@@ -47,32 +47,32 @@ public class LogViewerClient {
         Options option = client.getOptions();
         option.setManageSession(true);
         option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
-//        option.setProperty(Constants.Configuration.ENABLE_MTOM, Constants.VALUE_TRUE);
     }
 
-//	public boolean isValidTenantDomain(String tenantDomain) throws Exception {
-//		try {
-//			return stub.isValidTenantDomain(tenantDomain);
-//		} catch (Exception e) {
-//			String msg = "Error occurred while getting logger data. Backend service may be unavailable";
-//			log.error(msg, e);
-//			throw e;
-//		}
-//	}
 
-    public void cleaLogs() throws Exception {
-        stub.clearLogs();
-    }
-
-    public void downloadArchivedLogFiles(String logFile, HttpServletResponse response, String domain, String serverKey)
-            throws Exception {
+    public void clearLogs() throws RemoteException {
         try {
-        	logFile=logFile.replace(".gz", "");
+            stub.clearLogs();
+        } catch (RemoteException e) {
+            String msg = "Error occurred while getting logger data. Backend service may be " +
+                         "unavailable";
+            log.error(msg, e);
+            throw e;
+        }
+    }
+
+    public void downloadArchivedLogFiles(String logFile, HttpServletResponse response,
+                                         String tenantDomain, String serverKey)
+            throws RemoteException, LogViewerException {
+        String msg = "Error occurred while getting logger data. Backend service may be " +
+                     "unavailable";
+        try {
+            logFile = logFile.replace(".gz", "");
             ServletOutputStream outputStream = response.getOutputStream();
             response.setContentType("application/txt");
             response.setHeader("Content-Disposition",
-                    "attachment;filename=" + logFile.replaceAll("\\s", "_"));
-            DataHandler data = stub.downloadArchivedLogFiles(logFile, domain, serverKey);
+                               "attachment;filename=" + logFile.replaceAll("\\s", "_"));
+            DataHandler data = stub.downloadArchivedLogFiles(logFile, tenantDomain, serverKey);
             InputStream fileToDownload = data.getInputStream();
             int c;
             while ((c = fileToDownload.read()) != -1) {
@@ -80,50 +80,71 @@ public class LogViewerClient {
             }
             outputStream.flush();
             outputStream.flush();
-        } catch (Exception e) {
-            String msg = "Error occurred while getting logger data. Backend service may be unavailable";
+        } catch (RemoteException e) {
             log.error(msg, e);
             throw e;
+        } catch (LogViewerException e) {
+            log.error(msg, e);
+            throw e;
+        } catch (IOException e) {
+            String errorWhileDownloadingMsg = "Error while downloading file.";
+            log.error(errorWhileDownloadingMsg, e);
+            throw new LogViewerException(errorWhileDownloadingMsg, e);
         }
     }
 
     public int getLineNumbers(String logFile)
-            throws Exception {
+            throws RemoteException, LogViewerException {
+        String msg = "Error occurred while getting logger data. Backend service may be " +
+                     "unavailable";
         try {
             return stub.getLineNumbers(logFile);
         } catch (RemoteException e) {
-            String msg = "Error occurred while getting logger data. Backend service may be unavailable";
+            log.error(msg, e);
+            throw e;
+        } catch (LogViewerException e) {
             log.error(msg, e);
             throw e;
         }
     }
 
-    public PaginatedLogInfo getPaginatedLogInfo(int pageNumber, String tenantDomain,
-                                                String serviceName) throws Exception {
+    public PaginatedLogFileInfo getPaginatedLogFileInfo(int pageNumber, String tenantDomain,
+                                                        String serviceName)
+            throws RemoteException, LogViewerLogViewerException {
+        String msg = "Error occurred while getting logger data. Backend service may be " +
+                     "unavailable";
         try {
-            return stub.getPaginatedLogInfo(pageNumber, tenantDomain, serviceName);
+            return stub.getPaginatedLogFileInfo(pageNumber, tenantDomain, serviceName);
         } catch (RemoteException e) {
-            String msg = "Error occurred while getting logger data. Backend service may be unavailable";
+            log.error(msg, e);
+            throw e;
+        } catch (LogViewerLogViewerException e) {
             log.error(msg, e);
             throw e;
         }
     }
 
-    public LogEvent[] getLogs(String type, String keyword, String domain, String serverkey) throws Exception {
+    public LogEvent[] getLogs(String type, String keyword, String tenantDomain, String serverkey)
+            throws RemoteException, LogViewerLogViewerException {
+        String msg = "Error occurred while getting logger data. Backend service may be " +
+                     "unavailable";
         if (type == null || type.equals("")) {
             type = "ALL";
         }
         try {
-            return stub.getLogs(type, keyword, domain, serverkey);
+            return stub.getLogs(type, keyword, tenantDomain, serverkey);
         } catch (RemoteException e) {
-            String msg = "Error occurred while getting logger data. Backend service may be unavailable";
+            log.error(msg, e);
+            throw e;
+        } catch (LogViewerLogViewerException e) {
             log.error(msg, e);
             throw e;
         }
     }
 
-    public LogEvent[] getApplicationLogs(String type, String keyword, String applicationName, String domain, String serverKey)
-            throws Exception {
+    public LogEvent[] getApplicationLogs(String type, String keyword, String applicationName,
+                                         String tenantDomain, String serverKey)
+            throws RemoteException, LogViewerLogViewerException {
         if (type == null || type.equals("")) {
             type = "ALL";
         }
@@ -131,60 +152,76 @@ public class LogViewerClient {
             applicationName = "FIRST";
         }
         try {
-            return stub.getApplicationLogs(type, keyword, applicationName, domain, serverKey);
+            return stub.getApplicationLogs(type, keyword, applicationName, tenantDomain, serverKey);
         } catch (RemoteException e) {
-            String msg = "Error occurred while getting logger data. Backend service may be unavailable";
+            String msg = "Error occurred while getting logger data. Backend service may be " +
+                         "unavailable";
+            log.error(msg, e);
+            throw e;
+        } catch (LogViewerLogViewerException e) {
+            String msg = "Error occurred while getting logger data. Backend service may be " +
+                         "unavailable";
             log.error(msg, e);
             throw e;
         }
     }
 
-    public String[] getLogLinesFromFile(String logFile, int maxLogs, int start, int end) throws Exception {
+    public String[] getLogLinesFromFile(String logFile, int maxLogs, int start, int end)
+            throws RemoteException, LogViewerLogViewerException {
         try {
             return stub.getLogLinesFromFile(logFile, maxLogs, start, end);
         } catch (RemoteException e) {
-            String msg = "Error occurred while getting logger data. Backend service may be unavailable";
+            String msg = "Error occurred while getting logger data. Backend service may be " +
+                         "unavailable";
+            log.error(msg, e);
+            throw e;
+        } catch (LogViewerLogViewerException e) {
+            String msg = "Error occurred while getting logger data. Backend service may be " +
+                         "unavailable";
             log.error(msg, e);
             throw e;
         }
     }
 
-
-//	public boolean isManager() throws RemoteException {
-//		try {
-//			return stub.isManager();
-//		} catch (RemoteException e) {
-//			String msg = "Error occurred while getting logger data. Backend service may be unavailable";
-//			log.error(msg, e);
-//			throw e;
-//		}
-//	}
-
-    public String[] getApplicationNames(String domain, String serverKey) throws LogViewerLogViewerException, RemoteException {
+    public String[] getApplicationNames(String tenantDomain, String serverKey)
+            throws RemoteException, LogViewerLogViewerException {
+        String msg = "Error occurred while getting logger data. Backend service may be " +
+                     "unavailable";
         try {
-            return stub.getApplicationNames(domain, serverKey);
+            return stub.getApplicationNames(tenantDomain, serverKey);
         } catch (RemoteException e) {
-            String msg = "Error occurred while getting logger data. Backend service may be unavailable";
+            log.error(msg, e);
+            throw e;
+        } catch (LogViewerLogViewerException e) {
             log.error(msg, e);
             throw e;
         }
     }
 
-    public int getNoOfLogEvents() throws Exception {
+    public int getNoOfLogEvents(String tenantDomain, String serverKey)
+            throws RemoteException, LogViewerLogViewerException {
+        String msg = "Error occurred while getting logger data. Backend service may be " +
+                     "unavailable";
         try {
-            return 20;// stub.getNoOfLogEvents();
-        } catch (Exception e) {
-            String msg = "Error occurred while getting logger data. Backend service may be unavailable";
+            return stub.getNoOfLogEvents(tenantDomain, serverKey);
+        } catch (RemoteException e) {
+            log.error(msg, e);
+            throw e;
+        } catch (LogViewerLogViewerException e) {
             log.error(msg, e);
             throw e;
         }
     }
 
     public String[] getServiceNames() throws RemoteException, LogViewerLogViewerException {
+        String msg = "Error occurred while getting logger data. Backend service may be " +
+                     "unavailable";
         try {
             return stub.getServiceNames();
         } catch (RemoteException e) {
-            String msg = "Error occurred while getting logger data. Backend service may be unavailable";
+            log.error(msg, e);
+            throw e;
+        } catch (LogViewerLogViewerException e) {
             log.error(msg, e);
             throw e;
         }
@@ -194,40 +231,57 @@ public class LogViewerClient {
         try {
             return stub.isFileAppenderConfiguredForST();
         } catch (RemoteException e) {
-            String msg = "Error occurred while getting logger data. Backend service may be unavailable";
+            String msg = "Error occurred while getting logger data. Backend service may be " +
+                         "unavailable";
             log.error(msg, e);
             throw e;
         }
     }
 
-    public PaginatedLogEvent getPaginatedLogEvents(int pageNumber, String type, String keyword, String domain, String serverKey)
-            throws Exception {
+    public PaginatedLogEvent getPaginatedLogEvents(int pageNumber, String type, String keyword,
+                                                   String tenantDomain, String serverKey)
+            throws RemoteException, LogViewerLogViewerException {
+        String msg = "Error occurred while getting logger data. Backend service may be " +
+                     "unavailable";
         try {
-            return stub.getPaginatedLogEvents(pageNumber, type, keyword, domain, serverKey);
+            return stub.getPaginatedLogEvents(pageNumber, type, keyword, tenantDomain, serverKey);
         } catch (RemoteException e) {
-            String msg = "Error occurred while getting logger data. Backend service may be unavailable";
+            log.error(msg, e);
+            throw e;
+        } catch (LogViewerLogViewerException e) {
             log.error(msg, e);
             throw e;
         }
     }
 
     public PaginatedLogEvent getPaginatedApplicationLogEvents(int pageNumber, String type,
-                                                              String keyword, String appName, String domain, String serverKey) throws Exception {
+                                                              String keyword, String appName,
+                                                              String tenantDomain, String serverKey)
+            throws RemoteException, LogViewerException {
+        String msg = "Error occurred while getting logger data. Backend service may be " +
+                     "unavailable";
         try {
-            return stub.getPaginatedApplicationLogEvents(pageNumber, type, keyword, appName, domain, serverKey);
+            return stub.getPaginatedApplicationLogEvents(pageNumber, type, keyword, appName,
+                                                         tenantDomain, serverKey);
         } catch (RemoteException e) {
-            String msg = "Error occurred while getting logger data. Backend service may be unavailable";
+            log.error(msg, e);
+            throw e;
+        } catch (LogViewerException e) {
             log.error(msg, e);
             throw e;
         }
     }
 
-    public PaginatedLogInfo getLocalLogFiles(int pageNo, String domain, String serverKey) throws Exception {
+    public PaginatedLogFileInfo getLocalLogFiles(int pageNo, String tenantDomain, String serverKey)
+            throws RemoteException, LogViewerLogViewerException {
 
+        String msg = "Error occurred while getting logger data. Backend service may be unavailable";
         try {
-            return stub.getLocalLogFiles(pageNo, domain, serverKey);
-        } catch (Exception e) {
-            String msg = "Error occurred while getting logger data. Backend service may be unavailable";
+            return stub.getLocalLogFiles(pageNo, tenantDomain, serverKey);
+        } catch (RemoteException e) {
+            log.error(msg, e);
+            throw e;
+        } catch (LogViewerLogViewerException e) {
             log.error(msg, e);
             throw e;
         }
@@ -238,7 +292,8 @@ public class LogViewerClient {
         try {
             return stub.isLogEventReciverConfigured();
         } catch (RemoteException e) {
-            String msg = "Error occurred while getting logger data. Backend service may be unavailable";
+            String msg = "Error occurred while getting logger data. Backend service may be " +
+                         "unavailable";
             log.error(msg, e);
             throw e;
         }
@@ -269,8 +324,8 @@ public class LogViewerClient {
         return stub.isManager();
     }
 
-    public boolean isValidTenant(String domain) throws RemoteException {
-        return stub.isValidTenant(domain);
+    public boolean isValidTenant(String tenantDomain) throws RemoteException {
+        return stub.isValidTenant(tenantDomain);
 
     }
 

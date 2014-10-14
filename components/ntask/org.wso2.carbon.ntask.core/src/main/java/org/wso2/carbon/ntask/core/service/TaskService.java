@@ -16,6 +16,7 @@
 package org.wso2.carbon.ntask.core.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.wso2.carbon.ntask.common.TaskException;
@@ -94,6 +95,8 @@ public interface TaskService {
         String getRemoteServerPassword();
 
         String getLocationResolverClass();
+        
+        Map<String, String> getLocationResolverProperties();
 
     }
 

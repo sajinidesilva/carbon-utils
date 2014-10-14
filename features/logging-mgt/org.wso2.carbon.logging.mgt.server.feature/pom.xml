@@ -149,8 +149,7 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.logging.service
-                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.logging.service</bundleDef>
                                 <bundleDef>org.springframework.ws.wso2:spring.framework</bundleDef>
                                 <bundleDef>libthrift.wso2:libthrift</bundleDef>
                                 <bundleDef>org.perf4j.wso2:perf4j</bundleDef>
@@ -161,10 +160,7 @@
                                 <bundleDef>antlr.wso2:antlr</bundleDef>
                                 <bundleDef>org.antlr.wso2:antlr-runtime</bundleDef>
                                 <bundleDef>com.google.guava:guava</bundleDef>
-                                <importBundleDef>org.apache.hadoop.wso2:hadoop-core
-                                </importBundleDef>
-                                <bundleDef>commons-configuration.wso2:commons-configuration
-                                </bundleDef>
+                                <bundleDef>commons-configuration.wso2:commons-configuration</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>

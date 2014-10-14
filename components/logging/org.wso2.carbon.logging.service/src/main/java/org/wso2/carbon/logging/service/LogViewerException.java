@@ -16,14 +16,14 @@
 
 package org.wso2.carbon.logging.service;
 
-public class LogViewerException extends Exception{
-	
-	 public LogViewerException(String s) {
-	        super(s);
-	    }
+public class LogViewerException extends Exception {
 
-	    public LogViewerException(String s, Throwable e) {
-	        super(s, e);
-	    }
+    public LogViewerException(String s) {
+        super(s);
+    }
+
+    public LogViewerException(String s, Throwable e) {
+        super(s, e);
+    }
 
 }
