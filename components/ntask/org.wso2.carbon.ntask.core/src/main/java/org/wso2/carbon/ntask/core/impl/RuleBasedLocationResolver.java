@@ -77,7 +77,6 @@ public class RuleBasedLocationResolver implements TaskLocationResolver {
 			try {
 			    locations = rule.evaluate(ctx, taskInfo);
 			} catch (Exception e) {
-				e.printStackTrace();
 				throw new TaskException("Error in rule evaluation in RuleBasedLocationResolver: " + 
 			            e.getMessage(), Code.UNKNOWN);
 			}
