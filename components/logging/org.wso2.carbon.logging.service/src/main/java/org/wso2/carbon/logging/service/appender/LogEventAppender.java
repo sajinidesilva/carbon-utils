@@ -23,23 +23,26 @@ import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.bootstrap.logging.LoggingBridge;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.databridge.agent.thrift.DataPublisher;
 import org.wso2.carbon.databridge.agent.thrift.exception.AgentException;
-import org.wso2.carbon.databridge.commons.Event;
+import org.wso2.carbon.databridge.agent.thrift.lb.DataPublisherHolder;
+import org.wso2.carbon.databridge.agent.thrift.lb.LoadBalancingDataPublisher;
+import org.wso2.carbon.databridge.agent.thrift.lb.ReceiverGroup;
+import org.wso2.carbon.databridge.agent.thrift.util.DataPublisherUtil;
+import org.wso2.carbon.databridge.commons.Attribute;
+import org.wso2.carbon.databridge.commons.AttributeType;
+import org.wso2.carbon.databridge.commons.StreamDefinition;
 import org.wso2.carbon.databridge.commons.exception.AuthenticationException;
 import org.wso2.carbon.databridge.commons.exception.DifferentStreamDefinitionAlreadyDefinedException;
 import org.wso2.carbon.databridge.commons.exception.MalformedStreamDefinitionException;
 import org.wso2.carbon.databridge.commons.exception.StreamDefinitionException;
 import org.wso2.carbon.databridge.commons.exception.TransportException;
+import org.wso2.carbon.logging.service.internal.DataHolder;
 import org.wso2.carbon.utils.logging.LoggingUtils;
-import org.wso2.carbon.logging.service.internal.LoggingServiceComponent;
-import org.wso2.carbon.logging.service.util.LoggingConstants;
 import org.wso2.carbon.logging.service.internal.LoggingServiceComponent;
 import org.wso2.carbon.logging.service.util.LoggingConstants;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.utils.CarbonUtils;
-import org.wso2.carbon.utils.logging.LoggingUtils;
 import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
 import org.wso2.carbon.utils.logging.TenantAwarePatternLayout;
 import org.wso2.carbon.utils.logging.handler.TenantDomainSetter;
@@ -50,6 +53,7 @@ import java.net.MalformedURLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -72,6 +76,8 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
     private int maxTolerableConsecutiveFailure;
     private int processingLimit;
     private String streamDef;
+    private String trustStorePassword;
+    private String truststorePath;
 
     public LogEventAppender() {
         init();
@@ -81,11 +87,6 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
      * init will get called to initialize agent and start scheduling.
      */
     public void init() {
-
-        String truststorePath = CarbonUtils.getCarbonHome()
-                + "/repository/resources/security/client-truststore.jks";
-        System.setProperty("javax.net.ssl.trustStore", truststorePath);
-        System.setProperty("javax.net.ssl.trustStorePassword", "wso2carbon");
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
         scheduler.scheduleWithFixedDelay(new LogPublisherTask(), 10, 10, TimeUnit.MILLISECONDS);
     }
@@ -231,8 +232,24 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
         this.processingLimit = processingLimit;
     }
 
+    public String getTrustStorePassword() {
+	return trustStorePassword;
+    }
+
+    public void setTrustStorePassword(String trustStorePassword) {
+	this.trustStorePassword = trustStorePassword;
+    }
+
+    public String getTruststorePath() {
+	return truststorePath;
+    }
+
+    public void setTruststorePath(String truststorePath) {
+	this.truststorePath = truststorePath;
+    }
+
     private final class LogPublisherTask implements Runnable {
-        private DataPublisher dataPublisher = null;
+        private LoadBalancingDataPublisher loadBalancingDataPublisher = null;
         private int numOfConsecutiveFailures;
 
         public void run() {
@@ -264,124 +281,166 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
                 StreamDefinitionException,
                 DifferentStreamDefinitionAlreadyDefinedException, ExecutionException {
 
-            String streamId = "";
-            String tenantId = event.getTenantId();
+		    String streamId = "";
+		    String streamName = "";
+		    String tenantId = event.getTenantId();
 
-            if (tenantId.equals(String.valueOf(MultitenantConstants.INVALID_TENANT_ID))
-                    || tenantId.equals(String.valueOf(MultitenantConstants.SUPER_TENANT_ID))) {
-                tenantId = "0";
-            }
-            String serverKey = getCurrentServerName();
-            String currDateStr = getCurrentDate();
-            if (dataPublisher == null) {
-                dataPublisher = new DataPublisher(url, userName, password);
-            }
-            StreamData data = StreamDefinitionCache.getStream(tenantId);
-            if (currDateStr.equals(data.getDate())) {
-                streamId = data.getStreamId();
-            } else {
-	            String streamName;
-	            if ((streamDef == null)
-	                || streamDef.equals("$tenantId_$serverkey_$date")) {
-		            streamName = "log" + "." + tenantId + "." + serverKey + "."
-		                         + currDateStr;
-	            } else {
-		            streamName = streamDef;
-	            }
-	            streamId = dataPublisher.defineStream("{" + "'name':'" + streamName + "'," + "  'version':'1.0.0',"
-                        + "  'nickName': 'Logs'," + "  'description': 'Logging Event',"
-                        + "  'metaData':[" + "          {'name':'clientType','type':'STRING'}" + "  ],"
-                        + "  'payloadData':[" + "          {'name':'tenantID','type':'STRING'},"
-                        + "          {'name':'serverName','type':'STRING'},"
-                        + "          {'name':'appName','type':'STRING'},"
-                        + "          {'name':'logTime','type':'LONG'},"
-                        + "          {'name':'priority','type':'STRING'},"
-                        + "          {'name':'message','type':'STRING'},"
-                        + "          {'name':'logger','type':'STRING'},"
-                        + "          {'name':'ip','type':'STRING'},"
-                        + "          {'name':'instance','type':'STRING'},"
-                        + "          {'name':'stacktrace','type':'STRING'}" + "  ]" + "}");
-                StreamDefinitionCache.putStream(tenantId, streamId, currDateStr);
-            }
-            List<String> patterns = Arrays.asList(columnList.split(","));
-            String tenantID = "";
-            String serverName = "";
-            String appName = "";
-            String logTime = "";
-            String logger = "";
-            String priority = "";
-            String message = "";
-            String stacktrace = "";
-            String ip = "";
-            String instance = "";
-            for (String pattern : patterns) {
-                String currEle = (pattern);
-                TenantAwarePatternLayout patternLayout = new TenantAwarePatternLayout(currEle);
-                if (currEle.equals("%T")) {
-                    tenantID = patternLayout.format(event);
-                    continue;
-                }
-                if (currEle.equals("%S")) {
-                    serverName = patternLayout.format(event);
-                    continue;
-                }
-                if (currEle.equals("%H")) {
-                    ip = patternLayout.format(event);
-                    continue;
-                }
-                if (currEle.equals("%A")) {
-                    appName = patternLayout.format(event);
-                    if (appName == null || appName.equals("")) {
-                        appName = "";
-                    }
-                    continue;
-                }
-                if (currEle.equals("%d")) {
+		    if (tenantId.equals(String.valueOf(MultitenantConstants.INVALID_TENANT_ID))
+		        || tenantId.equals(String.valueOf(MultitenantConstants.SUPER_TENANT_ID))) {
+			    tenantId = "0";
+		    }
+		    String serverKey = getCurrentServerName();
+		    String currDateStr = getCurrentDate();
+		    if (loadBalancingDataPublisher == null) {
+			    String path = CarbonUtils.getCarbonHome()+ truststorePath;
+			    System.setProperty("javax.net.ssl.trustStore", path);
+			    System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+			    ArrayList<ReceiverGroup> allReceiverGroups = new ArrayList<ReceiverGroup>();
+			    ArrayList<String> receiverGroupUrls = DataPublisherUtil.getReceiverGroups(url);
+			    for (String aReceiverGroupURL : receiverGroupUrls) {
+				    ArrayList<DataPublisherHolder> dataPublisherHolders = new ArrayList<DataPublisherHolder>();
+				    String[] failOverUrls = aReceiverGroupURL.split("\\|");
+				    for (String aUrl : failOverUrls) {
+					    DataPublisherHolder aNode = new DataPublisherHolder(
+							    null, aUrl.trim(), userName, password);
+					    dataPublisherHolders.add(aNode);
+				    }
+				    ReceiverGroup group = new ReceiverGroup(
+						    dataPublisherHolders);
+				    allReceiverGroups.add(group);
+			    }
+			    loadBalancingDataPublisher = new LoadBalancingDataPublisher(allReceiverGroups);
+		    }
+		    StreamData data = StreamDefinitionCache.getStream(tenantId);
 
-                    logTime = patternLayout.format(event);
-                    continue;
-                }
-                if (currEle.equals("%c")) {
-                    logger = patternLayout.format(event);
-                    continue;
-                }
-                if (currEle.equals("%p")) {
-                    priority = patternLayout.format(event);
-                    continue;
-                }
-                if (currEle.equals("%m")) {
-                    message = patternLayout.format(event);
-                    continue;
-                }
-                if (currEle.equals("%I")) {
-                    instance = patternLayout.format(event);
-                    continue;
-                }
-                if (currEle.equals("%Stacktrace")) {
-                    if (event.getThrowableInformation() != null) {
-                        stacktrace = getStacktrace(event.getThrowableInformation().getThrowable());
-                    } else {
-                        stacktrace = "";
-                    }
-                }
-            }
-            Date date;
-            DateFormat formatter;
-            formatter = new SimpleDateFormat(LoggingConstants.DATE_TIME_FORMATTER);
-            date = formatter.parse(logTime);
+		    if (currDateStr.equals(data.getDate())) {
+			    streamId = data.getStreamId();
+			    streamName = data.getStreamDefName();
+		    } else {
+			    if ((streamDef == null)
+			        || streamDef.equals("$tenantId_$serverkey_$date")) {
+				    streamName = "log" + "." + tenantId + "." + serverKey + "."
+				                 + currDateStr;
+			    } else {
+				    streamName = streamDef;
+			    }
+			    StreamDefinition streamDefinition = new StreamDefinition(streamName,
+					    LoggingConstants.DEFAULT_VERSION);
+			    streamDefinition.setNickName("Logs");
+			    streamDefinition.setDescription("Logging Event Stream definition");
+			    List<Attribute> eventData = new ArrayList<Attribute>();
+			    eventData.add(new Attribute(LoggingConstants.TENANT_ID,
+					    AttributeType.STRING));
+			    eventData.add(new Attribute(LoggingConstants.SERVER_NAME,
+					    AttributeType.STRING));
+			    eventData.add(new Attribute(LoggingConstants.APP_NAME,
+					    AttributeType.STRING));
+			    eventData.add(new Attribute(LoggingConstants.LOG_TIME,
+					    AttributeType.LONG));
+			    eventData.add(new Attribute(LoggingConstants.PRIORITY,
+					    AttributeType.STRING));
+			    eventData.add(new Attribute(LoggingConstants.MESSAGE,
+					    AttributeType.STRING));
+			    eventData.add(new Attribute(LoggingConstants.LOGGER,
+					    AttributeType.STRING));
+			    eventData.add(new Attribute(LoggingConstants.IP,
+					    AttributeType.STRING));
+			    eventData.add(new Attribute(LoggingConstants.INSTANCE,
+					    AttributeType.STRING));
+			    eventData.add(new Attribute(LoggingConstants.STACKTRACE,
+					    AttributeType.STRING));
+			    streamDefinition.setPayloadData(eventData);
+			    List<Attribute> metaData = new ArrayList<Attribute>();
+			    metaData.add(new Attribute("clientType", AttributeType.STRING));
+			    streamDefinition.setMetaData(metaData);
+			    streamId = streamDefinition.getStreamId();
+			    if (!loadBalancingDataPublisher.isStreamDefinitionAdded(streamDefinition)) {
+				    loadBalancingDataPublisher.addStreamDefinition(streamDefinition);
+			    }
 
-            if (tenantID != null && serverName != null && logTime != null) {
-                // String key = tenantID + "_" + serverName + "_" + logTime + "_"
-                // + UUID.randomUUID().toString();
-                if (!streamId.isEmpty()) {
-                    Event logEvent = new Event(streamId, System.currentTimeMillis(),
-                            new Object[]{"external"}, null, new Object[]{tenantID, serverName,
-                            appName, date.getTime(), priority, message, logger, ip, instance,
-                            stacktrace});
-                    dataPublisher.publish(logEvent);
-                }
-            }
-        }
+			    StreamDefinitionCache.putStream(tenantId, streamId, currDateStr, streamName);
+		    }
+		    List<String> patterns = Arrays.asList(columnList.split(","));
+		    String tenantID = "";
+		    String serverName = "";
+		    String appName = "";
+		    String logTime = "";
+		    String logger = "";
+		    String priority = "";
+		    String message = "";
+		    String stacktrace = "";
+		    String ip = "";
+		    String instance = "";
+		    for (String pattern : patterns) {
+			    String currEle = (pattern);
+			    TenantAwarePatternLayout patternLayout = new TenantAwarePatternLayout(currEle);
+			    if (currEle.equals("%T")) {
+				    tenantID = patternLayout.format(event);
+				    continue;
+			    }
+			    if (currEle.equals("%S")) {
+				    serverName = patternLayout.format(event);
+				    continue;
+			    }
+			    if (currEle.equals("%A")) {
+				    appName = patternLayout.format(event);
+				    if (appName == null || appName.equals("")) {
+					    appName = "";
+				    }
+				    continue;
+			    }
+			    if (currEle.equals("%d")) {
+
+				    logTime = patternLayout.format(event);
+				    continue;
+			    }
+			    if (currEle.equals("%c")) {
+				    logger = patternLayout.format(event);
+				    continue;
+			    }
+			    if (currEle.equals("%p")) {
+				    priority = patternLayout.format(event);
+				    continue;
+			    }
+			    if (currEle.equals("%m")) {
+				    message = patternLayout.format(event);
+				    continue;
+			    }
+			    if (currEle.equals("%H")) {
+				    ip = patternLayout.format(event);
+				    continue;
+			    }
+			    if (currEle.equals("%I")) {
+				    instance = patternLayout.format(event);
+				    continue;
+			    }
+			    if (currEle.equals("%Stacktrace")) {
+				    if (event.getThrowableInformation() != null) {
+					    stacktrace = getStacktrace(event.getThrowableInformation().getThrowable());
+				    } else {
+					    stacktrace = "";
+				    }
+			    }
+		    }
+		    Date date;
+		    DateFormat formatter;
+		    formatter = new SimpleDateFormat(
+				    LoggingConstants.DATE_TIME_FORMATTER);
+		    date = formatter.parse(logTime);
+		    if (tenantID != null && serverName != null && logTime != null) {
+			    if (!streamId.isEmpty()) {
+				    if (DataHolder.getInstance().getAgent() != null) {
+					    loadBalancingDataPublisher.publish(streamName, "1.0.0",
+							    System.currentTimeMillis(),
+							    new Object[] { "external" }, null,
+							    new Object[] { tenantID, serverName, appName,
+							                   date.getTime(), priority, message,
+							                   logger, ip, instance, stacktrace });
+				    }
+
+			    }
+		    }
+	    }
     }
 }
 
