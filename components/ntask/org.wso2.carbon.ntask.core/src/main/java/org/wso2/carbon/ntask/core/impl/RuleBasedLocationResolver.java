@@ -81,9 +81,17 @@ public class RuleBasedLocationResolver implements TaskLocationResolver {
 			            e.getMessage(), Code.UNKNOWN);
 			}
 			if (locations.size() > 0) {
+				if (log.isDebugEnabled()) {
+					log.debug("Task rule hit: " + rule + 
+							" for task: [" + ctx.getTaskType() + "][" + taskInfo.getName() + "]");
+				}
 				result = this.getRoundRobinLocation(rule, locations);
 				break;
 			}
+		}
+		if (log.isDebugEnabled()) {
+			log.debug("Task location resolved to: " + result + 
+					" for task: [" + ctx.getTaskType() + "][" + taskInfo.getName() + "]");
 		}
 		return result;
 	}
@@ -98,7 +106,7 @@ public class RuleBasedLocationResolver implements TaskLocationResolver {
         return result;
 	}
 	
-	public class Rule implements Comparable<Rule> {
+	private class Rule implements Comparable<Rule> {
 		
 		private int sequence;
 		
@@ -147,6 +155,12 @@ public class RuleBasedLocationResolver implements TaskLocationResolver {
 			return this.getSequence() - rhs.getSequence();
 		}
 		
+		@Override
+		public String toString() {
+			return "Rule [" + this.getSequence() + "] - " + this.getTaskTypePattern() + 
+					"," + this.getTaskNamePattern() + "," + this.getAddressPattern();
+		}
+		
 		public List<Integer> evaluate(TaskServiceContext ctx, TaskInfo taskInfo) {
 			List<Integer> result = new ArrayList<Integer>();
 			if (ctx.getTaskType().matches(this.getTaskTypePattern())) {
@@ -183,4 +197,3 @@ public class RuleBasedLocationResolver implements TaskLocationResolver {
 	}
 
 }
-
