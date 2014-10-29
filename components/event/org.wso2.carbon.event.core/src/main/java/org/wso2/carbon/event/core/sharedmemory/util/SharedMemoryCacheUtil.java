@@ -30,7 +30,6 @@ import javax.cache.Cache;
 import javax.cache.CacheConfiguration;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
-
 import java.util.concurrent.TimeUnit;
 
 public class SharedMemoryCacheUtil {

@@ -19,16 +19,19 @@
 
 package org.wso2.carbon.event.core.sharedmemory;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import org.wso2.carbon.event.core.delivery.DeliveryManagerFactory;
 import org.wso2.carbon.event.core.delivery.DeliveryManager;
 import org.wso2.carbon.event.core.internal.util.JavaUtil;
 import org.wso2.carbon.event.core.exception.EventBrokerConfigurationException;
 import org.apache.axiom.om.OMElement;
 
-import java.util.concurrent.*;
-
 /**
- * factory class for shared memory Delivery manager
+ * factory class for inmemory Delivary manager
  */
 public class SharedMemoryDeliveryManagerFactory implements DeliveryManagerFactory {
 

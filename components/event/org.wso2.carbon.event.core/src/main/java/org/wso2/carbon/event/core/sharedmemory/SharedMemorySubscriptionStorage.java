@@ -33,12 +33,16 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+
 
 /**
  * this class is used to keep the details of the subscription storage. Simply this contains
- * maps to keep the subscription object details with the topic details
+ * maps to keep the subscrition object deatils with the topic details
  */
 @SuppressWarnings("serial")
 public class SharedMemorySubscriptionStorage implements Serializable {
@@ -200,7 +204,6 @@ public class SharedMemorySubscriptionStorage implements Serializable {
                 if (i == (topicParts.length - 1)||i == (topicParts.length - 2)) {
                     matchingTopicNames.add(currentTopicName + "*");
                 }
-
                 i++;
             }
         }

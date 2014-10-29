@@ -24,16 +24,13 @@ import org.wso2.carbon.event.core.delivery.MatchingManager;
 import org.wso2.carbon.event.core.exception.EventBrokerException;
 import org.wso2.carbon.event.core.exception.EventBrokerConfigurationException;
 import org.apache.axiom.om.OMElement;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.event.core.sharedmemory.util.SharedMemoryCacheUtil;
 
 import javax.cache.Cache;
 
 public class SharedMemoryMatchingManagerFactory implements MatchingManagerFactory {
-	private static final Log log = LogFactory.getLog(SharedMemoryMatchingManagerFactory.class);
-	
-    private static Cache<Integer, SharedMemoryMatchingManager> getInMemoryMatchingCache() {
+
+	private static Cache<Integer, SharedMemoryMatchingManager> getInMemoryMatchingCache() {
         return SharedMemoryCacheUtil.getInMemoryMatchingCache();
     }
 
@@ -49,8 +46,7 @@ public class SharedMemoryMatchingManagerFactory implements MatchingManagerFactor
             //call initialize tenant for super tenant
             inMemoryMatchingManager.initializeTenant();
         } catch (EventBrokerException e) {
-        	log.error("Can not initialize the in memory mathing manager | "+e.getMessage());
-            throw new EventBrokerConfigurationException("Can not initialize the in memory mathing manager");
+            throw new EventBrokerConfigurationException("Can not initialize the in memory mathing manager",e);
         }
         return inMemoryMatchingManager;
     }

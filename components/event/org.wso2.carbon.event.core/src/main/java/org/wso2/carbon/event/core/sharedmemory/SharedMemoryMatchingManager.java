@@ -75,13 +75,15 @@ public class SharedMemoryMatchingManager implements MatchingManager, Serializabl
 
     public void addSubscription(Subscription subscription) {
         SharedMemorySubscriptionStorage inMemorySubscriptionStorage =
-                getTenantIDInMemorySubscriptionStorageCache().get(CarbonContext.getThreadLocalCarbonContext().getTenantId());
+                getTenantIDInMemorySubscriptionStorageCache()
+                        .get(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         inMemorySubscriptionStorage.addSubscription(subscription);
     }
 
     public List<Subscription> getMatchingSubscriptions(String topicName) {
         SharedMemorySubscriptionStorage inMemorySubscriptionStorage =
-                getTenantIDInMemorySubscriptionStorageCache().get(CarbonContext.getThreadLocalCarbonContext().getTenantId());
+                getTenantIDInMemorySubscriptionStorageCache()
+                        .get(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         if(inMemorySubscriptionStorage != null) {
             return inMemorySubscriptionStorage.getMatchingSubscriptions(topicName);
         } else {
@@ -91,18 +93,21 @@ public class SharedMemoryMatchingManager implements MatchingManager, Serializabl
 
     public void unSubscribe(String subscriptionID) throws EventBrokerException {
         SharedMemorySubscriptionStorage inMemorySubscriptionStorage =
-                getTenantIDInMemorySubscriptionStorageCache().get(CarbonContext.getThreadLocalCarbonContext().getTenantId());
+                getTenantIDInMemorySubscriptionStorageCache()
+                        .get(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         inMemorySubscriptionStorage.unSubscribe(subscriptionID);
     }
 
     public void renewSubscription(Subscription subscription) throws EventBrokerException {
         SharedMemorySubscriptionStorage inMemorySubscriptionStorage =
-                getTenantIDInMemorySubscriptionStorageCache().get(CarbonContext.getThreadLocalCarbonContext().getTenantId());
+                getTenantIDInMemorySubscriptionStorageCache()
+                        .get(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         inMemorySubscriptionStorage.renewSubscription(subscription);
     }
 
     public void initializeTenant() throws EventBrokerException {
-        if (getTenantIDInMemorySubscriptionStorageCache().get(CarbonContext.getThreadLocalCarbonContext().getTenantId()) == null){
+        if (getTenantIDInMemorySubscriptionStorageCache()
+                .get(CarbonContext.getThreadLocalCarbonContext().getTenantId()) == null){
             getTenantIDInMemorySubscriptionStorageCache().put(
                     CarbonContext.getThreadLocalCarbonContext().getTenantId(), new SharedMemorySubscriptionStorage());
         }

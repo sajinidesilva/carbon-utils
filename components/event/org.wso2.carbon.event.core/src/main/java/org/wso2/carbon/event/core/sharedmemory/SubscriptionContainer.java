@@ -27,12 +27,17 @@ import javax.cache.Cache;
 import javax.cache.CacheConfiguration;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
-
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Subscription container is used to keep track of caches related to a given topic name,
+ * across the nodes in the cluster.
+ */
+
 @SuppressWarnings("serial")
 public class SubscriptionContainer implements Serializable {
+    //variable to store the cache name related to this container (this container's topic name)
     private String topicCacheName = null;
     private boolean topicCacheInit = false;
 

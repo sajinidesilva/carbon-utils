@@ -84,8 +84,7 @@ public class SharedMemoryDeliveryManager implements DeliveryManager {
                                + " is not allowed to subscribes to " + subscription.getTopicName());
             }
         } catch (UserStoreException e) {
-        	log.error("Can not access the user store manager  | "+e.getMessage());
-            throw new EventBrokerException("Can not access the user store manager");
+            throw new EventBrokerException("Can not access the user store manager",e);
         }
 
     }
@@ -128,8 +127,7 @@ public class SharedMemoryDeliveryManager implements DeliveryManager {
                         + " is not allowed to publish to " + topicName);
             }
         } catch (UserStoreException e) {
-        	log.error("Can not access the user store manager  | "+e.getMessage());
-            throw new EventBrokerException("Can not access the user store manager");
+            throw new EventBrokerException("Can not access the user store manager",e);
         }
     }
 
@@ -168,8 +166,7 @@ public class SharedMemoryDeliveryManager implements DeliveryManager {
             //call initialize tenant for super tenant
             inMemoryMatchingManager.initializeTenant();
         } catch (EventBrokerException e) {
-        	log.error("Can not initialize the in memory mathing manager  | "+e.getMessage());
-            throw new EventBrokerConfigurationException("Can not initialize the in memory mathing manager");
+            throw new EventBrokerConfigurationException("Can not initialize the in memory mathing manager",e);
         }
 
         return inMemoryMatchingManager;
