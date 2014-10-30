@@ -21,6 +21,7 @@ import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.wso2.carbon.bootstrap.logging.LoggingBridge;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.logging.CircularBuffer;
 import org.wso2.carbon.utils.logging.LoggingUtils;
@@ -31,6 +32,8 @@ import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
 import org.wso2.carbon.utils.logging.handler.TenantDomainSetter;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.logging.LogRecord;
 
 /**
@@ -61,8 +64,11 @@ public class CarbonMemoryAppender extends AppenderSkeleton implements LoggingBri
     }
 
     protected synchronized void append(LoggingEvent loggingEvent) {
-        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-        int tenantId = carbonContext.getTenantId();
+        int tenantId = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
+            public Integer run() {
+                return PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+            }
+        });
         if (tenantId == MultitenantConstants.INVALID_TENANT_ID) {
             String tenantDomain = TenantDomainSetter.getTenantDomain();
             if (tenantDomain != null && !tenantDomain.equals("")) {
@@ -74,7 +80,7 @@ public class CarbonMemoryAppender extends AppenderSkeleton implements LoggingBri
                 }
             }
         }
-        String appName = carbonContext.getApplicationName();
+        String appName = CarbonContext.getThreadLocalCarbonContext().getApplicationName();
         if (appName == null) {
             appName = TenantDomainSetter.getServiceName();
         }
