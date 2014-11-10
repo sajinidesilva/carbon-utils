@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * this class is used to keep the details of the subscription storage. Simply this contains
- * maps to keep the subscrition object deatils with the topic details
+ * maps to keep the subscription object details with the topic details
  */
 @SuppressWarnings("serial")
 public class SharedMemorySubscriptionStorage implements Serializable {

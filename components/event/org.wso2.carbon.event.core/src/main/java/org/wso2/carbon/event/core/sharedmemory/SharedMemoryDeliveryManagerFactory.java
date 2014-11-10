@@ -31,7 +31,7 @@ import org.wso2.carbon.event.core.exception.EventBrokerConfigurationException;
 import org.apache.axiom.om.OMElement;
 
 /**
- * factory class for inmemory Delivary manager
+ * factory class for shared memory Delivery manager
  */
 public class SharedMemoryDeliveryManagerFactory implements DeliveryManagerFactory {
 
