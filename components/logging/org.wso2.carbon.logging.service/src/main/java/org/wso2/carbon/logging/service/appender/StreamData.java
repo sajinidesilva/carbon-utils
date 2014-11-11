@@ -18,11 +18,21 @@ package org.wso2.carbon.logging.service.appender;
 public class StreamData {
     private String streamId;
     private String date;
+    private String streamDefName;
 
-    public StreamData(String streamId, String date) {
+    public StreamData(String streamId, String date, String streamDefName) {
         super();
         this.streamId = streamId;
         this.date = date;
+	    this.streamDefName = streamDefName;
+    }
+
+    public String getStreamDefName() {
+	return streamDefName;
+    }
+
+    public void setStreamDefName(String streamDefName) {
+	this.streamDefName = streamDefName;
     }
 
     public String getStreamId() {

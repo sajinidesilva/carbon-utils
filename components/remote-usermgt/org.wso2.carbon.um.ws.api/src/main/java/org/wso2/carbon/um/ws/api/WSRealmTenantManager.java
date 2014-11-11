@@ -87,6 +87,11 @@ public class WSRealmTenantManager implements TenantManager {
         }
     }
 
+    @Override
+    public void deleteTenant(int i, boolean b) throws org.wso2.carbon.user.api.UserStoreException {
+        //TODO
+    }
+
     public Tenant[] getAllTenants() throws UserStoreException {
         try {
             org.wso2.carbon.um.ws.api.stub.Tenant[] tenats = stub.getAllTenants();

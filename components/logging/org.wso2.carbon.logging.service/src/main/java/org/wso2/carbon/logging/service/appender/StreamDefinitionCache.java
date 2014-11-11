@@ -41,7 +41,7 @@ public class StreamDefinitionCache {
                     .build(new CacheLoader<String, StreamData>() {
                                @Override
                                public StreamData load(String tenantId) throws Exception {
-                                   return new StreamData(tenantId, "");
+                                   return new StreamData(tenantId, "", "");
                                }
                            }
                     );
@@ -55,8 +55,8 @@ public class StreamDefinitionCache {
         return streamIdLoadingCache.get(tenantId);
     }
 
-    public static void putStream(String tenantId, String streamId, String date) {
+    public static void putStream(String tenantId, String streamId, String date,String streamDefName) {
         init();
-        streamIdLoadingCache.put(tenantId, new StreamData(streamId, date));
+        streamIdLoadingCache.put(tenantId, new StreamData(streamId, date, streamDefName));
     }
 }

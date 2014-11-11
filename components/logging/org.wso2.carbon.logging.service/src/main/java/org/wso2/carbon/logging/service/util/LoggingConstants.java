@@ -33,6 +33,18 @@ public final class LoggingConstants {
     public static final String DEFUALT_CLUSTER_NAME = "TestCluster";
     public static final String WSO2_STRATOS_MANAGER = "manager";
 
+	public static final String TENANT_ID = "tenantID";
+	public static final String SERVER_NAME = "serverName";
+	public static final String APP_NAME = "appName";
+	public static final String LOG_TIME = "logTime";
+	public static final String PRIORITY = "priority";
+	public static final String MESSAGE = "message";
+	public static final String LOGGER = "logger";
+	public static final String IP = "ip";
+	public static final String INSTANCE = "instance";
+	public static final String STACKTRACE = "stacktrace";
+
+	public static final String DEFAULT_VERSION ="1.0.0";
     public static final String LOG_FILE_PATTERN = "log.file.pattern";
     public static final String LOG_CONSOLE_PATTERN = "log.console.pattern";
     public static final String LOG_MEMORY_PATTERN = "log.memory.pattern";
