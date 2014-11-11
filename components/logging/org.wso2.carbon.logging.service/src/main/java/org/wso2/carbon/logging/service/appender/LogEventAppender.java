@@ -22,6 +22,7 @@ import org.apache.log4j.spi.LoggingEvent;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.bootstrap.logging.LoggingBridge;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.databridge.agent.thrift.DataPublisher;
 import org.wso2.carbon.databridge.agent.thrift.exception.AgentException;
@@ -47,6 +48,8 @@ import org.wso2.carbon.utils.logging.handler.TenantDomainSetter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -131,8 +134,11 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
             tenantEvent = new TenantAwareLoggingEvent(event.fqnOfCategoryClass, logger,
                     event.timeStamp, event.getLevel(), event.getMessage(), null);
         }
-        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-        int tenantId = carbonContext.getTenantId();
+        int tenantId = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
+            public Integer run() {
+                return CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            }
+        });
         if (tenantId == MultitenantConstants.INVALID_TENANT_ID) {
             String tenantDomain = TenantDomainSetter.getTenantDomain();
             if (tenantDomain != null && !tenantDomain.equals("")) {
@@ -148,9 +154,9 @@ public class LogEventAppender extends AppenderSkeleton implements Appender, Logg
         }
         tenantEvent.setTenantId(String.valueOf(tenantId));
         String serviceName = TenantDomainSetter.getServiceName();
-        String appName = carbonContext.getApplicationName();
+        String appName = CarbonContext.getThreadLocalCarbonContext().getApplicationName();
         if (appName != null) {
-            tenantEvent.setServiceName(carbonContext.getApplicationName());
+            tenantEvent.setServiceName(CarbonContext.getThreadLocalCarbonContext().getApplicationName());
         } else if (serviceName != null) {
             tenantEvent.setServiceName(serviceName);
         } else {
