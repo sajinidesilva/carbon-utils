@@ -38,6 +38,9 @@
         <module>org.wso2.carbon.reporting.core</module>
         <module>org.wso2.carbon.reporting.util</module>
         <module>org.wso2.carbon.reporting.ui</module>
+        <module>org.wso2.carbon.reporting.template.core</module>
+        <module>org.wso2.carbon.reporting.template.ui</module>
+        <module>org.wso2.carbon.reporting.custom.ui</module>
     </modules>
 
 </project>
