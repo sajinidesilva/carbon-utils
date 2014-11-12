@@ -44,7 +44,7 @@ public class InMemoryDeliveryManagerFactory implements DeliveryManagerFactory {
         int maxThreads = Integer.parseInt(JavaUtil.getValue(config, EB_DM_MAX_THREADS));
         int maxQueuedRequests =
                 Integer.parseInt(JavaUtil.getValue(config, EB_DM_MAX_QUEUED_REQUESTS));
-        long keepAliveTime = Integer.parseInt(JavaUtil.getValue(config, EB_DM_KEEP_ALIVE_TIME));
+        int keepAliveTime = Integer.parseInt(JavaUtil.getValue(config, EB_DM_KEEP_ALIVE_TIME));
         String topicStoragePath = JavaUtil.getValue(config, EB_DM_TOPIC_STORAGE_PATH);
 
 

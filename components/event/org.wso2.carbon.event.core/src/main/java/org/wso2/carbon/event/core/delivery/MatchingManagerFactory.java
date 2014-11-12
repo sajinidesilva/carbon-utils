@@ -17,7 +17,6 @@
 package org.wso2.carbon.event.core.delivery;
 
 import org.apache.axiom.om.OMElement;
-import org.wso2.carbon.event.core.exception.EventBrokerException;
 import org.wso2.carbon.event.core.exception.EventBrokerConfigurationException;
 
 public interface MatchingManagerFactory {
