@@ -15,14 +15,14 @@
  */
 package org.wso2.carbon.ntask.core;
 
-import org.wso2.carbon.core.ServerStartupHandler;
+import org.wso2.carbon.core.ServerStartupObserver;
 import org.wso2.carbon.ntask.core.service.TaskService;
 
 /**
  * A server startup handler implementation which is used as a listener to know when to start
  * scheduling the tasks.
  */
-public class TaskStartupHandler implements ServerStartupHandler {
+public class TaskStartupHandler implements ServerStartupObserver {
 
     private TaskService taskService;
 
@@ -35,8 +35,12 @@ public class TaskStartupHandler implements ServerStartupHandler {
     }
 
     @Override
-    public void invoke() {
+    public void completingServerStartup() {
         this.getTaskService().serverInitialized();
     }
 
+    @Override
+    public void completedServerStartup() {
+        //Do nothing
+    }
 }
