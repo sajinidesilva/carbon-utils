@@ -36,11 +36,11 @@ public class TaskStartupHandler implements ServerStartupObserver {
 
     @Override
     public void completingServerStartup() {
-        //Do nothing
+        this.getTaskService().serverInitialized();
     }
 
     @Override
     public void completedServerStartup() {
-        this.getTaskService().serverInitialized();
+        //Do nothing
     }
 }
