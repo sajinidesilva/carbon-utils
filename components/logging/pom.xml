@@ -80,7 +80,7 @@
     </dependencyManagement>
 
     <properties>
-        <project.version.logging>${project.version}</project.version.logging>
+        <project.version.logging>${carbon.kernel.version}</project.version.logging>
         <axis2.wso2.verison.logging>${axis2.wso2.version}</axis2.wso2.verison.logging>
         <orbit.version.commons.httpclient.logging>${orbit.version.commons.httpclient}
         </orbit.version.commons.httpclient.logging>

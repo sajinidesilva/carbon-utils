@@ -79,12 +79,5 @@
     </dependencies>
 
 
-    <!-- <properties>
-         <wso2carbon.version.wsdl2code>${wso2carbon.version}</wso2carbon.version.wsdl2code>
-         <project.version>${wso2carbon.version}</project.version>
-         <wso2carbon.version.wsdlvalidator>${wso2carbon.version}</project.version>
-     <wso2carbon.version.ui.menu.tools>${wso2carbon.version}</wso2carbon.version.ui.menu.tools>
-     </properties>-->
-
 </project>
 
