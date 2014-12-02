@@ -32,9 +32,9 @@
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Service Stubs - Aggregator Module</name>
     <url>http://wso2.org</url>
-    
+
     <modules>
-	<module>org.wso2.carbon.event.client.stub</module>
+        <module>org.wso2.carbon.event.client.stub</module>
         <module>org.wso2.carbon.event.stub</module>
         <module>org.wso2.carbon.qpid.stub</module>
     </modules>
