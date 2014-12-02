@@ -103,7 +103,7 @@
                         </Private-Package>
                         <Import-Package>
                             org.wso2.carbon.registry.core.*,
-                            org.wso2.carbon.registry.core.*;version="${carbon.kernel.version.import.version.range}",
+                            org.wso2.carbon.registry.core.*;version="${carbon.kernel.imp.pkg.version}",
                             *;resolution:=optional
                         </Import-Package>
                         <Export-Package>
