@@ -19,31 +19,25 @@
 
 
     <dependencies>
-
 		<dependency>
 		   <groupId>org.eclipse.osgi</groupId>
 		   <artifactId>org.eclipse.osgi</artifactId>
 	   </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-
             <dependency>
               <groupId>org.apache.ws.commons.axiom.wso2</groupId>
               <artifactId>axiom</artifactId>
               <version>${axiom.wso2.version}</version>
             </dependency>
-
-
              <dependency>
                   <groupId>commons-logging</groupId>
                   <artifactId>commons-logging</artifactId>
                   <version>1.1.1</version>
               </dependency>
-
           <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
@@ -52,51 +46,42 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.reporting.core</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <artifactId>org.wso2.carbon.reporting.api</artifactId>
             <groupId>org.wso2.carbon</groupId>
         </dependency>
-
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.ndatasource.core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.ndatasource.rdbms</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-		<version>1.4.0</version>
+                <version>1.4.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-
                         <Private-Package>org.wso2.carbon.reporting.template.core.internal.*</Private-Package>
                         <Export-Package>!org.wso2.carbon.reporting.template.core.internal, org.wso2.carbon.reporting.template.core.* </Export-Package>
-
                         <Import-Package>org.osgi.framework, *;resolution:=optional</Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>

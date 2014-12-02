@@ -47,11 +47,11 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.reporting.util</artifactId>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.reporting.api</artifactId>
         </dependency>
-	<dependency>
+        <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.reporting.stub</artifactId>
         </dependency>

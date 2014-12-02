@@ -37,23 +37,19 @@
             <groupId>org.apache.axis2.wso2</groupId>
             <artifactId>axis2</artifactId>
         </dependency>
-
         <dependency>
             <groupId>xalan.wso2</groupId>
             <artifactId>xalan</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <resources>
             <resource>
@@ -90,11 +86,11 @@
                         <Import-Package>
                             org.apache.axis2.*; version="${axis2.osgi.version.range}",
                             org.wso2.carbon.core.*;
-                            version="${carbon.platform.package.import.version.range}",
+                            version="${carbon.kernel.version.import.version.range}",
                             org.wso2.carbon.utils.*;
-                            version="${carbon.platform.package.import.version.range}",
+                            version="${carbon.kernel.version.import.version.range}",
                             org.wso2.carbon.context.*;
-                            version="${carbon.platform.package.import.version.range}",
+                            version="${carbon.kernel.version.import.version.range}",
                             org.apache.axiom.*; version="${axiom.osgi.version.range}",
                             javax.xml.stream.*; version="1.0.1",
                             *;resolution:=optional
