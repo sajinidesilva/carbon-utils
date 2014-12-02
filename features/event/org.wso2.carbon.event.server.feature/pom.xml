@@ -51,13 +51,6 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.qpid.stub</artifactId>
         </dependency>
-        <!--
-                <dependency>
-                    <groupId>org.wso2.carbon</groupId>
-                    <artifactId>org.wso2.carbon.messagebox.server.feature</artifactId>
-                    <type>zip</type>
-                </dependency>
-        -->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.event.common.feature</artifactId>
@@ -120,7 +113,7 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.qpid.stub</bundleDef>
                             </bundles>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.core.server:${project.version}
+                                <importFeatureDef>org.wso2.carbon.core.server:${carbon.kernel.version}
                                 </importFeatureDef>
                                 <importFeatureDef>
                                     org.wso2.carbon.registry.core.server:4.3.0-SNAPSHOT

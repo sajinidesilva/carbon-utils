@@ -32,7 +32,6 @@
     <name>WSO2 Carbon - url mapper cluster message</name>
 
     <build>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -90,7 +89,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 
