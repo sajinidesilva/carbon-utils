@@ -100,7 +100,7 @@
                             </importBundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core.ui:${carbon.kernel.version}</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.ndatasource.ui:${carbon.kernel.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.ndatasource.ui:${project.version}</importFeatureDef>
                             </importFeatures>
                         </configuration>
                     </execution>

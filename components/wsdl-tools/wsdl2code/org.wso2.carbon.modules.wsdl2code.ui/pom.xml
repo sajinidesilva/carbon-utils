@@ -75,11 +75,11 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.carbon.wsdl2code.ui.*;version="${carbon.kernel.version.import.version.range}"
+                            org.wso2.carbon.wsdl2code.ui.*;version="${carbon.platform.package.export.version}"
                         </Export-Package>
                         <Import-Package>
                             !org.wso2.carbon.wsdl2code.ui.*,
-                            org.wso2.carbon.wsdl2code.stub.*;version="${carbon.kernel.version.import.version.range}",
+                            org.wso2.carbon.wsdl2code.stub.*;version="${carbon.platform.package.import.version.range}",
                             javax.servlet.*;version="${imp.pkg.version.javax.servlet}",
                             *;resolution:=optional
                         </Import-Package>
