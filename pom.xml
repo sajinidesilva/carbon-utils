@@ -1534,7 +1534,7 @@
         <orbit.version.json>2.0.0.wso2v1</orbit.version.json>
 
         <!-- wss4j -->
-        <wss4j.wso2.version>1.5.11.wso2v7.SNAPSHOT</wss4j.wso2.version>
+        <wss4j.wso2.version>1.5.11.wso2v8.SNAPSHOT</wss4j.wso2.version>
 
         <!-- Commons Version -->
         <commons-httpclient.version>3.0.1</commons-httpclient.version>
