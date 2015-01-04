@@ -16,7 +16,7 @@
         <groupId>org.wso2.carbon</groupId>
         <artifactId>logging</artifactId>
         <version>4.3.0-SNAPSHOT</version>
-      <relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -35,7 +35,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-		<version>1.4.0</version>
+                <version>1.4.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -47,24 +47,19 @@
                             org.wso2.carbon.logging.summarizer.scriptCreator.*,
                             org.wso2.carbon.logging.summarizer.utils.*,
                             org.wso2.carbon.logging.summarizer.scheduler.*
-
                         </Export-Package>
                         <Import-Package>
                             !org.wso2.carbon.logging.summarizer.core.*,
                             !org.wso2.carbon.logging.summarizer.scriptCreator.*,
                             !org.wso2.carbon.logging.summarizer.utils.*,
                             !org.wso2.carbon.logging.summarizer.scheduler.*
-
                             org.apache.cassandra.*,
                             org.apache.axis2.*; version="${axis2.osgi.version.range}",
                             org.wso2.carbon.utils,
-                            
                             *;resolution:=optional,
                             org.wso2.carbon.analytics.hive.*,
-
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
-
                     </instructions>
                 </configuration>
             </plugin>
@@ -84,8 +79,6 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
-
-
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core.common</artifactId>
@@ -93,10 +86,7 @@
         <dependency>
             <groupId>commons-pool.wso2</groupId>
             <artifactId>commons-pool</artifactId>
-            <version>1.5.0.wso2v1</version>
         </dependency>
-
-
         <!--Hector -->
         <dependency>
             <groupId>org.hectorclient</groupId>
@@ -107,27 +97,21 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j.version}</version>
         </dependency>
-
-
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.ntask.core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.ntask.solutions</artifactId>
-            <version>${project.version}</version>
         </dependency>
-
         <!--Hive-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.analytics.hive</artifactId>
             <version>4.3.0-SNAPSHOT</version>
-             <exclusions>
+            <exclusions>
                 <exclusion>
                     <groupId>org.apache.hive</groupId>
                     <artifactId>hive-exec</artifactId>
@@ -139,8 +123,8 @@
                 <exclusion>
                     <groupId>org.apache.hive</groupId>
                     <artifactId>hive-builtins</artifactId>
-               </exclusion>
-               <exclusion>
+                </exclusion>
+                <exclusion>
                     <groupId>org.apache.hive</groupId>
                     <artifactId>hive-service</artifactId>
                 </exclusion>
@@ -166,25 +150,20 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <!--Hadoop-->
-         <dependency>
+        <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-core</artifactId>
             <version>1.0.4</version>
         </dependency>
-
         <!--Agent -->
-		<dependency>
-			<groupId>org.wso2.carbon</groupId>
-			<artifactId>org.wso2.carbon.databridge.agent.thrift</artifactId>
-			<version>4.3.0-SNAPSHOT</version>
-		</dependency>
-
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.databridge.agent.thrift</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>
-        <slf4j.version>1.6.1</slf4j.version>
         <cassandra.version>1.1.3.wso2v1</cassandra.version>
         <libthrift.version>0.7.0.wso2v2</libthrift.version>
         <hector-core.version>1.1-0</hector-core.version>

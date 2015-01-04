@@ -62,19 +62,19 @@
                                     <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>
                                 </properties>
                             </adviceFile>
-			    <bundles>
-				<bundleDef>org.wso2.carbon:org.wso2.carbon.hostobjects.sso</bundleDef>
-			    </bundles>
-		            <importBundles>
-		            </importBundles>
-		            <importFeatures>
+                            <bundles>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.hostobjects.sso</bundleDef>
+                            </bundles>
+                            <importBundles>
+                            </importBundles>
+                            <importFeatures>
 
-		            </importFeatures>
+                            </importFeatures>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-        </plugins>
+    </plugins>
     </build>
 
 </project>

@@ -2054,8 +2054,8 @@ public class UserRealmProxy {
     
 	private void mapEntityName(String entityName, FlaggedName fName,
 	                           UserStoreManager userStoreManager) {
-		if (entityName.contains(UserCoreConstants.TENANT_DOMAIN_COMBINER)) {
-			String[] nameAndDn = entityName.split(UserCoreConstants.TENANT_DOMAIN_COMBINER);
+		if (entityName.contains(UserCoreConstants.SHARED_ROLE_TENANT_SEPERATOR)) {
+			String[] nameAndDn = entityName.split(UserCoreConstants.SHARED_ROLE_TENANT_SEPERATOR);
 			fName.setItemName(nameAndDn[0]);
 			fName.setDn(nameAndDn[1]);
 
