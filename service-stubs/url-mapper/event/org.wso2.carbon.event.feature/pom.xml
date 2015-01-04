@@ -72,8 +72,8 @@
                             <id>org.wso2.carbon.event</id>
                             <propertiesFile>../../../etc/feature.properties</propertiesFile>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.core:${project.version}</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.registry.core:4.3.0-SNAPSHOT</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.registry.core:${carbon.platform.version}</importFeatureDef>
                             </importFeatures>
                             <includedFeatures>
                                 <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.event.server.feature:4.3.0-SNAPSHOT</includedFeatureDef>
