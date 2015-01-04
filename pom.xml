@@ -1043,7 +1043,7 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.ndatasource.core</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -1432,8 +1432,8 @@
 
     <properties>
         <!-- Carbon kernel version -->
-        <carbon.kernel.version>4.3.0-SNAPSHOT</carbon.kernel.version>
-        <carbon.kernel.imp.pkg.version>[4.3.0.SNAPSHOT, 4.4.0)
+        <carbon.kernel.version>4.3.0</carbon.kernel.version>
+        <carbon.kernel.imp.pkg.version>[4.3.0, 4.4.0)
         </carbon.kernel.imp.pkg.version>
 
         <wso2carbon.version>4.3.0-SNAPSHOT</wso2carbon.version>
